@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+    Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+    Include="Intel_OpenCL_Build_Rules">
+      <Targets>_Intel_OpenCL_Build_Rules</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+  TaskName="Intel_OpenCL_Build_Rules"
+  TaskFactory="XamlTaskFactory"
+  AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+  Name="_Intel_OpenCL_Build_Rules"
+  BeforeTargets="$(Intel_OpenCL_Build_RulesBeforeTargets)"
+  AfterTargets="$(Intel_OpenCL_Build_RulesAfterTargets)"
+  Condition="'@(Intel_OpenCL_Build_Rules)' != ''"
+  DependsOnTargets="$(Intel_OpenCL_Build_RulesDependsOn);ComputeIntel_OpenCL_Build_RulesOutput"
+  Outputs="@(Intel_OpenCL_Build_Rules-&gt;'%(Outputs)')"
+  Inputs="@(Intel_OpenCL_Build_Rules);%(Intel_OpenCL_Build_Rules.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+    Condition="'@(SelectedFiles)' != ''">
+      <Intel_OpenCL_Build_Rules
+      Remove="@(Intel_OpenCL_Build_Rules)"
+      Condition="'%(Identity)' != '@(SelectedFiles)'" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+      <Intel_OpenCL_Build_Rules_tlog
+      Include="%(Intel_OpenCL_Build_Rules.Outputs)"
+      Condition="'%(Intel_OpenCL_Build_Rules.Outputs)' != '' and '%(Intel_OpenCL_Build_Rules.ExcludedFromBuild)' != 'true'">
+        <Source>@(Intel_OpenCL_Build_Rules, '|')</Source>
+      </Intel_OpenCL_Build_Rules_tlog>
+    </ItemGroup>
+
+    <Message
+    Importance="High"
+    Text="Preprocessing: %(Intel_OpenCL_Build_Rules.Filename).cl" />
+
+    <WriteLinesToFile
+    Condition="'@(Intel_OpenCL_Build_Rules_tlog)' != '' and '%(Intel_OpenCL_Build_Rules_tlog.ExcludedFromBuild)' != 'true'"
+    File="$(IntDir)$(ProjectName).write.1.tlog"
+    Lines="^%(Intel_OpenCL_Build_Rules_tlog.Source);@(Intel_OpenCL_Build_Rules_tlog-&gt;'%(Fullpath)')" />
+    <Intel_OpenCL_Build_Rules
+    Condition="'@(Intel_OpenCL_Build_Rules)' != '' and '%(Intel_OpenCL_Build_Rules.ExcludedFromBuild)' != 'true'"
+    CommandLineTemplate="%(Intel_OpenCL_Build_Rules.CommandLineTemplate)"
+    SPConstant="%(Intel_OpenCL_Build_Rules.SPConstant)"
+    Denorms="%(Intel_OpenCL_Build_Rules.Denorms)"
+    NoOpti="%(Intel_OpenCL_Build_Rules.NoOpti)"
+    MadEnable="%(Intel_OpenCL_Build_Rules.MadEnable)"
+    NoSignedZeroes="%(Intel_OpenCL_Build_Rules.NoSignedZeroes)"
+    UnsafeMath="%(Intel_OpenCL_Build_Rules.UnsafeMath)"
+    FiniteMath="%(Intel_OpenCL_Build_Rules.FiniteMath)"
+    FastRelaxedMath="%(Intel_OpenCL_Build_Rules.FastRelaxedMath)"
+    HideW="%(Intel_OpenCL_Build_Rules.HideW)"
+    W2ERR="%(Intel_OpenCL_Build_Rules.W2ERR)"
+    Include="%(Intel_OpenCL_Build_Rules.Include)"
+    Device="%(Intel_OpenCL_Build_Rules.Device)"
+    SIMD="%(Intel_OpenCL_Build_Rules.SIMD)"
+    TOS="%(Intel_OpenCL_Build_Rules.TOS)"
+    ASM="%(Intel_OpenCL_Build_Rules.ASM)"
+    LLVM="%(Intel_OpenCL_Build_Rules.LLVM)"
+    LLVMSPIR32="%(Intel_OpenCL_Build_Rules.LLVMSPIR32)"
+    LLVMSPIR64="%(Intel_OpenCL_Build_Rules.LLVMSPIR64)"
+    IR="%(Intel_OpenCL_Build_Rules.IR)"
+    SPIR32="%(Intel_OpenCL_Build_Rules.SPIR32)"
+    SPIR64="%(Intel_OpenCL_Build_Rules.SPIR64)"
+    SPIRV32="%(Intel_OpenCL_Build_Rules.SPIRV32)"
+    SPIRV64="%(Intel_OpenCL_Build_Rules.SPIRV64)"
+    SPIRV32TXT="%(Intel_OpenCL_Build_Rules.SPIRV32TXT)"
+    SPIRV64TXT="%(Intel_OpenCL_Build_Rules.SPIRV64TXT)"
+    OTHER="%(Intel_OpenCL_Build_Rules.OTHER)"
+    AdditionalOptions="%(Intel_OpenCL_Build_Rules.AdditionalOptions)"
+    StandardOutputImportance="High"
+    StandardErrorImportance="High"
+    EchoOff="true"
+    Inputs="@(Intel_OpenCL_Build_Rules)" />
+  </Target>
+
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+      $(ComputeLinkInputsTargets);
+      ComputeIntel_OpenCL_Build_RulesOutput;
+    </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+      $(ComputeLibInputsTargets);
+      ComputeIntel_OpenCL_Build_RulesOutput;
+    </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+  Name="ComputeIntel_OpenCL_Build_RulesOutput"
+  Condition="'@(Intel_OpenCL_Build_Rules)' != ''">
+    <ItemGroup>
+      <Intel_OpenCL_Build_RulesDirsToMake
+      Condition="'@(Intel_OpenCL_Build_Rules)' != '' and '%(Intel_OpenCL_Build_Rules.ExcludedFromBuild)' != 'true'"
+      Include="%(Intel_OpenCL_Build_Rules.Outputs)" />
+      <Link
+      Include="%(Intel_OpenCL_Build_RulesDirsToMake.Identity)"
+      Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+      Include="%(Intel_OpenCL_Build_RulesDirsToMake.Identity)"
+      Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+      Include="%(Intel_OpenCL_Build_RulesDirsToMake.Identity)"
+      Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+    Directories="@(Intel_OpenCL_Build_RulesDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

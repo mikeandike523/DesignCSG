@@ -1,0 +1,1 @@
+py Untitled.py >  D:\Projects\OpenCL\DesignCSG\log.txt

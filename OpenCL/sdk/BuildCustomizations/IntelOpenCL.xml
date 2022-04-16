@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:transformCallback="Microsoft.Cpp.Dev10.ConvertPropertyCallback">
+  <Rule
+  Name="Intel_OpenCL_Build_Rules"
+  PageTemplate="tool"
+  DisplayName="Intel OpenCL Tools"
+  Order="200">
+    <Rule.DataSource>
+      <DataSource
+      Persistence="ProjectFile"
+      ItemType="Intel_OpenCL_Build_Rules" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+      Name="General">
+        <Category.DisplayName>
+          <sys:String>General</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+      Name="Math Optimizations">
+        <Category.DisplayName>
+          <sys:String>Math Optimizations</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+      Name="Warnings">
+        <Category.DisplayName>
+          <sys:String>Warnings</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+      Name="Command Line"
+      Subtype="CommandLine">
+        <Category.DisplayName>
+          <sys:String>Command Line</sys:String>
+        </Category.DisplayName>
+      </Category>
+    </Rule.Categories>
+    <StringListProperty
+    Name="Inputs"
+    Category="Command Line"
+    IsRequired="true"
+    Switch="">
+      <StringListProperty.DataSource>
+        <DataSource
+        Persistence="ProjectFile"
+        ItemType="Intel_OpenCL_Build_Rules"
+        SourceType="Item" />
+      </StringListProperty.DataSource>
+    </StringListProperty>
+    <BoolProperty
+    Name="SPConstant"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Single precision constant"
+    Description="Treat double precision floating-point constant as single precision constant."
+    Switch="-cl-single-precision-constant" />
+    <BoolProperty
+    Name="Denorms"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Denorms are zero"
+    Description="This option controls how single precision and double precision denormalized numbers are handled. If specified as a build option, the single precision denormalized numbers may be flushed to zero; double precision denormalized numbers may also be flushed to zero if the optional extension for double precision is supported. This is intended to be a performance hint and the OpenCL compiler can choose not to flush denorms to zero if the device supports single precision (or double precision) denormalized numbers."
+    Switch="-cl-denorms-are-zero" />
+    <BoolProperty
+    Name="NoOpti"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Disable all optimizations"
+    Description="This option disables all optimizations. The default is optimizations are enabled."
+    Switch="-cl-opt-disable" />
+    <BoolProperty
+    Name="MadEnable"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="MAD enable"
+    Description="Allow a * b + c to be replaced by a mad. The mad computes a * b + c with reduced accuracy. For example, some OpenCL devices implement mad as truncate the result of a * b before adding it to c."
+    Switch="-cl-mad-enable" />
+    <BoolProperty
+    Name="NoSignedZeroes"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="No signed zeroes"
+    Description="Allow optimizations for floating-point arithmetic that ignore the signedness of zero. IEEE 754 arithmetic specifies the distinct behavior of +0.0 and -0.0 values, which then prohibits simplification of expressions such as x+0.0 or 0.0*x (even with -clfinite-math only). This option implies that the sign of a zero result isn't significant."
+    Switch="-cl-no-signed-zeros" />
+    <BoolProperty
+    Name="UnsafeMath"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Unsafe math"
+    Description="Allow optimizations for floating-point arithmetic that (a) assume that arguments and results are valid, (b) may violate IEEE 754 standard and (c) may violate the OpenCL numerical compliance requirements as defined in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5. This option includes the -cl-no-signed-zeros and -cl-mad-enable options."
+    Switch="-cl-unsafe-math-optimizations" />
+    <BoolProperty
+    Name="FiniteMath"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Finite math only"
+    Description="Allow optimizations for floating-point arithmetic that assume that arguments and results are not NaNs or ±∞. This option may violate the OpenCL numerical compliance requirements defined in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5."
+    Switch="-cl-finite-math-only" />
+    <BoolProperty
+    Name="FastRelaxedMath"
+    Category="Math Optimizations"
+    HelpContext="0"
+    DisplayName="Fast relaxed math"
+    Description="Sets the optimization options -cl-finite-math-only and -cl-unsafe-math-optimizations. This allows optimizations for floating-point arithmetic that may violate the IEEE 754 standard and the OpenCL numerical compliance requirements defined in in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floatingpoint, and edge case behavior in section 7.5. This option causes the preprocessor macro __FAST_RELAXED_MATH__ to be defined in the OpenCL program."
+    Switch="-cl-fast-relaxed-math" />
+    <BoolProperty
+    Name="HideW"
+    Category="Warnings"
+    HelpContext="0"
+    DisplayName="Inhibit"
+    Description="Inhibit all warning messages."
+    Switch="-w" />
+    <BoolProperty
+    Name="W2ERR"
+    Category="Warnings"
+    HelpContext="0"
+    DisplayName="To errors"
+    Description="Make all warnings into errors."
+    Switch="-Werror" />
+
+    <StringListProperty
+    Name="Include"
+    HelpContext="0"
+    DisplayName="Include"
+    Description="Specify additional include directories."
+    Switch="-I \&quot;[value]\&quot;" />
+
+    <EnumProperty
+    Name="Device"
+    HelpContext="0"
+    DisplayName="Device"
+    Description="Specify the target for which compilation should be performed.">
+      <EnumValue
+      Name="0"
+      DisplayName="Intel(R) CPU"
+      Switch="-device=CPU" />
+      <EnumValue
+      Name="1"
+      DisplayName="Intel(R) Graphics"
+      Switch="-device=GPU" />
+	  <EnumValue
+      Name="2"
+      DisplayName="Intel(R) FPGA Emulation Platform for OpenCL(TM) (preview)"
+      Switch="-device=fpga_fast_emu" />
+    </EnumProperty>
+	
+	
+    <EnumProperty
+    Name="SIMD"
+    HelpContext="0"
+    DisplayName="SIMD"
+    Description="Specify the instruction set architecture.">
+      <EnumValue
+      Name="0"
+      DisplayName="Default"
+      Switch="" />	  
+	  <EnumValue
+      Name="1"
+      DisplayName="SSE4.2"
+      Switch="-simd=sse42" />
+      <EnumValue
+      Name="2"
+      DisplayName="AVX"
+      Switch="-simd=avx" />
+      <EnumValue
+      Name="3"
+      DisplayName="AVX2"
+      Switch="-simd=avx2" />
+    </EnumProperty>
+    
+    <EnumProperty
+    Name="TOS"
+    HelpContext="0"
+    DisplayName="Target Operating System"
+    Description="Specify the target operating system.">
+      <EnumValue
+      Name="0"
+      DisplayName="Current"
+      Switch="-targetos=current" />
+      <EnumValue
+      Name="1"
+      DisplayName="Android"
+      Switch="-targetos=android" />
+    </EnumProperty>
+
+    <EnumProperty
+      Name="ASM"
+      HelpContext="0"
+      DisplayName="Generate assembly code"
+      Description="Generate assembly code in the intermediate folder (*.asm). Support of -asm option is dropped.">
+        <EnumValue
+        Name="0"
+        DisplayName="No"
+        Switch="" />
+        <EnumValue
+        Name="1"
+        DisplayName="Yes. Support is dropped"
+        Switch="-asm" />
+    </EnumProperty>
+
+
+    <EnumProperty
+    Name="LLVM"
+    HelpContext="0"
+    DisplayName="Generate LLVM code"
+    Description="Generate LLVM code in the intermediate folder (*.ll).">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-llvm" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="LLVMSPIR32"
+    HelpContext="0"
+    DisplayName="Generate LLVM SPIR code (32-bit)"
+    Description="Generate LLVM SPIR code (32-bit) in the intermediate folder (*.ll). Support of SPIR is dropped. Please, use SPIR-V instead.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes. Support is dropped"
+      Switch="-llvm-spir32" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="LLVMSPIR64"
+    HelpContext="0"
+    DisplayName="Generate LLVM SPIR code (64-bit)"
+    Description="Generate LLVM SPIR code (64-bit) in the intermediate folder (*.ll). Support of SPIR is dropped. Please, use SPIR-V instead.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes. Support is dropped"
+      Switch="-llvm-spir64" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="IR"
+    HelpContext="0"
+    DisplayName="Generate binary file"
+    Description="Generate binary file in the output folder (*.ir).">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-ir" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIR32"
+    HelpContext="0"
+    DisplayName="Generate SPIR (32-bit) binary file"
+    Description="Generate SPIR (32-bit) binary file in the output folder. Support of SPIR is dropped. Please, use SPIR-V instead.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes. Support is dropped"
+      Switch="-spir32" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIR64"
+    HelpContext="0"
+    DisplayName="Generate SPIR (64-bit) binary file"
+    Description="Generate SPIR (64-bit) binary file in the output folder. Support of SPIR is dropped. Please, use SPIR-V instead.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes. Support is dropped"
+      Switch="-spir64" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIRV32"
+    HelpContext="0"
+    DisplayName="Generate SPIR-V (32-bit) binary file"
+    Description="Generate SPIR-V (32-bit) binary file in the output folder.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-spirv32" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIRV64"
+    HelpContext="0"
+    DisplayName="Generate SPIR-V (64-bit) binary file"
+    Description="Generate SPIR-V (64-bit) binary file in the output folder.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-spirv64" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIRV32TXT"
+    HelpContext="0"
+    DisplayName="Generate SPIR-V (32-bit) code file"
+    Description="Generate SPIR-V (32-bit) code file in the output folder.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-txt-spirv32" />
+    </EnumProperty>
+
+    <EnumProperty
+    Name="SPIRV64TXT"
+    HelpContext="0"
+    DisplayName="Generate SPIR-V (64-bit) code file"
+    Description="Generate SPIR-V (64-bit) code file in the output folder.">
+      <EnumValue
+      Name="0"
+      DisplayName="No"
+      Switch="" />
+      <EnumValue
+      Name="1"
+      DisplayName="Yes"
+      Switch="-txt-spirv64" />
+    </EnumProperty>
+
+    <StringListProperty
+    Name="OTHER"
+    HelpContext="0"
+    DisplayName="Additional build options"
+    Description="Specify additional build options that are not available in the supplied drop down menus."
+    Switch="[value]" />
+
+    <StringProperty
+    Name="CommandLineTemplate"
+    DisplayName="Command Line"
+    Visible="False"
+    IncludeInCommandLine="False" />
+    <StringListProperty
+    Name="Outputs"
+    DisplayName="Outputs"
+    Visible="False"
+    IncludeInCommandLine="False" />
+    <StringProperty
+    Name="ExecutionDescription"
+    DisplayName="Execution Description"
+    Visible="False"
+    IncludeInCommandLine="False" />
+    <StringListProperty
+    Name="AdditionalDependencies"
+    DisplayName="Additional Dependencies"
+    IncludeInCommandLine="False"
+    Visible="false" />
+    <StringProperty
+    Subtype="AdditionalOptions"
+    Name="AdditionalOptions"
+    Category="Command Line">
+      <StringProperty.DisplayName>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.DisplayName>
+      <StringProperty.Description>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.Description>
+    </StringProperty>
+  </Rule>
+  <ItemType
+  Name="Intel_OpenCL_Build_Rules"
+  DisplayName="Intel® SDK for OpenCL™ Applications" />
+  <FileExtension
+  Name="*.cl"
+  ContentType="Intel_OpenCL_Build_Rules" />
+  <ContentType
+  Name="Intel_OpenCL_Build_Rules"
+  DisplayName="Intel® SDK for OpenCL™ Applications"
+  ItemType="Intel_OpenCL_Build_Rules" />
+</ProjectSchemaDefinitions>

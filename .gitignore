@@ -1,0 +1,4 @@
+.vs/**
+Exports/*.stl
+*.stl
+*.ply
