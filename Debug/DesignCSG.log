@@ -1,0 +1,30 @@
+﻿  DesignCSG.cpp
+  The contents of <optional> are available only with C++17 or later.
+C:\Projects\RMGameEngine\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
+C:\Projects\RMGameEngine\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
+C:\Projects\RMGameEngine\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
+C:\Projects\RMGameEngine\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(26,9): warning C4018: '>=': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(30,9): warning C4018: '>=': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(183,20): warning C4018: '>': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(188,20): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(189,27): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(197,21): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(227,23): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(229,11): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(240,23): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(242,11): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(250,26): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(255,13): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\GraphCycles.hpp(265,26): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\MCLookup.h(613,24): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\MCLookup.h(671,23): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\MCLookup.h(676,23): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\MCLookup.h(706,27): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(237,21): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(267,22): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(279,22): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(771,26): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(865,23): warning C4018: '<': signed/unsigned mismatch
+C:\Projects\RMGameEngine\DesignCSG\DesignCSG.cpp(1088,21): warning C4018: '<': signed/unsigned mismatch
+  DesignCSG.vcxproj -> C:\Projects\RMGameEngine\DesignCSG\Debug\DesignCSG.exe

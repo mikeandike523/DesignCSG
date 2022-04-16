@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+  Condition="'$(Intel_OpenCL_Build_RulesBeforeTargets)' == '' and '$(Intel_OpenCL_Build_RulesAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <Intel_OpenCL_Build_RulesBeforeTargets>MIDL</Intel_OpenCL_Build_RulesBeforeTargets>
+    <Intel_OpenCL_Build_RulesAfterTargets>CustomBuild</Intel_OpenCL_Build_RulesAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Intel_OpenCL_Build_RulesDependsOn
+    Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(Intel_OpenCL_Build_RulesDependsOn)</Intel_OpenCL_Build_RulesDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Intel_OpenCL_Build_Rules>
+      <SPConstant>False</SPConstant>
+      <Denorms>False</Denorms>
+      <NoOpti>False</NoOpti>
+      <MadEnable>False</MadEnable>
+      <NoSignedZeroes>False</NoSignedZeroes>
+      <UnsafeMath>False</UnsafeMath>
+      <FiniteMath>False</FiniteMath>
+      <FastRelaxedMath>False</FastRelaxedMath>
+      <HideW>False</HideW>
+      <W2ERR>False</W2ERR>
+      <Device>0</Device>
+      <SIMD>0</SIMD>
+      <TOS>0</TOS>
+      <ASM>0</ASM>
+      <LLVM>0</LLVM>
+      <LLVMSPIR32>0</LLVMSPIR32>
+      <LLVMSPIR64>0</LLVMSPIR64>
+      <IR>0</IR>
+      <SPIR32>0</SPIR32>
+      <SPIR64>0</SPIR64>
+      <SPIRV32>0</SPIRV32>
+      <SPIRV64>0</SPIRV64>
+      <SPIRV32TXT>0</SPIRV32TXT>
+      <SPIRV64TXT>0</SPIRV64TXT>
+      <CommandLineTemplate Condition="'$(Platform)' == 'Win32'">"$(INTELOCLSDKROOT)bin\x86\ioc32.exe" -cmd=build -input="%(FullPath)" -output="$(IntDir)%(Filename).out" -VS [Device] [SIMD] [TOS] [ASM] [LLVM] [LLVMSPIR32] [LLVMSPIR64] [IR] [SPIR32] [SPIR64] [SPIRV32] [SPIRV64] [SPIRV32TXT] [SPIRV64TXT] -bo="[Include] [SPConstant] [Denorms] [NoOpti] [MadEnable] [NoSignedZeroes] [UnsafeMath] [FiniteMath] [FastRelaxedMath] [HideW] [W2ERR] [OTHER]"</CommandLineTemplate>
+      <CommandLineTemplate Condition="'$(Platform)' == 'X64'">"$(INTELOCLSDKROOT)bin\x64\ioc64.exe" -cmd=build -input="%(FullPath)" -output="$(IntDir)%(Filename).out" -VS [Device] [SIMD] [TOS] [ASM] [LLVM] [LLVMSPIR32] [LLVMSPIR64] [IR] [SPIR32] [SPIR64] [SPIRV32] [SPIRV64] [SPIRV32TXT] [SPIRV64TXT] -bo="[Include] [SPConstant] [Denorms] [NoOpti] [MadEnable] [NoSignedZeroes] [UnsafeMath] [FiniteMath] [FastRelaxedMath] [HideW] [W2ERR] [OTHER]"</CommandLineTemplate>
+      <Outputs>.\%(Filename).out</Outputs>
+      <ExecutionDescription>Perform OpenCL Build Validation...</ExecutionDescription>
+    </Intel_OpenCL_Build_Rules>
+  </ItemDefinitionGroup>
+</Project>

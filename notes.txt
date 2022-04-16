@@ -1,0 +1,3 @@
+todo:
+write code to prevent adding points from sub-boxes that are part of another patch face (i.e., leave holes in large patch faces and then handle sub patch faces)
+write code to connect stranded patch face edge point to nearest patch face edge point on other another edge

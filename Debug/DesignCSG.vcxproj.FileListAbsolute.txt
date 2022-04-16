@@ -1,0 +1,11 @@
+D:\Projects\OpenCL\DesignCSG\Debug\DesignCSG.exe
+C:\Projects\RMGameEngine\DesignCSG\Debug\DesignCSG.exe
+C:\Projects\RMGameEngine\DesignCSG\Debug\DesignCSG.vcxproj.CopyComplete
+C:\Projects\RMGameEngine\DesignCSG\Debug\wxbase315ud_vc_custom.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\zlibd1.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\wxmsw315ud_core_vc_custom.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\jpeg62.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\libpng16d.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\tiffd.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\lzmad.dll
+C:\Projects\RMGameEngine\DesignCSG\Debug\wxmsw315ud_stc_vc_custom.dll
