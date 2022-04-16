@@ -8,3 +8,13 @@ C:\Projects\RMGameEngine\DesignCSG\x64\Debug\libpng16d.dll
 C:\Projects\RMGameEngine\DesignCSG\x64\Debug\tiffd.dll
 C:\Projects\RMGameEngine\DesignCSG\x64\Debug\liblzma.dll
 C:\Projects\RMGameEngine\DesignCSG\x64\Debug\wxmsw315ud_stc_vc_custom.dll
+C:\Projects\DesignCSG\x64\Debug\DesignCSG.vcxproj.CopyComplete
+C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
+C:\Projects\DesignCSG\x64\Debug\wxbase315ud_vc_custom.dll
+C:\Projects\DesignCSG\x64\Debug\zlibd1.dll
+C:\Projects\DesignCSG\x64\Debug\wxmsw315ud_core_vc_custom.dll
+C:\Projects\DesignCSG\x64\Debug\jpeg62.dll
+C:\Projects\DesignCSG\x64\Debug\libpng16d.dll
+C:\Projects\DesignCSG\x64\Debug\tiffd.dll
+C:\Projects\DesignCSG\x64\Debug\liblzma.dll
+C:\Projects\DesignCSG\x64\Debug\wxmsw315ud_stc_vc_custom.dll

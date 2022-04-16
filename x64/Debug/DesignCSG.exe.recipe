@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Projects\RMGameEngine\DesignCSG\x64\Debug\DesignCSG.exe</FullPath>
+      <FullPath>C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
