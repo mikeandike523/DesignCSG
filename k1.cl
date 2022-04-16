@@ -344,6 +344,7 @@ float3 shade(
             
             float r = sqrt(v.x*v.x+v.y*v.y);
             float h = v.z-0.5;
+		float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
             
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
