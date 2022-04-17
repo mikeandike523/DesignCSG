@@ -7,8 +7,8 @@ C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min
 C:\Projects\DesignCSG\cms\main\Headers\geometry.hpp(11,1): warning C4005: 'PI': macro redefinition
 C:\Projects\DesignCSG\DrawPane.h(11): message : see previous definition of 'PI'
 C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(47,33): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(48,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(48,3): message : consider using '%zd' in the format string
+C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(50,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(50,3): message : consider using '%zd' in the format string
 C:\Projects\DesignCSG\DesignCSG.cpp(24,1): warning C4005: '_MSC_VER': macro redefinition
 C:\Projects\DesignCSG\DesignCSG.cpp : message : see previous definition of '_MSC_VER'
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): warning C4477: 'sprintf' : format string '%s' requires an argument of type 'char *', but variadic argument 3 has type 'TCHAR *'
@@ -16,9 +16,9 @@ C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ls' in 
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%lls' in the format string
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%Ls' in the format string
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ws' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(323,48): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Projects\DesignCSG\DesignCSG.cpp(444,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-C:\Projects\DesignCSG\DesignCSG.cpp(444,3): message : consider using '%zd' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(463,24): warning C4129: '%': unrecognized character escape sequence
-C:\Projects\DesignCSG\DesignCSG.cpp(600): warning C4715: '<lambda_8057e63af834ae549584278f2654ace7>::operator()': not all control paths return a value
+C:\Projects\DesignCSG\DesignCSG.cpp(324,48): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Projects\DesignCSG\DesignCSG.cpp(445,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\Projects\DesignCSG\DesignCSG.cpp(445,3): message : consider using '%zd' in the format string
+C:\Projects\DesignCSG\DesignCSG.cpp(466,24): warning C4129: '%': unrecognized character escape sequence
+C:\Projects\DesignCSG\DesignCSG.cpp(603): warning C4715: '<lambda_476fe786678c4121a731877218720b77>::operator()': not all control paths return a value
   DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
