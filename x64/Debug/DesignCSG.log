@@ -19,5 +19,6 @@ C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ws' in 
 C:\Projects\DesignCSG\DesignCSG.cpp(323,48): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Projects\DesignCSG\DesignCSG.cpp(444,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
 C:\Projects\DesignCSG\DesignCSG.cpp(444,3): message : consider using '%zd' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(593): warning C4715: '<lambda_8057e63af834ae549584278f2654ace7>::operator()': not all control paths return a value
+C:\Projects\DesignCSG\DesignCSG.cpp(463,24): warning C4129: '%': unrecognized character escape sequence
+C:\Projects\DesignCSG\DesignCSG.cpp(600): warning C4715: '<lambda_8057e63af834ae549584278f2654ace7>::operator()': not all control paths return a value
   DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe

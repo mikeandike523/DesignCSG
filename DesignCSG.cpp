@@ -458,6 +458,13 @@ void MyFrame::OnExportInner() {
 
 		cms::writeTrianglesToSTL("Exports\\Untitled.stl", trs, &numTrianglesWritten);
 		writingTriangles = 0;
+
+		char buff1[4096];
+		snprintf(buff1,4096, "Python310\\python.exe convert.py \"Exports\\\%s\" && start Exports\\", "Untitled.stl");
+
+		system(buff1);
+
+
 		system("start Exports");
 
 		exportProcessState = ExportProcessState::COMPLETE;
