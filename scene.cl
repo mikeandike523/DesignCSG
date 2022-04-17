@@ -239,7 +239,7 @@
 	}
 
 
-	float scene_sdf(float3 v){
+	float hilbert_sdf(float3 v){
 
 
 		//return hilbertUnitCell(v);
@@ -339,7 +339,7 @@
 
              
 
-	return scene_sdf(v);
+	return hilbert_sdf(v);
 
 
 
