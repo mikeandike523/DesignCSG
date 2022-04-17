@@ -215,7 +215,7 @@ class Brush:
 
     def __str__(self):
         return """
-        float sd{}( float3 v){{
+        float sd{}( double3 v){{
 
             {}
 
@@ -232,7 +232,7 @@ class Material:
 
     def __str__(self):
         return """
-        float3 shader{} (float3 gv, float3 lv, float3 n){{
+        double3 shader{} (double3 gv, double3 lv, double3 n){{
 
             {}
 
@@ -394,9 +394,9 @@ class _SceneCompiler:
         self.abs_normals=self.define_material(body = "return fabs(n);")
         self.basic_lighting = self.define_material(body = """
         
-        float3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
+        double3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
 
-        float L = dot(n_g,(float3)(0.0,0.0,-1.0)); return (float3)(L,L,L);
+        float L = dot(n_g,(double3)(0.0,0.0,-1.0)); return (double3)(L,L,L);
 
 
 
@@ -442,7 +442,7 @@ class _SceneCompiler:
         {}
 
 
-        float sdf_bank(float3 v, unsigned char shape_id){{
+        float sdf_bank(double3 v, unsigned char shape_id){{
 
             switch(shape_id){{
 
@@ -454,7 +454,7 @@ class _SceneCompiler:
 
         }}
 
-        float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id){{
+        double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id){{
 
 
             switch(material_id){{
@@ -463,7 +463,7 @@ class _SceneCompiler:
 
             }}
 
-            return (float3)(1.0, 1.0, 1.0);
+            return (double3)(1.0, 1.0, 1.0);
         }}
         
         
