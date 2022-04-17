@@ -325,9 +325,9 @@ setExportConfig(
 
 	boundingBoxHalfDiameter=10.0,
 	minimumOctreeLevel=6,
-	maximumOctreeLevel=9,
+	maximumOctreeLevel=8,
 	gridLevel = 9,
-	complexSurfaceThreshold=np.pi/2.0*0.3,
+	complexSurfaceThreshold=np.pi/2.0*0.4,
 	gradientDescentSteps = 30,
 	cacheSubdivision = 32
 )
