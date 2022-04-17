@@ -63,14 +63,14 @@ namespace cms {
 					0.0f,
 					0.0f,
 					tr.A.x,
-					tr.A.y,
 					tr.A.z,
+					tr.A.y,
 					tr.B.x,
-					tr.B.y,
 					tr.B.z,
+					tr.B.y,
 					tr.C.x,
-					tr.C.y,
-					tr.C.z
+					tr.C.z,
+					tr.C.y
 
 			}) {
 
