@@ -20,18 +20,18 @@
 #define wargs shape_id_bank,object_position_bank,object_right_bank,object_up_bank,object_forward_bank,num_objects
 #define bsargs screen_stack_memory,build_procedure_data,num_build_steps,tid
  
-#define print_float3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
+#define print_double3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
 
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
 
-float sdf_bank(float3 v, unsigned char shape_id);
-float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id);
+float sdf_bank(double3 v, unsigned char shape_id);
+double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
 
-__global float3 rgt_g;
-__global float3 upp_g;
-__global float3 fwd_g;
+__global double3 rgt_g;
+__global double3 upp_g;
+__global double3 fwd_g;
 
 
 float axes_cylinderSDF(float r, float h, float halfLength, float radius){
@@ -130,7 +130,7 @@ void rodrigues(float * v1, float * v2, float * v1v2){
 
 float primary_sdf(
 
-    float3 v, 
+    double3 v, 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
     __global float * object_right_bank,
@@ -153,12 +153,12 @@ float primary_sdf(
 
         unsigned char shape_id = shape_id_bank[i];
 
-        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
 
-        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
 
         float s  = sdf_bank(ABC,shape_id);
 
@@ -192,11 +192,11 @@ float primary_sdf(
 
             case IMPORT:
                     {
-                        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-                        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-                        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-                        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-                        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+                        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+                        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+                        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+                        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+                        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
                         screen_stack_memory[stack_offset+command_destination]=sdf_bank(ABC,command_left_argument);
                     }
             break;
@@ -265,10 +265,10 @@ float primary_sdf(
 
 }
 
-float3 shade(
+double3 shade(
 
-    float3 v, 
-    float3 n,
+    double3 v, 
+    double3 n,
     __global unsigned char * shape_id_bank,
     __global unsigned char * material_id_bank,
     __global float * object_position_bank,
@@ -285,22 +285,22 @@ float3 shade(
 
 ){
 
-  //  v=(float3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
+  //  v=(double3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
 
     float min_s = MAX_DISTANCE;
     int material_match =  -1;
-    float3 ABC_out = (float3)(0.0,0.0,0.0);
+    double3 ABC_out = (double3)(0.0,0.0,0.0);
 
     for(int i=0;i< num_objects;i++){
 
         unsigned char shape_id = shape_id_bank[i];
 
-        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
 
-        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
 
         float s  = sdf_bank(ABC,shape_id);
 
@@ -323,7 +323,7 @@ float3 shade(
             float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (float3)(1.0, 0.0, 0.0);
+                return (double3)(1.0, 0.0, 0.0);
             }
         
         }
@@ -336,7 +336,7 @@ float3 shade(
             float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (float3)(0.0, 1.0, 0.0);
+                return (double3)(0.0, 1.0, 0.0);
             }
         
         }
@@ -351,7 +351,7 @@ float3 shade(
             
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (float3)(0.0, 0.0, 1.0);
+                return (double3)(0.0, 0.0, 1.0);
             }
         
         
@@ -359,11 +359,11 @@ float3 shade(
     
     }
     
-    return (float3)(239.0/255.0, 66.0/255.0, 245/255.0);
+    return (double3)(239.0/255.0, 66.0/255.0, 245/255.0);
 
 }
 
-float3 get_normal(float3 v,
+double3 get_normal(double3 v,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -381,9 +381,9 @@ float3 get_normal(float3 v,
 
 ){
 
-    float3 dx = (float3)(NORMAL_EPSILON,0.0,0.0);
-    float3 dy = (float3)(0.0,NORMAL_EPSILON,0.0);
-    float3 dz = (float3)(0.0,0.0,NORMAL_EPSILON);
+    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
+    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
+    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
 
     float Dx = primary_sdf(v+dx, wargs, bsargs)-primary_sdf(v-dx, wargs, bsargs);
     float Dy = primary_sdf(v+dy, wargs, bsargs)-primary_sdf(v-dy, wargs, bsargs);
@@ -391,11 +391,11 @@ float3 get_normal(float3 v,
 
     float  twoE = 2.0*NORMAL_EPSILON;
 
-    return normalize((float3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
+    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
 
 }
 
-float march(float3 o, float3 r,
+float march(double3 o, double3 r,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -409,9 +409,9 @@ float march(float3 o, float3 r,
     __global int * build_procedure_data,
      int num_build_steps,
     int tid,
-    float3 rgt,
-    float3 upp,
-    float3 fwd
+    double3 rgt,
+    double3 upp,
+    double3 fwd
 
 
 ){    
@@ -420,10 +420,10 @@ float march(float3 o, float3 r,
     
 
     float d = 0.0;
-    float3 v = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
+    double3 v = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
 
 
-    r= (float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+    r= (double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
 
 
 
@@ -484,15 +484,15 @@ __kernel void  k1(
     int tid = iy*640+ix;
 
 
-    float3 o = (float3)(campos[0],campos[1],campos[2]);
+    double3 o = (double3)(campos[0],campos[1],campos[2]);
 
-    //o=(float3)(o.x/5.0,o.y/5.0,o.z/5.0); 
+    //o=(double3)(o.x/5.0,o.y/5.0,o.z/5.0); 
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
 
-    float3 rgt = (float3)(right[0],right[1],right[2]);
-    float3 upp = (float3)(up[0],up[1],up[2]);
-    float3 fwd = (float3)(forward[0],forward[1],forward[2]);
+    double3 rgt = (double3)(right[0],right[1],right[2]);
+    double3 upp = (double3)(up[0],up[1],up[2]);
+    double3 fwd = (double3)(forward[0],forward[1],forward[2]);
 
     rgt_g = rgt;
     upp_g = upp;
@@ -500,11 +500,11 @@ __kernel void  k1(
 
 
 
-    float3 r = (float3)(uv.x,uv.y,IFOV);
+    double3 r = (double3)(uv.x,uv.y,IFOV);
 
-    //float3 color = (float3)(uv.x,uv.y,1.0);
+    //double3 color = (double3)(uv.x,uv.y,1.0);
 
-    float3 color = (float3)(1.0,1.0,1.0);
+    double3 color = (double3)(1.0,1.0,1.0);
 
     
     float d = march(
@@ -526,7 +526,7 @@ __kernel void  k1(
 
     if(d>0.0){
         
-        float3 p = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+        double3 p = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
         color = shade(
             
         p,get_normal(p, wargs, bsargs),
@@ -559,7 +559,7 @@ __kernel void  k1(
 #define union(a,b) T_min(a,b)
 #define intersection(a,b) T_max(a,b)
 #define subtraction(a,b) T_max(a,-b)
-#define Vector3f(x,y,z) ((float3)((float)(x),(float)(y),(float)(z)))
+#define Vector3f(x,y,z) ((double3)((float)(x),(float)(y),(float)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 
 #define DIRECTION_X 0
@@ -632,12 +632,12 @@ __kernel void  k1(
 	}
 
 
-	float maxComponent(float3 v){
+	float maxComponent(double3 v){
 
 		return T_max(v.x,T_max(v.y,v.z));
 	}
 
-	float box(float3 point, float3 center, float3 halfDiameter ){
+	float box(double3 point, double3 center, double3 halfDiameter ){
 
 		point=fabs(point-center);
 
@@ -645,7 +645,7 @@ __kernel void  k1(
 		
 	}
 
-	float getComponent(float3 v, int component){
+	float getComponent(double3 v, int component){
 
 		if(component==0) return v.x;
 		if(component==1) return v.y;
@@ -655,19 +655,19 @@ __kernel void  k1(
 	
 	}
 
-	float3 termProduct(float3 a, float3 b){
+	double3 termProduct(double3 a, double3 b){
 
 		return Vector3f(a.x*b.x,a.y*b.y,a.z*b.z);
 	}
 
-	float3 swizzle(float3 v, int a, int b, int c){
+	double3 swizzle(double3 v, int a, int b, int c){
 		return Vector3f(getComponent(v,a),getComponent(v,b),getComponent(v,c));
 	}
 
 
 
 	//Messed up the orientation at first
-	float _hilbertUnitCell(float3 v){
+	float _hilbertUnitCell(double3 v){
 
 		float d1 = box(v,Vector3f(-0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
 		float d2 = box(v,Vector3f(0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
@@ -696,7 +696,7 @@ __kernel void  k1(
 	}
 
 	//Messed up the orientation at first
-	float hilbertUnitCell(float3 v){
+	float hilbertUnitCell(double3 v){
 
 		v=termProduct(swizzle(v,1,0,2),Vector3f(1,-1,1));
 		v=termProduct(swizzle(v,2,1,0),Vector3f(1,1,-1));
@@ -705,9 +705,9 @@ __kernel void  k1(
 	}
 
 
-	float putHilbert(float3 v,int x, int y, int z)
+	float putHilbert(double3 v,int x, int y, int z)
 	{
-		float3 c = Vector3f(x/3.0,y/3.0,z/3.0);
+		double3 c = Vector3f(x/3.0,y/3.0,z/3.0);
 		v=Vector3f(v.x-c.x,v.y-c.y,v.z-c.z);
 		v=Vector3f(3.0*v.x,3.0*v.y,3.0*v.z);
 
@@ -728,9 +728,9 @@ __kernel void  k1(
 		float m21=quadrantMatrices[matrixOffset+7];
 		float m22=quadrantMatrices[matrixOffset+8];
 
-		float3 mc0 = Vector3f(m00,m01,m02);
-		float3 mc1 = Vector3f(m10,m11,m12);
-		float3 mc2 = Vector3f(m20,m21,m22); 
+		double3 mc0 = Vector3f(m00,m01,m02);
+		double3 mc1 = Vector3f(m10,m11,m12);
+		double3 mc2 = Vector3f(m20,m21,m22); 
 
 		float A = dot(v,mc0);
 		float B = dot(v,mc1);
@@ -740,7 +740,7 @@ __kernel void  k1(
 
 	}
 
-	float putShaft(float3 v, float3 center, float halfWidth, float halfLength, int direction){
+	float putShaft(double3 v, double3 center, float halfWidth, float halfLength, int direction){
 		float d = MAX_DISTANCE;
 		switch(direction){
 			case DIRECTION_X:
@@ -760,9 +760,9 @@ __kernel void  k1(
 		return d;
 	}
 
-	float putConnector(float3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
+	float putConnector(double3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
 
-		float3 center = Vector3f(
+		double3 center = Vector3f(
 
 (largeI*1.0+i/2.0)*1/3.0,
 (largeJ*1.0+j/2.0)*1/3.0,
@@ -774,7 +774,7 @@ __kernel void  k1(
 
 	}
 
-	float putConnectors(float3 v){
+	float putConnectors(double3 v){
 
 		float d = MAX_DISTANCE;
 		d=union(d,putConnector(v,0,-1,1,0,1,1,DIRECTION_X));
@@ -793,7 +793,7 @@ __kernel void  k1(
 	}
 
 
-	float hilbert_sdf(float3 v){
+	float hilbert_sdf(double3 v){
 
 
 		//return hilbertUnitCell(v);
@@ -817,21 +817,21 @@ __kernel void  k1(
 
 
         
-        float sd0( float3 v){
+        float sd0( double3 v){
 
             return MAX_DISTANCE;
 
         }
         
 
-        float sd1( float3 v){
+        float sd1( double3 v){
 
             return length(v)-0.5;
 
         }
         
 
-        float sd2( float3 v){
+        float sd2( double3 v){
 
             
 
@@ -845,7 +845,7 @@ __kernel void  k1(
         }
         
 
-        float sd3( float3 v){
+        float sd3( double3 v){
 
             
     v=fabs(v);
@@ -855,14 +855,14 @@ __kernel void  k1(
         }
         
 
-        float sd4( float3 v){
+        float sd4( double3 v){
 
             return length(v)-0.5;
 
         }
         
 
-        float sd5( float3 v){
+        float sd5( double3 v){
 
             
 
@@ -876,7 +876,7 @@ __kernel void  k1(
         }
         
 
-        float sd6( float3 v){
+        float sd6( double3 v){
 
             
     v=fabs(v);
@@ -886,7 +886,7 @@ __kernel void  k1(
         }
         
 
-        float sd7( float3 v){
+        float sd7( double3 v){
 
              
 
@@ -897,7 +897,7 @@ __kernel void  k1(
         }
         
 
-        float sd8( float3 v){
+        float sd8( double3 v){
 
             
 
@@ -921,20 +921,20 @@ __kernel void  k1(
         
 
         
-        float3 shader0 (float3 gv, float3 lv, float3 n){
+        double3 shader0 (double3 gv, double3 lv, double3 n){
 
             return fabs(n);
 
         }
         
 
-        float3 shader1 (float3 gv, float3 lv, float3 n){
+        double3 shader1 (double3 gv, double3 lv, double3 n){
 
             
         
-        float3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
+        double3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
 
-        float L = dot(n_g,(float3)(0.0,0.0,-1.0)); return (float3)(L,L,L);
+        float L = dot(n_g,(double3)(0.0,0.0,-1.0)); return (double3)(L,L,L);
 
 
 
@@ -944,7 +944,7 @@ __kernel void  k1(
         
 
 
-        float sdf_bank(float3 v, unsigned char shape_id){
+        float sdf_bank(double3 v, unsigned char shape_id){
 
             switch(shape_id){
 
@@ -982,7 +982,7 @@ case 8: return sd8(v); break;
 
         }
 
-        float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id){
+        double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id){
 
 
             switch(material_id){
@@ -996,7 +996,7 @@ case 1: return shader1(gv,lv,n); break;
 
             }
 
-            return (float3)(1.0, 1.0, 1.0);
+            return (double3)(1.0, 1.0, 1.0);
         }
         
         
