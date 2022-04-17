@@ -1,3 +1,6 @@
+
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+
 #include "Utils.h"
 
 #include <Windows.h>
@@ -14,6 +17,8 @@
 #include <CL/cl.h>
 
 #define scale_stl 100.0
+
+
 
 namespace Utils {
 

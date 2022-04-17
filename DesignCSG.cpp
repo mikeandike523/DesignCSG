@@ -10,7 +10,6 @@ int hasModel = 0;
 #include "Utils.h"
 #include "Evaluator.h"
 #include "Grid.h"
-#include "GraphCycles.hpp"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -26,6 +25,7 @@ int hasModel = 0;
 #include "StdCapture.h"
 #include "GetThreadCount.h"
 #include <mutex>
+#include <filesystem>
 
 Evaluator* global_evaluator = nullptr;
 std::string logString;
@@ -113,6 +113,11 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	: wxFrame(NULL, wxNewId(), title, pos, size)
 {
+
+
+	if (!std::filesystem::is_directory("Exports")) {
+		system("mkdir Exports");
+	}
 
 	Maximize(true);
 	wxMenu* menuFile = new wxMenu;
