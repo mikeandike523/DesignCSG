@@ -8,6 +8,10 @@
 #define Vector3f(x,y,z) ((float3)((float)(x),(float)(y),(float)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 
+#define DIRECTION_X 0
+#define DIRECTION_Y 1
+#define DIRECTION_Z 2
+
 
 
 
@@ -182,6 +186,51 @@
 
 	}
 
+	float putShaft(float3 v, float3 center, float halfWidth, float halfLength, int direction){
+		float d = MAX_DISTANCE;
+		switch(direction){
+			case DIRECTION_X:
+
+				d=box(v,center,Vector3f(halfLength+halfWidth,halfWidth,halfWidth));
+			break;
+			case DIRECTION_Y: 
+
+				d=box(v,center,Vector3f(halfWidth,halfLength+halfWidth,halfWidth));
+			break;
+			case DIRECTION_Z:
+
+				d=box(v,center,Vector3f(halfWidth,halfWidth,halfLength+halfWidth));
+			break;
+
+		}
+		return d;
+	}
+
+	float putConnector(float3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
+
+		float3 center = Vector3f(
+
+(largeI*1.0+i/2.0)*1/3.0,
+(largeJ*1.0+j/2.0)*1/3.0,
+(largeK*1.0+k/2.0)*1/3.0
+
+		);
+
+		return putShaft(v,center,lineWidth/3.0,1.0/6.0,direction);
+
+	}
+
+	float putConnectors(float3 v){
+
+		float d = MAX_DISTANCE;
+		d=union(d,putConnector(v,0,-1,1,0,1,1,DIRECTION_X));
+
+		
+
+		return d;
+
+	}
+
 
 	float scene_sdf(float3 v){
 
@@ -201,7 +250,7 @@
 			}
 		}
 	
-		return m;
+		return T_min(m,putConnectors(v));
 	}
 
 
