@@ -277,18 +277,54 @@ __kernel void  k2(
 #define union(a,b) T_min(a,b)
 #define intersection(a,b) T_max(a,b)
 #define subtraction(a,b) T_max(a,-b)
-#define Vector3f(x,y,z) ((float3)((float)x,(float)y,(float)z))
+#define Vector3f(x,y,z) ((float3)((float)(x),(float)(y),(float)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 
 
 
 
-#define lineWidth 0.05
+#define lineWidth 0.1
 
 
 
          
 
+
+
+	float quadrantMatrices[27*9] = {
+
+
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+
+	};
 
 	float max3(float a, float b, float c){
 
@@ -333,15 +369,15 @@ __kernel void  k2(
 	//Messed up the orientation at first
 	float _hilbertUnitCell(float3 v){
 
-		float d1 = box(v,Vector3f(-0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5));
-		float d2 = box(v,Vector3f(0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5));
-		float d3 = box(v,Vector3f(0.0,-0.5,-0.5),Vector3f(0.5,lineWidth,lineWidth));
+		float d1 = box(v,Vector3f(-0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
+		float d2 = box(v,Vector3f(0.5,-0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
+		float d3 = box(v,Vector3f(0.0,-0.5,-0.5),Vector3f(0.5+lineWidth,lineWidth,lineWidth));
 
-		float d4 = box(v,Vector3f(-0.5,0.5,0.0),Vector3f(lineWidth,lineWidth,0.5));
-		float d5 = box(v,Vector3f(0.5,0.5,0.0),Vector3f(lineWidth,lineWidth,0.5));
-		float d6 = box(v,Vector3f(0.0,0.5,-0.5),Vector3f(0.5,lineWidth,lineWidth));
+		float d4 = box(v,Vector3f(-0.5,0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
+		float d5 = box(v,Vector3f(0.5,0.5,0.0),Vector3f(lineWidth,lineWidth,0.5+lineWidth));
+		float d6 = box(v,Vector3f(0.0,0.5,-0.5),Vector3f(0.5+lineWidth,lineWidth,lineWidth));
 
-		float d7 = box(v,Vector3f(0.5,0.0,0.5),Vector3f(lineWidth,0.5,lineWidth));
+		float d7 = box(v,Vector3f(0.5,0.0,0.5),Vector3f(lineWidth,0.5+lineWidth,lineWidth));
 
 		return union(
 
@@ -368,6 +404,63 @@ __kernel void  k2(
 
 	}
 
+
+	float putHilbert(float3 v,int x, int y, int z)
+	{
+		float3 c = Vector3f(x/3.0,y/3.0,z/3.0);
+		v=Vector3f(v.x-c.x,v.y-c.y,v.z-c.z);
+		v=Vector3f(3.0*v.x,3.0*v.y,3.0*v.z);
+
+		int xp1 = x+1;
+		int yp1= y+1;
+		int zp1 = z+1;
+		int matrixOffset = (xp1*9+yp1*3+zp1)*9;
+
+		float m00=quadrantMatrices[matrixOffset+0];
+		float m01=quadrantMatrices[matrixOffset+1];
+		float m02=quadrantMatrices[matrixOffset+2];
+
+		float m10=quadrantMatrices[matrixOffset+3];
+		float m11=quadrantMatrices[matrixOffset+4];
+		float m12=quadrantMatrices[matrixOffset+5];
+
+		float m20=quadrantMatrices[matrixOffset+6];
+		float m21=quadrantMatrices[matrixOffset+7];
+		float m22=quadrantMatrices[matrixOffset+8];
+
+		float3 mc0 = Vector3f(m00,m01,m02);
+		float3 mc1 = Vector3f(m10,m11,m12);
+		float3 mc2 = Vector3f(m20,m21,m22); 
+
+		float A = dot(v,mc0);
+		float B = dot(v,mc1);
+		float C = dot(v,mc2);
+
+		return hilbertUnitCell(Vector3f(A,B,C));
+
+	}
+
+
+	float scene_sdf(float3 v){
+
+
+		//return hilbertUnitCell(v);
+		
+		float m = MAX_DISTANCE;
+		for(int i=-1;i<=1;i++)
+		for(int j=-1;j<=1;j++)
+		for(int k=-1;k<=1;k++)
+		{
+			if(abs(i)+abs(j)+abs(k)!=3) continue;
+			float d = putHilbert(v,i,j,k);
+			if ( d < m)
+			{
+				m=d;
+			}
+		}
+	
+		return m;
+	}
 
 
 
@@ -448,8 +541,7 @@ __kernel void  k2(
 
              
 
-	float scene_sdf = hilbertUnitCell(v);
-	return T_max(scene_sdf, box(v,(float3)(0.0,0.0,0.0),(float3)(0.5,0.5,0.5)));
+	return scene_sdf(v);
 
 
 

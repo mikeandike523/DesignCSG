@@ -4,6 +4,8 @@ from os import stat
 import numpy as np
 import os
 
+INITIAL_SCALE = 5.0
+
 compiler =  None
 
 #a variadic wrapper for numpy matmul
@@ -388,7 +390,7 @@ class _SceneCompiler:
 
 
         """)
-        self.root = Component(brush=self.null_brush(),material=self.default_material())
+        self.root = Component(brush=self.null_brush(),material=self.default_material(),transform=Transform.scaling(np.array([INITIAL_SCALE,INITIAL_SCALE,INITIAL_SCALE])))
         self.allocator = Allocator()
         self.auxillary_functions=[
             """ """

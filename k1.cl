@@ -1,6 +1,6 @@
-#define MAX_STEPS 4096
-#define MAX_DISTANCE 4096.0
-#define SDF_EPSILON 0.005
+#define MAX_STEPS 128
+#define MAX_DISTANCE 64.0
+#define SDF_EPSILON 0.001
 #define NORMAL_EPSILON 0.005
 #define TOLERANCE_FACTOR_MARCHSTEP 0.5
 #define TOLERANCE_FACTOR_MATERIAL 2.0
@@ -8,6 +8,7 @@
 #define GCOMP(c) (clip((int)(255.0*c.y)))
 #define BCOMP(c) (clip((int)(255.0*c.z)))
 #define IFOV 1.0f
+#define INITIAL_SCALE 5.0
 
 #define IMPORT 0 
 #define EXPORT 1 
@@ -284,6 +285,8 @@ float3 shade(
 
 ){
 
+  //  v=(float3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
+
     float min_s = MAX_DISTANCE;
     int material_match =  -1;
     float3 ABC_out = (float3)(0.0,0.0,0.0);
@@ -415,6 +418,10 @@ float march(float3 o, float3 r,
 
     float d = 0.0;
     float3 v = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
+
+  //  v=(float3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
+
+
     r= (float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
     for(int i=0;i<MAX_STEPS;i++){
 
