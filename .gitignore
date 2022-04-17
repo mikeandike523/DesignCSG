@@ -2,3 +2,4 @@
 Exports/*.stl
 *.stl
 *.ply
+__pycache__/**
