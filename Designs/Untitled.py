@@ -23,7 +23,7 @@ add_preprocessor_define(define="""
 define_auxillary_function(function="""
 
 
-	float quadrantMatrices[27*9] = {
+	__constant float quadrantMatrices[27*9] = {
 
 
 1,0,0, 0,1,0, 0,0,1,

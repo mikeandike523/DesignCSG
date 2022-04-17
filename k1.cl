@@ -29,9 +29,9 @@
 float sdf_bank(float3 v, unsigned char shape_id);
 float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id);
 
-float3 rgt_g;
-float3 upp_g;
-float3 fwd_g;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
 
 
 float axes_cylinderSDF(float r, float h, float halfLength, float radius){

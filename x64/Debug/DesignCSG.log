@@ -1,39 +1,4 @@
-﻿  CVector.cpp
-  The contents of <optional> are available only with C++17 or later.
-C:\Projects\DesignCSG\CVector.cpp(24,14): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(24,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(24,33): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(24,33): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(25,13): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(25,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(25,25): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(25,25): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(35,4): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(35,4): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(35,21): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(35,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(37,8): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(37,8): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(37,31): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(37,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(48,7): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(48,7): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(48,19): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(48,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(49,7): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(49,7): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(49,26): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\CVector.cpp(49,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(58,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(61,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(70,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(72,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(125,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(143,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(143,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(143,17): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\CVector.cpp(180,26): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  DesignCSG.cpp
+﻿  DesignCSG.cpp
   cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
   The contents of <optional> are available only with C++17 or later.
 C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
@@ -64,48 +29,6 @@ C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
 C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
 C:\Projects\DesignCSG\DrawPane.cpp(426,24): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Projects\DesignCSG\DrawPane.cpp(427,23): warning C4305: 'initializing': truncation from 'double' to 'float'
-  Evaluator.cpp
-  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
-  The contents of <optional> are available only with C++17 or later.
-C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
-C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
-C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
-C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
-C:\Projects\DesignCSG\Evaluator.cpp(133,29): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
-C:\Projects\DesignCSG\Evaluator.cpp(175,29): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
-  StdCapture.cpp
-  The contents of <optional> are available only with C++17 or later.
-  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
-C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
-C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
-C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
-C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
-  Utils.cpp
-  The contents of <optional> are available only with C++17 or later.
-  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
-C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
-C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
-C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
-C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
-C:\Projects\DesignCSG\Utils.cpp(174,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(183,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(183,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(183,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(183,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(183,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(183,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(184,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(184,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(184,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(184,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(184,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(184,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(185,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(185,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(185,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(185,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(185,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(185,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Generating Code...
 C:\Projects\DesignCSG\DesignCSG.cpp(588): warning C4715: '<lambda_8057e63af834ae549584278f2654ace7>::operator()': not all control paths return a value
   LINK : C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe not found or not built by the last incremental link; performing full link
