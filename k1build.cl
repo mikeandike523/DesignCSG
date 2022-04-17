@@ -810,9 +810,6 @@ __kernel void  k1(
 
 
 
-
-
-
         
         float sd0( float3 v){
 
@@ -894,6 +891,29 @@ __kernel void  k1(
         }
         
 
+        float sd8( float3 v){
+
+            
+
+	const float outerRadius = 0.5;
+	const float innerRadius = 0.45;
+	const float height = 0.05;
+
+	float r = sqrt(v.x*v.x+v.z*v.z);
+	float d = r-outerRadius;
+	if(v.y>0){
+		float newRadius = innerRadius+(outerRadius-innerRadius)*(1.0-v.y/height);
+		d=r-newRadius;
+	}
+
+	return intersection(d,fabs(v.y)-height);
+	
+
+
+
+        }
+        
+
         
         float3 shader0 (float3 gv, float3 lv, float3 n){
 
@@ -945,6 +965,9 @@ case 6: return sd6(v); break;
 
 
 case 7: return sd7(v); break;
+
+
+case 8: return sd8(v); break;
 
 
             }

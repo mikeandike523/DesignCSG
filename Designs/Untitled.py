@@ -269,9 +269,6 @@ define_auxillary_function(function="""
 		return T_min(m,putConnectors(v));
 	}
 
-
-
-
 """)
 
 
@@ -284,6 +281,24 @@ hilbert_brush=define_brush(body="""
 
 """)
 
+base_brush=define_brush(body="""
+
+	const float outerRadius = 0.5;
+	const float innerRadius = 0.45;
+	const float height = 0.05;
+
+	float r = sqrt(v.x*v.x+v.z*v.z);
+	float d = r-outerRadius;
+	if(v.y>0){
+		float newRadius = innerRadius+(outerRadius-innerRadius)*(1.0-v.y/height);
+		d=r-newRadius;
+	}
+
+	return intersection(d,fabs(v.y)-height);
+	
+
+""")
+
 draw(hilbert_brush,Transform.initial(
 	position=vec3(0.0,0.0,0.0),
 	yaw=np.pi/4,
@@ -291,6 +306,18 @@ draw(hilbert_brush,Transform.initial(
 	roll=np.pi/4,
 	scale=vec3(1.0,1.0,1.0)
 ))
+
+
+dy=-0.0075
+
+draw(base_brush,Transform.initial(
+	position=vec3(0.0,-np.sqrt(3*0.25)-dy,0.0),
+	yaw=0.0,
+	pitch=0.0,
+	roll=0.0,
+	scale=vec3(1.0,1.0,1.0)
+))
+
 
 
 
