@@ -225,7 +225,14 @@
 		float d = MAX_DISTANCE;
 		d=union(d,putConnector(v,0,-1,1,0,1,1,DIRECTION_X));
 
+		d=union(d,putConnector(v,1,0,-1,1,0,-1,DIRECTION_Y));
+		d=union(d,putConnector(v,-1,0,-1,-1,0,-1,DIRECTION_Y));
 		
+		d=union(d,putConnector(v,1,0,1,1,0,1,DIRECTION_Y));
+		d=union(d,putConnector(v,-1,0,1,-1,0,1,DIRECTION_Y));
+		
+		d=union(d,putConnector(v,1,1,0,1,-1,0,DIRECTION_Z));
+		d=union(d,putConnector(v,-1,1,0,-1,-1,0,DIRECTION_Z));
 
 		return d;
 

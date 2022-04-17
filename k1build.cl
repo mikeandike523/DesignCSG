@@ -1,4 +1,4 @@
-#define MAX_STEPS 128
+#define MAX_STEPS 4096
 #define MAX_DISTANCE 64.0
 #define SDF_EPSILON 0.001
 #define NORMAL_EPSILON 0.005
@@ -773,7 +773,14 @@ __kernel void  k1(
 		float d = MAX_DISTANCE;
 		d=union(d,putConnector(v,0,-1,1,0,1,1,DIRECTION_X));
 
+		d=union(d,putConnector(v,1,0,-1,1,0,-1,DIRECTION_Y));
+		d=union(d,putConnector(v,-1,0,-1,-1,0,-1,DIRECTION_Y));
 		
+		d=union(d,putConnector(v,1,0,1,1,0,1,DIRECTION_Y));
+		d=union(d,putConnector(v,-1,0,1,-1,0,1,DIRECTION_Y));
+		
+		d=union(d,putConnector(v,1,1,0,1,-1,0,DIRECTION_Z));
+		d=union(d,putConnector(v,-1,1,0,-1,-1,0,DIRECTION_Z));
 
 		return d;
 
