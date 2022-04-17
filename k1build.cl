@@ -414,15 +414,19 @@ float march(float3 o, float3 r,
     float3 fwd
 
 
-){     
+){    
+
+
+    
 
     float d = 0.0;
     float3 v = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
 
-  //  v=(float3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
-
 
     r= (float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+
+
+
     for(int i=0;i<MAX_STEPS;i++){
 
         float s = primary_sdf(v,wargs, bsargs)*TOLERANCE_FACTOR_MARCHSTEP; 
@@ -481,6 +485,8 @@ __kernel void  k1(
 
 
     float3 o = (float3)(campos[0],campos[1],campos[2]);
+
+    //o=(float3)(o.x/5.0,o.y/5.0,o.z/5.0); 
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
 
