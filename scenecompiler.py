@@ -4,7 +4,7 @@ from os import stat
 import numpy as np
 import os
 
-INITIAL_SCALE = 5.0
+INITIAL_SCALE = 1.0
 
 compiler =  None
 
