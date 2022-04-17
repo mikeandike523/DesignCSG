@@ -89,6 +89,17 @@ class Transform:
         ],dtype=float).T
 
     @staticmethod
+    def eulerZ(roll):
+        return np.array([
+        
+            [np.cos(roll),np.sin(roll),0,0],
+            [np.cos(roll+np.pi/2.0),np.sin(roll+np.pi/2.0),0,0],
+            [0,0,1,0],
+            [0,0,0,1]
+        
+        ],dtype=float).T
+
+    @staticmethod
     def scaling(scale):
         return np.array([
         
@@ -102,7 +113,7 @@ class Transform:
     #ignore roll for now
     @staticmethod
     def rotation(yaw,pitch,roll):
-        return matmul(Transform.eulerY(yaw),Transform.eulerX(pitch))
+        return matmul(Transform.eulerY(yaw),Transform.eulerX(pitch),Transform.eulerZ(roll))
     
 
     @staticmethod

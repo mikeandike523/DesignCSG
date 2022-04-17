@@ -248,7 +248,7 @@ define_auxillary_function(function="""
 	}
 
 
-	float scene_sdf(float3 v){
+	float hilbert_sdf(float3 v){
 
 
 		//return hilbertUnitCell(v);
@@ -278,17 +278,17 @@ define_auxillary_function(function="""
 def vec3(x,y,z):
 	return np.array([x,y,z])
 
-scene_brush=define_brush(body=""" 
+hilbert_brush=define_brush(body=""" 
 
-	return scene_sdf(v);
+	return hilbert_sdf(v);
 
 """)
 
-draw(scene_brush,Transform.initial(
+draw(hilbert_brush,Transform.initial(
 	position=vec3(0.0,0.0,0.0),
-	yaw=0,
-	pitch=0,
-	roll=0,
+	yaw=np.pi/4,
+	pitch=np.pi/4,
+	roll=np.pi/4,
 	scale=vec3(1.0,1.0,1.0)
 ))
 

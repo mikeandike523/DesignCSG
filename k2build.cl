@@ -511,7 +511,7 @@ __kernel void  k2(
 	}
 
 
-	float scene_sdf(float3 v){
+	float hilbert_sdf(float3 v){
 
 
 		//return hilbertUnitCell(v);
@@ -611,7 +611,7 @@ __kernel void  k2(
 
              
 
-	return scene_sdf(v);
+	return hilbert_sdf(v);
 
 
 
