@@ -1,26 +1,23 @@
-﻿  Utils.cpp
+﻿  DesignCSG.cpp
   cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
 C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
 C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
 C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
 C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
-C:\Projects\DesignCSG\Utils.cpp(179,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(188,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(188,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(188,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(188,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(188,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(188,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(189,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(189,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(189,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(189,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(189,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(189,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(190,29): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(190,29): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(190,47): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(190,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Projects\DesignCSG\Utils.cpp(190,65): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Projects\DesignCSG\Utils.cpp(190,65): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Projects\DesignCSG\cms\main\Headers\geometry.hpp(11,1): warning C4005: 'PI': macro redefinition
+C:\Projects\DesignCSG\DrawPane.h(11): message : see previous definition of 'PI'
+C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(47,33): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(48,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(48,3): message : consider using '%zd' in the format string
+C:\Projects\DesignCSG\DesignCSG.cpp(24,1): warning C4005: '_MSC_VER': macro redefinition
+C:\Projects\DesignCSG\DesignCSG.cpp : message : see previous definition of '_MSC_VER'
+C:\Projects\DesignCSG\GetThreadCount.h(80,3): warning C4477: 'sprintf' : format string '%s' requires an argument of type 'char *', but variadic argument 3 has type 'TCHAR *'
+C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ls' in the format string
+C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%lls' in the format string
+C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%Ls' in the format string
+C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ws' in the format string
+C:\Projects\DesignCSG\DesignCSG.cpp(323,48): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Projects\DesignCSG\DesignCSG.cpp(444,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\Projects\DesignCSG\DesignCSG.cpp(444,3): message : consider using '%zd' in the format string
+C:\Projects\DesignCSG\DesignCSG.cpp(593): warning C4715: '<lambda_8057e63af834ae549584278f2654ace7>::operator()': not all control paths return a value
   DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
