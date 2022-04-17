@@ -11,6 +11,8 @@
 
 #include "geometry.hpp"
 
+#include "happly.h"
+
 namespace cms {
 
 
@@ -97,6 +99,58 @@ namespace cms {
 			(*trianglesWritten)++;
 		}
 		fclose(outputFile);
+
+	}
+
+
+	inline void writeTrianglesToPLY(const char* filename, std::vector<Triangle3f> trs, int * numTrianglesWritten) {
+
+		*numTrianglesWritten = 0;
+
+		// Suppose these hold your data
+		std::vector<std::array<double, 3>> meshVertexPositions;
+		std::vector<std::vector<size_t>> meshFaceIndices;
+
+
+		for (int i = 0; i < trs.size(); i++) {
+
+			Triangle3f tr = trs[i];
+
+
+			meshVertexPositions[i * 3 + 0] = {tr.A.x,tr.A.z,tr.A.y};
+
+			meshVertexPositions[i * 3 + 1] = { tr.B.x,tr.B.z,tr.B.y };
+
+
+			meshVertexPositions[i * 3 + 2] = { tr.C.x,tr.C.z,tr.C.y };
+
+			std::vector<size_t> trFace;
+			for (int i = 0; i < 3; i++) {
+			
+				trFace.push_back(i * 3 + 0);
+				trFace.push_back(i * 3 + 1);
+				trFace.push_back(i * 3 + 2);
+			}
+
+			meshFaceIndices.push_back(trFace);
+
+
+		}
+
+
+		// Create an empty object
+		happly::PLYData plyOut;
+
+		// Add mesh data (elements are created automatically)
+		plyOut.addVertexPositions(meshVertexPositions);
+		plyOut.addFaceIndices(meshFaceIndices);
+
+
+		// Write the object to file
+		plyOut.write(filename, happly::DataFormat::Binary);
+
+		*numTrianglesWritten = trs.size();
+
 
 	}
 

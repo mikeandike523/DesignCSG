@@ -162,6 +162,7 @@
     <ClInclude Include="DrawPane.h" />
     <ClInclude Include="Evaluator.h" />
     <ClInclude Include="GetThreadCount.h" />
+    <ClInclude Include="happly.h" />
     <ClInclude Include="ISV.hpp" />
     <ClInclude Include="tlhelp32.h" />
     <ClInclude Include="Utils.h" />

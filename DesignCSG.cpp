@@ -125,7 +125,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		"Run your design");
 	menuFile->Append(ID_Save, "&Save\tCtrl-S",
 		"Save your design");
-	menuFile->Append(ID_Export, "&Export STL\tCtrl-E",
+	menuFile->Append(ID_Export, "&Export Design\tCtrl-E",
 		"Save your design");
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
@@ -311,6 +311,7 @@ enum class ExportProcessState {
 	RETOPOLOGIZING,
 	PERFORMING_GRADIENT_DESCENT,
 	WRITING_TRIANGLES_TO_STL,
+	WRITING_TRIANGLES_TO_PLY,
 	COMPLETE
 
 };
@@ -457,6 +458,8 @@ void MyFrame::OnExportInner() {
 		exportProcessState = ExportProcessState::WRITING_TRIANGLES_TO_STL;
 
 		cms::writeTrianglesToSTL("Exports\\Untitled.stl", trs, &numTrianglesWritten);
+		cms::writeTrianglesToPLY("Exports\\Untitled.ply", trs, &numTrianglesWritten);
+
 		writingTriangles = 0;
 
 		char buff1[4096];
@@ -658,9 +661,27 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 					logText += "Retopologizing... Done.\n";
 					snprintf(buff1,4096, "Performing gradient descent... Done.\n");
 					logText += std::string(buff1);
-					snprintf(buff1,4096,"Writing triangles... %d of %d\n", numTrianglesWritten,maxTriangles);
+					snprintf(buff1,4096,"Writing triangles to STL... %d of %d\n", numTrianglesWritten,maxTriangles);
 					logText += std::string(buff1);
 			
+
+				break;
+
+
+				case ExportProcessState::WRITING_TRIANGLES_TO_PLY:
+
+					logText += "Estimating bounding box... Done.\n";
+					logText += "Performing cms algorithm...\n";
+					logText += histogramString();
+					logText += "Done.\n";
+					logText += "Retopologizing... Done.\n";
+					snprintf(buff1, 4096, "Performing gradient descent... Done.\n");
+					logText += std::string(buff1);
+					snprintf(buff1, 4096, "Writing triangles to STL... Done.\n");
+					logText += std::string(buff1);
+					snprintf(buff1, 4096, "Writing triangles to PLY... %d of %d\n", numTrianglesWritten, maxTriangles);
+					logText += std::string(buff1);
+
 
 				break;
 
