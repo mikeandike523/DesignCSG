@@ -8,7 +8,7 @@ add_preprocessor_define(define="""
 #define union(a,b) T_min(a,b)
 #define intersection(a,b) T_max(a,b)
 #define subtraction(a,b) T_max(a,-b)
-#define Vector3f(x,y,z) ((double3)((float)(x),(float)(y),(float)(z)))
+#define Vector3f(x,y,z) ((double3)((double)(x),(double)(y),(double)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 
 #define DIRECTION_X 0
@@ -195,8 +195,9 @@ define_auxillary_function(function="""
 
 	}
 
-	float putShaft(double3 v, double3 center, float halfWidth, float halfLength, int direction){
+	float putShaft(double3 v, float halfWidth, float halfLength, int direction){
 		float d = MAX_DISTANCE;
+		double3 center = Vector3f(0.0,0.0,0.0);
 		switch(direction){
 			case DIRECTION_X:
 
@@ -225,7 +226,7 @@ define_auxillary_function(function="""
 
 		);
 
-		return putShaft(v,center,lineWidth/3.0,1.0/6.0,direction);
+		return putShaft((v-center)*3.0,lineWidth,0.5,direction);
 
 	}
 
@@ -299,6 +300,7 @@ base_brush=define_brush(body="""
 
 """)
 
+
 draw(hilbert_brush,Transform.initial(
 	position=vec3(0.0,0.0,0.0),
 	yaw=np.pi/4,
@@ -323,12 +325,12 @@ draw(base_brush,Transform.initial(
 
 setExportConfig(
 
-	boundingBoxHalfDiameter=2.0,
-	minimumOctreeLevel=6,
-	maximumOctreeLevel=8,
-	gridLevel = 9,
+	boundingBoxHalfDiameter=5.0,
+	minimumOctreeLevel=3,
+	maximumOctreeLevel=5,
+	gridLevel = 7,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
-	gradientDescentSteps = 30,
+	gradientDescentSteps = 0,
 	cacheSubdivision = 16
 )
 
