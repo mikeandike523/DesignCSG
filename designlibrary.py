@@ -177,7 +177,7 @@ def setExportConfig(boundingBoxHalfDiameter,minimumOctreeLevel,maximumOctreeLeve
 
         outstr = ""
         
-        outstr+=(str(boundingBoxHalfDiameter)+"\n")
+        outstr+=(str(5.0*boundingBoxHalfDiameter)+"\n")
         outstr+=(str(minimumOctreeLevel)+"\n")
         outstr+=(str(maximumOctreeLevel)+"\n")
         outstr+=(str(gridLevel)+"\n")
