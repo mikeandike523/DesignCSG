@@ -2,8 +2,8 @@
 #define MAX_DISTANCE 64.0
 #define SDF_EPSILON 0.001
 #define NORMAL_EPSILON 0.005
-#define TOLERANCE_FACTOR_MARCHSTEP 0.5
-#define TOLERANCE_FACTOR_MATERIAL 2.0
+#define TOLERANCE_FACTOR_MARCHSTEP 0.25
+#define TOLERANCE_FACTOR_MATERIAL 5.0
 #define RCOMP(c) (clip((int)(255.0*c.x)))
 #define GCOMP(c) (clip((int)(255.0*c.y)))
 #define BCOMP(c) (clip((int)(255.0*c.z)))
@@ -381,14 +381,14 @@ double3 get_normal(double3 v,
 
 ){
 
-    double3 _dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 _dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 _dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
+    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
+    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
 
 
-    double3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
-    double3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
-    double3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
+   // double3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
+  //  double3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
+   // double3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
 
 
 
