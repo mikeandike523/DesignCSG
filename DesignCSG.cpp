@@ -123,6 +123,7 @@ std::string stripPY(std::string s) {
 class OFD : wxDialog {
 
 public:
+
 	OFD() : wxDialog(nullptr,wxID_ANY,"Open an Existing Design") {
 
 		std::vector<std::string> filenames;
@@ -143,7 +144,12 @@ public:
 			lb->Append(std::vector<wxString>{wxString(s)});
 		}
 
-		wxButton* okButton = new wxButton(this,wxID_ANY,"Open");
+		wxButton* okButton = new wxButton(this,wxID_OK,"Open");
+
+		//okButton->Bind(wxEVT_BUTTON, &okButtonPressed, this);
+	//	okButton->Bind(wxEVT_BUTTON, wxEventHandler(okButtonPressed),-1,-1,nullptr);
+
+
 		vbox->Add(okButton, wxSizerFlags().CenterHorizontal());
 
 		SetSizer(vbox);
@@ -173,7 +179,10 @@ public:
 	//	delete vbox;
 	//	delete lb;
 	//	delete okButton;
-		Destroy();
+
+		//Connect(ID_Ok, wxEVT_BUTTON, wxEventHandler(okButtonPressed));
+
+
 	
 	}
 
@@ -181,8 +190,18 @@ public:
 		EndModal(0);
 	}
 
+	DECLARE_EVENT_TABLE();
+
 	
 };
+
+BEGIN_EVENT_TABLE(OFD,wxDialog)
+
+EVT_BUTTON(wxID_OK,OFD::okButtonPressed)
+
+END_EVENT_TABLE()
+
+
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
 	OFD ofd;
