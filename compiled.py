@@ -325,13 +325,13 @@ draw(base_brush,Transform.initial(
 
 setExportConfig(
 
-	boundingBoxHalfDiameter=5.0,
-	minimumOctreeLevel=7,
-	maximumOctreeLevel=9,
-	gridLevel = 10,
+	boundingBoxHalfDiameter=2.0,
+	minimumOctreeLevel=3,
+	maximumOctreeLevel=5,
+	gridLevel = 6,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
 	gradientDescentSteps = 0,
-	cacheSubdivision = 32
+	cacheSubdivision = 16
 )
 
 commit()
