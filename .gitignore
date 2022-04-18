@@ -1,5 +1,6 @@
 .vs/**
 Exports/*.stl
+Exports/*.ply
 *.stl
 *.ply
 ./__pycache__/**
