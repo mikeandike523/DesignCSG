@@ -426,7 +426,7 @@ class _SceneCompiler:
         return self.empty_brush
 
     def default_material(self):
-        return self.abs_normals
+        return self.basic_lighting
 
     def commit(self):
 
