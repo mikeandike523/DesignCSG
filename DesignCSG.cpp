@@ -60,7 +60,8 @@ enum
 	ID_Save = 2,
 	ID_Export = 3,
 	ID_New = 4,
-	ID_Open
+	ID_Open = 5,
+	ID_Delete = 6
 };
 
 class MyApp : public wxApp
@@ -94,6 +95,7 @@ private:
 	void OnIdle(wxIdleEvent& event);
 	void OnNew(wxCommandEvent& event);
 	void OnOpen(wxCommandEvent& event);
+	void OnDelete(wxCommandEvent& event);
 	void OnExportInner();
 
 	wxDECLARE_EVENT_TABLE();
@@ -107,6 +109,7 @@ EVT_MENU(ID_Save, MyFrame::OnSave)
 EVT_MENU(ID_Export, MyFrame::OnExport)
 EVT_MENU(ID_New,MyFrame::OnNew)
 EVT_MENU(ID_Open,MyFrame::OnOpen)
+EVT_MENU(ID_Delete,MyFrame::OnDelete)
 EVT_IDLE(MyFrame::OnIdle)
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);
@@ -203,8 +206,27 @@ END_EVENT_TABLE()
 
 
 
+void setEditorTitle(wxNotebook * nb) {
+
+	std::string basename = std::string(std::filesystem::path(designPath).filename().u8string());
+	nb->SetPageText(0, basename);
+
+
+}
+
+
 void MyFrame::OnOpen(wxCommandEvent& event) {
 	OFD ofd;
+}
+
+void MyFrame::OnDelete(wxCommandEvent& event) {
+
+	std::filesystem::remove(designPath);
+	designPath = "Designs\\Untitled.py";
+	setEditorTitle(tabs);
+
+
+
 }
 
 void MyFrame::OnNew(wxCommandEvent& event) {
@@ -267,8 +289,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		"Export your design");
 	menuFile->Append(ID_New, "&New\tCtrl-E",
 		"Create a new design");
-	menuFile->Append(ID_Open, "&Open\tCtrl-E",
+	menuFile->Append(ID_Open, "&Open\tCtrl-O",
 		"Open an existing design");
+	menuFile->Append(ID_Delete, "&Delete this design\tCtrl+D", "Delete this design");
 
 
 	wxMenu* menuHelp = new wxMenu;
