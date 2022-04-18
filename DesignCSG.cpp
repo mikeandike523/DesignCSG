@@ -131,19 +131,56 @@ public:
 			filenames.push_back(std::string(e.path().filename().u8string()));
 		}
 
-		wxListBox lb(this, wxID_ANY);
+		wxListBox * lb = new wxListBox(this, wxID_ANY,wxDefaultPosition,wxDefaultSize,wxArrayString(),wxLB_SINGLE);
+
+		wxBoxSizer * vbox = new wxBoxSizer(wxVERTICAL);
+		
+		vbox->Add(lb, wxSizerFlags().Expand());
+
 
 
 		for (std::string& s : filenames) {
-			lb.Append(std::vector<wxString>{wxString(s)});
+			lb->Append(std::vector<wxString>{wxString(s)});
 		}
 
+		wxButton* okButton = new wxButton(this,wxID_ANY,"Open");
+		vbox->Add(okButton, wxSizerFlags().CenterHorizontal());
+
+		SetSizer(vbox);
 
 		Centre();
-		ShowModal();
+
+		int retCode = ShowModal();
+
+		DebugPrint("Modal exit code: %d", retCode);
+
+		if (retCode != 0) {
+			DebugPrint("Modal was exited or there was an error.\n");
+		}
+		else {
+
+			if (lb->GetSelection() == wxNOT_FOUND) {
+				designPath = "Designs\\Untitled.py";
+				if (!std::filesystem::is_regular_file("Designs\\Untitled.py")) {
+					Utils::writeFile("Designs\\Untitled.py", newFileTemplate);
+				}
+			}
+			else
+			designPath = "Designs\\" + filenames[lb->GetSelection()];
+		
+		}
+
+	//	delete vbox;
+	//	delete lb;
+	//	delete okButton;
 		Destroy();
 	
 	}
+
+	void okButtonPressed(wxCommandEvent& event) {
+		EndModal(0);
+	}
+
 	
 };
 
