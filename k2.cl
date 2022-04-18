@@ -2,8 +2,8 @@
 #define MAX_DISTANCE 64.0
 #define SDF_EPSILON 0.005
 #define NORMAL_EPSILON 0.005
-#define TOLERANCE_FACTOR_MARCHSTEP 0.25
-#define TOLERANCE_FACTOR_MATERIAL 5.0
+#define TOLERANCE_FACTOR_MARCHSTEP 0.85
+#define TOLERANCE_FACTOR_MATERIAL 2.0
 #define RCOMP(c) (clip((int)(255.0*c.x)))
 #define GCOMP(c) (clip((int)(255.0*c.y)))
 #define BCOMP(c) (clip((int)(255.0*c.z)))
