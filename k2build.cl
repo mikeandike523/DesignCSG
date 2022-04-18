@@ -1,6 +1,6 @@
 #define MAX_STEPS 512
 #define MAX_DISTANCE 64.0
-#define SDF_EPSILON 0.001
+#define SDF_EPSILON 0.005
 #define NORMAL_EPSILON 0.005
 #define TOLERANCE_FACTOR_MARCHSTEP 0.25
 #define TOLERANCE_FACTOR_MATERIAL 5.0
@@ -279,7 +279,7 @@ __kernel void  k2(
 #define union(a,b) T_min(a,b)
 #define intersection(a,b) T_max(a,b)
 #define subtraction(a,b) T_max(a,-b)
-#define Vector3f(x,y,z) ((double3)((float)(x),(float)(y),(float)(z)))
+#define Vector3f(x,y,z) ((double3)((double)(x),(double)(y),(double)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 
 #define DIRECTION_X 0
@@ -460,8 +460,9 @@ __kernel void  k2(
 
 	}
 
-	float putShaft(double3 v, double3 center, float halfWidth, float halfLength, int direction){
+	float putShaft(double3 v, float halfWidth, float halfLength, int direction){
 		float d = MAX_DISTANCE;
+		double3 center = Vector3f(0.0,0.0,0.0);
 		switch(direction){
 			case DIRECTION_X:
 
@@ -490,7 +491,7 @@ __kernel void  k2(
 
 		);
 
-		return putShaft(v,center,lineWidth/3.0,1.0/6.0,direction);
+		return putShaft((v-center)*3.0,lineWidth,0.5,direction);
 
 	}
 
