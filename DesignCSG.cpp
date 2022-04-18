@@ -5,6 +5,7 @@ int hasModel = 0;
 #include <wx/stc/stc.h>
 #include <wx/rawbmp.h>
 #include <wx/notebook.h>
+#include <wx/listbox.h>
 #include <Windows.h>
 #include "DrawPane.h"
 #include "Utils.h"
@@ -127,10 +128,15 @@ public:
 		std::vector<std::string> filenames;
 
 		for (const auto& e : std::filesystem::directory_iterator("Designs")) {
-			filenames.push_back(std::string(e.path().u8string()));
-		
+			filenames.push_back(std::string(e.path().filename().u8string()));
 		}
 
+		wxListBox lb(this, wxID_ANY);
+
+
+		for (std::string& s : filenames) {
+			lb.Append(std::vector<wxString>{wxString(s)});
+		}
 
 
 		Centre();
@@ -142,8 +148,7 @@ public:
 };
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
-
-
+	OFD ofd;
 }
 
 void MyFrame::OnNew(wxCommandEvent& event) {
