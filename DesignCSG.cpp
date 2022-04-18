@@ -30,6 +30,20 @@ int hasModel = 0;
 Evaluator* global_evaluator = nullptr;
 std::string logString;
 std::mutex logStringMutex;
+std::string designPath = "Designs\\Untitled.py";
+std::string newFileTemplate = 
+"from DesignCSG import *\n"
+"from DesignLibrary import *\n"
+"\n"
+"\n"
+
+"#Your code here...\n"
+
+"\n"
+"\n"
+"commit()\n"
+;
+
 
 enum class Mode {
 	W,
@@ -43,7 +57,8 @@ enum
 {
 	ID_Run = 1,
 	ID_Save = 2,
-	ID_Export = 3
+	ID_Export = 3,
+	ID_New = 4
 };
 
 class MyApp : public wxApp
@@ -64,6 +79,7 @@ public:
 	wxStyledTextCtrl* text;
 	wxStyledTextCtrl* dlText;
 	wxStyledTextCtrl* dCSGText;
+	wxNotebook* tabs;
 	int editCounter = -1;
 
 private:
@@ -74,6 +90,7 @@ private:
 	void OnSave(wxCommandEvent& event);
 	void OnExport(wxCommandEvent& event);
 	void OnIdle(wxIdleEvent& event);
+	void OnNew(wxCommandEvent& event);
 	void OnExportInner();
 
 	wxDECLARE_EVENT_TABLE();
@@ -85,9 +102,34 @@ EVT_MENU(wxID_EXIT, MyFrame::OnExit)
 EVT_MENU(ID_Run, MyFrame::OnRun)
 EVT_MENU(ID_Save, MyFrame::OnSave)
 EVT_MENU(ID_Export, MyFrame::OnExport)
+EVT_MENU(ID_New,MyFrame::OnNew)
 EVT_IDLE(MyFrame::OnIdle)
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);
+
+
+std::string stripPY(std::string s) {
+
+	if (s.find(".py") != std::string::npos) {
+		s = s.substr(0, s.size() - 3);
+	}
+	return s;
+}
+
+void MyFrame::OnNew(wxCommandEvent& event) {
+	wxTextEntryDialog dlg(this,"Enter a name for the new design.","","");
+	if (dlg.ShowModal() == wxID_OK)
+	{
+		// We can be certain that this string contains letters only.
+		std::string value = stripPY(std::string(dlg.GetValue().c_str()))+".py";
+		Utils::writeFile(("Designs\\" + value).c_str(), newFileTemplate);
+		designPath = "Designs\\" + value;
+		text->SetText(Utils::readFile(designPath.c_str()));
+		tabs->SetPageText(0, wxString(std::filesystem::path(designPath).filename()));
+	}
+
+
+}
 
 void MyFrame::OnIdle(wxIdleEvent& event) {
 
@@ -103,6 +145,11 @@ void MyFrame::OnIdle(wxIdleEvent& event) {
 
 bool MyApp::OnInit()
 {
+
+	if (std::filesystem::is_regular_file("designPath.txt")) {
+		designPath = Utils::readFile("designPath.txt");
+	
+	}
 
 	freopen("consolelog.txt", "w", stdout);
 	MyFrame* frame = new MyFrame("DesignCSG", wxDefaultPosition, wxSize(640 + 350, 700));
@@ -127,6 +174,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		"Save your design");
 	menuFile->Append(ID_Export, "&Export Design\tCtrl-E",
 		"Save your design");
+	menuFile->Append(ID_New, "&New Design\tCtrl-E",
+		"Save your design");
+
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
 	wxMenuBar* menuBar = new wxMenuBar;
@@ -143,7 +193,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxBoxSizer* editorBoxSizer = new wxBoxSizer(wxVERTICAL);
 	editorPanel->SetSizer(editorBoxSizer);
 
-	wxNotebook* tabs = new wxNotebook(editorPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0L, wxString::FromAscii("tabs"));
+	tabs = new wxNotebook(editorPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0L, wxString::FromAscii("tabs"));
 
 	auto setupStyledTextControl = [](wxStyledTextCtrl* ctrl, std::string initialText) {
 
@@ -177,20 +227,21 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	setupStyledTextControl(designLibraryText, Utils::readFile("designlibrary.py"));
 
-	wxStyledTextCtrl* designCSGText = new wxStyledTextCtrl(tabs, wxNewId(), wxDefaultPosition, wxDefaultSize);
+	//wxStyledTextCtrl* designCSGText = new wxStyledTextCtrl(tabs, wxNewId(), wxDefaultPosition, wxDefaultSize);
 
-	dlText = designCSGText;
+	//dlText = designCSGText;
 
-	dCSGText = designCSGText;
+	//dCSGText = designCSGText;
 
-	setupStyledTextControl(designCSGText, Utils::readFile("DesignCSG.py"));
+	//setupStyledTextControl(designCSGText, Utils::readFile("DesignCSG.py"));
 
 
-	tabs->AddPage(text, "Your Design: Untitled.py", false, -1);
+	tabs->AddPage(text, wxString(std::filesystem::path(designPath).filename()), false, -1);
 
-	tabs->AddPage(designLibraryText, "Design Library", false, -1);
+	tabs->AddPage(designLibraryText, "designlibrary.py", false, -1);
 
-	tabs->AddPage(designCSGText, "Utility Classes and Functions", false, -1);
+//	tabs->AddPage(designCSGText, "DesignCSG.py", false, -1);
+
 
 	editorBoxSizer->Add(tabs, wxSizerFlags(1).Expand());
 
@@ -234,6 +285,7 @@ void saveRoutine(MyFrame * ths) {
 	Utils::writeFile("Designs\\Untitled.py", std::string(ths->text->GetText()));
 	Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
 	Utils::writeFile("DesignCSG.py", std::string(ths->dCSGText->GetText()));
+	Utils::writeFile("designPath.txt", designPath);
 }
 
 void MyFrame::OnRun(wxCommandEvent& event) {
