@@ -54,6 +54,7 @@ enum class Mode {
 void log(wxTextCtrl* ctrl, std::string message, Mode mode);
 void clearLogs(wxTextCtrl* ctrl);
 
+
 enum
 {
 	ID_Run = 1,
@@ -101,6 +102,8 @@ private:
 	wxDECLARE_EVENT_TABLE();
 
 };
+
+void loadRoutine(MyFrame* ths);
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_MENU(wxID_EXIT, MyFrame::OnExit)
@@ -214,6 +217,11 @@ void setEditorTitle(wxNotebook * nb) {
 
 }
 
+std::string getDesignBasename() {
+
+	return std::string(std::filesystem::path(designPath).filename().u8string());
+}
+
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
 	OFD ofd;
@@ -221,11 +229,20 @@ void MyFrame::OnOpen(wxCommandEvent& event) {
 
 void MyFrame::OnDelete(wxCommandEvent& event) {
 
-	std::filesystem::remove(designPath);
-	designPath = "Designs\\Untitled.py";
-	setEditorTitle(tabs);
 
+	wxMessageDialog mdlg = wxMessageDialog(
+	this,
+		wxString(std::string(std::string("Really delete ") + getDesignBasename() + std::string("?")).c_str()),
+		"",
+		wxYES_NO 
+	
+	);
 
+	if (mdlg.ShowModal() == wxID_YES) {
+		std::filesystem::remove(designPath);
+		designPath = "Designs\\Untitled.py";
+		loadRoutine(this);
+	}
 
 }
 
@@ -237,8 +254,7 @@ void MyFrame::OnNew(wxCommandEvent& event) {
 		std::string value = stripPY(std::string(dlg.GetValue().c_str()))+".py";
 		Utils::writeFile(("Designs\\" + value).c_str(), newFileTemplate);
 		designPath = "Designs\\" + value;
-		text->SetText(Utils::readFile(designPath.c_str()));
-		tabs->SetPageText(0, wxString(std::filesystem::path(designPath).filename()));
+		loadRoutine(this);
 	}
 
 
@@ -403,6 +419,11 @@ void saveRoutine(MyFrame * ths) {
 	Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
 	//Utils::writeFile("DesignCSG.py", std::string(ths->dCSGText->GetText()));
 	Utils::writeFile("designPath.txt", designPath);
+}
+
+void loadRoutine(MyFrame* ths) {
+	setEditorTitle(ths->tabs);
+	ths->text->SetValue(wxString(Utils::readFile(designPath.c_str()).c_str()));
 }
 
 void MyFrame::OnRun(wxCommandEvent& event) {
