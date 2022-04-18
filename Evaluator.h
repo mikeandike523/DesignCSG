@@ -13,7 +13,7 @@
 
 //will use later in order to allocate buffers in Evaluator class constructor
 //global size is good enough , don't need to pass a num_eval_points argument
-#define MAX_EVAL_POINTS (200*200*200)
+#define MAX_EVAL_POINTS (256*256*256)
 
 
 class Evaluator

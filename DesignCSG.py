@@ -171,7 +171,16 @@ def draw_box(origin,diameter):
     ))
 
 
-def setExportConfig(boundingBoxHalfDiameter,minimumOctreeLevel,maximumOctreeLevel,gridLevel,complexSurfaceThreshold,gradientDescentSteps=10,cacheSubdivision=16):
+def setExportConfig(boundingBoxHalfDiameter,
+minimumOctreeLevel,
+maximumOctreeLevel,
+gridLevel,
+complexSurfaceThreshold,
+gradientDescentSteps=10,
+cacheSubdivision=16,
+queriesBeforeGC=64,
+queriesBeforeFree=1024
+):
 
     with open("exportConfig.txt","w") as fl:
 
@@ -184,6 +193,8 @@ def setExportConfig(boundingBoxHalfDiameter,minimumOctreeLevel,maximumOctreeLeve
         outstr+=(str(complexSurfaceThreshold)+"\n")
         outstr+=(str(gradientDescentSteps)+"\n")
         outstr+=(str(cacheSubdivision)+"\n")
+        outstr+=(str(queriesBeforeGC)+"\n")
+        outstr+=(str(queriesBeforeFree)+"\n")
 
         outstr.strip("\n")
         fl.write(outstr)
