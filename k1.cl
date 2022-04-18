@@ -381,9 +381,16 @@ double3 get_normal(double3 v,
 
 ){
 
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+    double3 _dx = (double3)(NORMAL_EPSILON,0.0,0.0);
+    double3 _dy = (double3)(0.0,NORMAL_EPSILON,0.0);
+    double3 _dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+
+
+    double3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
+    double3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
+    double3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
+
+
 
     float Dx = primary_sdf(v+dx, wargs, bsargs)-primary_sdf(v-dx, wargs, bsargs);
     float Dy = primary_sdf(v+dy, wargs, bsargs)-primary_sdf(v-dy, wargs, bsargs);
