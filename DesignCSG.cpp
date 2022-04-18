@@ -119,6 +119,28 @@ std::string stripPY(std::string s) {
 	return s;
 }
 
+class OFD : wxDialog {
+
+public:
+	OFD() : wxDialog(nullptr,wxID_ANY,"Open an Existing Design") {
+
+		std::vector<std::string> filenames;
+
+		for (const auto& e : std::filesystem::directory_iterator("Designs")) {
+			filenames.push_back(std::string(e.path().u8string()));
+		
+		}
+
+
+
+		Centre();
+		ShowModal();
+		Destroy();
+	
+	}
+	
+};
+
 void MyFrame::OnOpen(wxCommandEvent& event) {
 
 
@@ -180,10 +202,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		"Run your design");
 	menuFile->Append(ID_Save, "&Save\tCtrl-S",
 		"Save your design");
-	menuFile->Append(ID_Export, "&Export Design\tCtrl-E",
-		"Save your design");
-	menuFile->Append(ID_New, "&New Design\tCtrl-E",
-		"Save your design");
+	menuFile->Append(ID_Export, "&Export\tCtrl-E",
+		"Export your design");
+	menuFile->Append(ID_New, "&New\tCtrl-E",
+		"Create a new design");
+	menuFile->Append(ID_Open, "&Open\tCtrl-E",
+		"Open an existing design");
+
 
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
