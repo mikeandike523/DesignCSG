@@ -611,8 +611,10 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 						}
 						message += hS;
 						message += '\n';
-						return message;
+						
 					}
+
+					return message;
 
 				};
 
