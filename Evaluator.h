@@ -30,7 +30,7 @@ public:
 
 	Evaluator(cl_device_id _device, cl_context _context, cl_command_queue queue, wxTextCtrl* _console);
 
-	void build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_buffer,
+	std::pair<int,std::string> build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_buffer,
 
 		cl_mem object_right_bank_buffer,
 		cl_mem object_up_bank_buffer,
