@@ -58,7 +58,8 @@ enum
 	ID_Run = 1,
 	ID_Save = 2,
 	ID_Export = 3,
-	ID_New = 4
+	ID_New = 4,
+	ID_Open
 };
 
 class MyApp : public wxApp
@@ -91,6 +92,7 @@ private:
 	void OnExport(wxCommandEvent& event);
 	void OnIdle(wxIdleEvent& event);
 	void OnNew(wxCommandEvent& event);
+	void OnOpen(wxCommandEvent& event);
 	void OnExportInner();
 
 	wxDECLARE_EVENT_TABLE();
@@ -103,6 +105,7 @@ EVT_MENU(ID_Run, MyFrame::OnRun)
 EVT_MENU(ID_Save, MyFrame::OnSave)
 EVT_MENU(ID_Export, MyFrame::OnExport)
 EVT_MENU(ID_New,MyFrame::OnNew)
+EVT_MENU(ID_Open,MyFrame::OnOpen)
 EVT_IDLE(MyFrame::OnIdle)
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);
@@ -114,6 +117,11 @@ std::string stripPY(std::string s) {
 		s = s.substr(0, s.size() - 3);
 	}
 	return s;
+}
+
+void MyFrame::OnOpen(wxCommandEvent& event) {
+
+
 }
 
 void MyFrame::OnNew(wxCommandEvent& event) {
