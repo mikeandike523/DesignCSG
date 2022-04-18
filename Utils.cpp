@@ -75,7 +75,7 @@ namespace Utils {
 		free(program_buffer);
 
 		char options_string[512];
-		sprintf(options_string, "-D STACK_MEMORY_PER_PIXEL=%d", STACK_MEM_PER_PIXEL);
+		sprintf(options_string, "-D STACK_MEMORY_PER_PIXEL=%d -w", STACK_MEM_PER_PIXEL);
 
 		*err = clBuildProgram(program, 0, NULL, options_string, NULL, NULL);
 

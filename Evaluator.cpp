@@ -33,7 +33,7 @@ Evaluator::Evaluator(cl_device_id _device, cl_context _context, cl_command_queue
 
 
 
-void Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_buffer,
+std::pair<int,std::string> Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_buffer,
 
 	cl_mem object_right_bank_buffer,
 	cl_mem object_up_bank_buffer,
@@ -76,7 +76,7 @@ void Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_b
 		console->Clear();
 		console->AppendText("Error when building evaluation program:\n");
 		console->AppendText(buildLog.c_str());
-		return;
+		return std::make_pair( - 1,std::string(buildLog.c_str()));
 	}
 
 	kernel = clCreateKernel(program, "k2", &err);
@@ -94,6 +94,9 @@ void Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem object_position_bank_b
 	err |= clSetKernelArg(kernel, 8, sizeof(cl_mem), &num_objects_arr_buffer);
 	err |= clSetKernelArg(kernel, 9, sizeof(cl_mem), &build_procedure_data_buffer);
 	err |= clSetKernelArg(kernel, 10, sizeof(cl_mem), &num_build_steps_arr_buffer);
+
+
+	return std::make_pair(0, std::string("Success!"));
 
 }
 

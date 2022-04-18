@@ -332,6 +332,9 @@ int cacheSubdivision = 16;
 
 ExportProcessState exportProcessState = ExportProcessState::IDLE;
 
+
+std::pair<int, std::string> buildStatus;
+
 void MyFrame::OnExportInner() {
 
 	if (this->sbmp->initialized()) {
@@ -342,7 +345,7 @@ void MyFrame::OnExportInner() {
 
 		
 
-		global_evaluator->build(
+		 buildStatus = global_evaluator->build(
 			this->sbmp->shape_id_bank_buffer,
 			this->sbmp->object_position_bank_buffer,
 			this->sbmp->object_right_bank_buffer,
@@ -352,6 +355,11 @@ void MyFrame::OnExportInner() {
 			this->sbmp->build_procedure_data_buffer,
 			this->sbmp->num_build_steps_buffer
 		);
+
+		if (buildStatus.first == -1) {
+			log(debugConsole,"Error building export kernel:\n"+buildStatus.second,Mode::W);
+			return;
+		}
 
 		exportProcessState = ExportProcessState::ESTIMATING_BOUNDING_BOX;
 		
@@ -542,6 +550,12 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 			std::chrono::system_clock::now().time_since_epoch()).count();
 		auto task2 = [/*&start*/](wxTextCtrl* debugConsole, unsigned long long start) {
 			while (!edone) {
+
+				if (buildStatus.first == -1) {
+				
+					edone = 1;
+					return;
+				}
 
 				auto timeAndMemoryString = [&start]() {
 					MEMORYSTATUSEX statex;
