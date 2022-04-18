@@ -117,20 +117,19 @@ namespace cms {
 			Triangle3f tr = trs[i];
 
 
-			meshVertexPositions[i * 3 + 0] = {tr.A.x,tr.A.z,tr.A.y};
+			meshVertexPositions.push_back({ tr.A.x, tr.A.y, tr.A.z });
 
-			meshVertexPositions[i * 3 + 1] = { tr.B.x,tr.B.z,tr.B.y };
+			meshVertexPositions.push_back({ tr.B.x, tr.B.y, tr.B.z });
 
 
-			meshVertexPositions[i * 3 + 2] = { tr.C.x,tr.C.z,tr.C.y };
+			meshVertexPositions.push_back( { tr.C.x, tr.C.y, tr.C.z });
 
 			std::vector<size_t> trFace;
-			for (int i = 0; i < 3; i++) {
+
+			trFace.push_back(i * 3 + 0);
+			trFace.push_back(i * 3 + 1);
+			trFace.push_back(i * 3 + 2);
 			
-				trFace.push_back(i * 3 + 0);
-				trFace.push_back(i * 3 + 1);
-				trFace.push_back(i * 3 + 2);
-			}
 
 			meshFaceIndices.push_back(trFace);
 
