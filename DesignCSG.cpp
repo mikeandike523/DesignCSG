@@ -329,6 +329,8 @@ int maxTriangles;
 int writingTriangles = 0;
 int gradientDescentStepsCompleted = 0;
 int cacheSubdivision = 16;
+int queriesBeforeGC = 64;
+int queriesBeforeFree = 1024;
 
 ExportProcessState exportProcessState = ExportProcessState::IDLE;
 
@@ -427,8 +429,8 @@ void MyFrame::OnExportInner() {
 			}
 		);
 		int res = 1 << gridLevel;
-		ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>&)>> sampler(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evr, 1024, 64);
-		ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>> samplerN(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evrN, 1024, 64);
+		ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>&)>> sampler(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evr, queriesBeforeFree, queriesBeforeGC);
+		ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>> samplerN(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evrN, queriesBeforeFree, queriesBeforeGC);
 		mesh = new cms::Mesh(boundingBox, [&sampler](float x, float y, float z) {
 			return sampler.getValue(v3f(x, y, z));
 			}, 
@@ -532,6 +534,9 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 	complexSurfaceThreshold = std::stof(configLines[4]);
 	gradientDescentSteps = std::stoi(configLines[5]);
 	cacheSubdivision = std::stoi(configLines[6]);
+	queriesBeforeGC = std::stoi(configLines[7]);
+	queriesBeforeFree = std::stoi(configLines[8]);
+		
 
 	auto task = [](MyFrame* frm) {
 		logRoutine("Logging test...\n");
