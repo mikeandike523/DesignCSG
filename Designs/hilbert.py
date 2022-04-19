@@ -10,6 +10,7 @@ add_preprocessor_define(define="""
 #define subtraction(a,b) T_max(a,-b)
 #define Vector3f(x,y,z) ((double3)((double)(x),(double)(y),(double)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
+#define upperClampVector3f(v) (Vector3f(T_max(v.x,0.0),T_max(v.y,0.0),T_max(v.z,0.0)))
 
 #define DIRECTION_X 0
 #define DIRECTION_Y 1
@@ -94,9 +95,12 @@ define_auxillary_function(function="""
 
 	float box(double3 point, double3 center, double3 halfDiameter ){
 
-		point=fabs(point-center);
+		//courtesy of Inigo Quilez
+		//https://iquilezles.org/articles/distfunctions/
 
-		return maxComponent(point-halfDiameter);
+		double3 q = fabs(point-center)-halfDiameter;
+
+		return length(upperClampVector3f(q))+T_min(maxComponent(q),0.0);
 		
 	}
 
@@ -330,7 +334,7 @@ setExportConfig(
 	maximumOctreeLevel=8,
 	gridLevel = 9,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
-	gradientDescentSteps = 30,
+	gradientDescentSteps = 50,
 	cacheSubdivision = 32,
 	queriesBeforeGC = 1024,
 	queriesBeforeFree = 4096

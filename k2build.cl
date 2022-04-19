@@ -281,6 +281,7 @@ __kernel void  k2(
 #define subtraction(a,b) T_max(a,-b)
 #define Vector3f(x,y,z) ((double3)((double)(x),(double)(y),(double)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
+#define upperClampVector3f(v) (Vector3f(T_max(v.x,0.0),T_max(v.y,0.0),T_max(v.z,0.0)))
 
 #define DIRECTION_X 0
 #define DIRECTION_Y 1
@@ -359,9 +360,12 @@ __kernel void  k2(
 
 	float box(double3 point, double3 center, double3 halfDiameter ){
 
-		point=fabs(point-center);
+		//courtesy of Inigo Quilez
+		//https://iquilezles.org/articles/distfunctions/
 
-		return maxComponent(point-halfDiameter);
+		double3 q = fabs(point-center)-halfDiameter;
+
+		return length(upperClampVector3f(q))+T_min(maxComponent(q),0.0);
 		
 	}
 
