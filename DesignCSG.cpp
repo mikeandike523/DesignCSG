@@ -303,6 +303,11 @@ bool MyApp::OnInit()
 		designPath = Utils::readFile("designPath.txt");
 	
 	}
+	else {
+		Utils::writeFile("designPath.txt","Designs\\Untitled.py");
+		designPath = Utils::readFile("designPath.txt");
+	
+	}
 
 	freopen("consolelog.txt", "w", stdout);
 	MyFrame* frame = new MyFrame("DesignCSG", wxDefaultPosition, wxSize(640 + 350, 700));
@@ -685,6 +690,8 @@ void MyFrame::OnExportInner() {
 
 
 		exportProcessState = ExportProcessState::WRITING_TRIANGLES_TO_STL;
+
+
 
 		cms::writeTrianglesToSTL("Exports\\Untitled.stl", trs, &numTrianglesWritten);
 		cms::writeTrianglesToPLY("Exports\\Untitled.ply", trs, &numTrianglesWritten);
