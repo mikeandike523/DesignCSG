@@ -187,7 +187,7 @@ public:
 				}
 			}
 			else
-			designPath = "Designs\\" + filenames[lb->GetSelection()];
+			setDesignPath("Designs\\" + filenames[lb->GetSelection()]);
 		
 		}
 
@@ -249,6 +249,7 @@ void MyFrame::OnSaveAs(wxCommandEvent& event) {
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
 	OFD ofd;
+	loadRoutine(this);
 }
 
 void MyFrame::OnDelete(wxCommandEvent& event) {
@@ -326,19 +327,22 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	Maximize(true);
 	wxMenu* menuFile = new wxMenu;
-	menuFile->Append(ID_Run, "&Run\tCtrl-R",
-		"Run your design");
-	menuFile->Append(ID_Save, "&Save\tCtrl-S",
-		"Save your design");
-	menuFile->Append(ID_Export, "&Export\tCtrl-E",
-		"Export your design");
+
 	menuFile->Append(ID_New, "&New\tCtrl-E",
 		"Create a new design");
 	menuFile->Append(ID_Open, "&Open\tCtrl-O",
 		"Open an existing design");
-	menuFile->Append(ID_Delete, "&Delete this design\tCtrl-Shift-D", "Delete this design");
-	menuFile->Append(ID_SaveAs, "&Save as\tCtrl-Shift-S");
+	menuFile->Append(ID_Save, "&Save\tCtrl-S",
+		"Save your design");
+	menuFile->Append(ID_SaveAs, "&Save as\tCtrl-Shift-S","Save your design with a new name.");
 
+	menuFile->Append(ID_Delete, "&Delete this design\tCtrl-Shift-D", "Delete this design");
+
+	menuFile->Append(ID_Run, "&Run\tCtrl-R",
+		"Run your design");
+
+	menuFile->Append(ID_Export, "&Export\tCtrl-E",
+		"Export your design");
 
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
