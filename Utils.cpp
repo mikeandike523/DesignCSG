@@ -13,6 +13,7 @@
 #include <locale>
 #include <vector>
 #include <CVector.h>
+#include <filesystem>
 
 #include <CL/cl.h>
 
@@ -198,5 +199,24 @@ namespace Utils {
 
 		fclose(fl);
 	}
+
+	std::string replaceExtension(std::string path, std::string originalExtension, std::string newExtension) {
+		std::string result = "";
+		
+		if (path.find(originalExtension)!=std::string::npos) {
+			result = path.substr(0,path.length()-originalExtension.length())+newExtension;
+		
+		}
+		else {
+			result = path + newExtension;
+		}
+
+		return result;
+
+	}
+	std::string getBaseName(std::string path) {
+		return std::string((std::filesystem::path(path)).filename().u8string());
+	}
+
 
 }
