@@ -16,8 +16,8 @@ C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ls' in 
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%lls' in the format string
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%Ls' in the format string
 C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ws' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(554,48): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Projects\DesignCSG\DesignCSG.cpp(685,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-C:\Projects\DesignCSG\DesignCSG.cpp(685,3): message : consider using '%zd' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(708,24): warning C4129: '%': unrecognized character escape sequence
+C:\Projects\DesignCSG\DesignCSG.cpp(556,48): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Projects\DesignCSG\DesignCSG.cpp(687,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\Projects\DesignCSG\DesignCSG.cpp(687,3): message : consider using '%zd' in the format string
+C:\Projects\DesignCSG\DesignCSG.cpp(710,24): warning C4129: '%': unrecognized character escape sequence
   DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
