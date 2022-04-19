@@ -1,4 +1,1 @@
-Traceback (most recent call last):
-  File "C:\Projects\DesignCSG\compiled.py", line 2, in <module>
-    from DesignLibrary import *
-ModuleNotFoundError: No module named 'DesignLibrary'
+Instance tree compiled successfully.
