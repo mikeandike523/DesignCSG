@@ -334,7 +334,7 @@ setExportConfig(
 	maximumOctreeLevel=8,
 	gridLevel = 9,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
-	gradientDescentSteps = 30,
+	gradientDescentSteps = 50,
 	cacheSubdivision = 32,
 	queriesBeforeGC = 1024,
 	queriesBeforeFree = 4096
