@@ -20,10 +20,12 @@ namespace ISV {
 						}
 
 				sections[hsh] = dataSource(grid);
+				//if(gcFrequency!=-1)
 				counts[hsh] = maxCounts;
 
 			}
 			else {
+				//if(gcFre)
 				counts[hsh] = maxCounts;
 
 			}
@@ -33,11 +35,14 @@ namespace ISV {
 			T s = sections[hsh][getIndex(coords)];
 
 
-			gcCount++;
-			if (gcCount == gcFrequency) {
 
-				collectGarbage();
-				gcCount = 0;
+			if (gcFrequency!=-1) {
+				gcCount++;
+				if (gcCount == gcFrequency) {
+
+					collectGarbage();
+					gcCount = 0;
+				}
 			}
 
 			return s;
