@@ -330,20 +330,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	Maximize(true);
 	wxMenu* menuFile = new wxMenu;
 
-	menuFile->Append(ID_New, "&New\tCtrl-E",
+	menuFile->Append(ID_New, "&New",
 		"Create a new design");
-	menuFile->Append(ID_Open, "&Open\tCtrl-O",
+	menuFile->Append(ID_Open, "&Open",
 		"Open an existing design");
-	menuFile->Append(ID_Save, "&Save\tCtrl-S",
+	menuFile->Append(ID_Save, "&Save",
 		"Save your design");
-	menuFile->Append(ID_SaveAs, "&Save as\tCtrl-Shift-S","Save your design with a new name.");
+	menuFile->Append(ID_SaveAs, "&Save as","Save your design with a new name.");
 
-	menuFile->Append(ID_Delete, "&Delete this design\tCtrl-Shift-D", "Delete this design");
+	menuFile->Append(ID_Delete, "&Delete this design", "Delete this design");
 
-	menuFile->Append(ID_Run, "&Run\tCtrl-R",
+	menuFile->Append(ID_Run, "&Run",
 		"Run your design");
 
-	menuFile->Append(ID_Export, "&Export\tCtrl-E",
+	menuFile->Append(ID_Export, "&Export",
 		"Export your design");
 
 	wxMenu* menuHelp = new wxMenu;
