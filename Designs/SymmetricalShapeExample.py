@@ -46,5 +46,17 @@ for _x,_y,_z in np.ndindex((3,3,3)):
 			scale=0.5*_arr([1.5,1.5,1.5])
 		))
 
+setExportConfig(
+
+	boundingBoxHalfDiameter=2.0,
+	minimumOctreeLevel=6,
+	maximumOctreeLevel=8,
+	gridLevel = 9,
+	complexSurfaceThreshold=np.pi/2.0*0.5,
+	gradientDescentSteps = 30,
+	cacheSubdivision = 4,
+	queriesBeforeGC = 512,
+	queriesBeforeFree = 512*32
+)
 
 commit()
