@@ -39,7 +39,7 @@ void setDesignPath(std::string dp) {
 
 std::string newFileTemplate = 
 "from DesignCSG import *\n"
-"from DesignLibrary import *\n"
+"from designLibrary import *\n"
 "\n"
 "\n"
 
@@ -451,7 +451,7 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 }
 
 void saveRoutine(MyFrame * ths) {
-	Utils::writeFile("Designs\\Untitled.py", std::string(ths->text->GetText()));
+	Utils::writeFile(designPath, std::string(ths->text->GetText()));
 	Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
 	//Utils::writeFile("DesignCSG.py", std::string(ths->dCSGText->GetText()));
 	Utils::writeFile("designPath.txt", designPath);
