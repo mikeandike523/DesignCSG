@@ -32,6 +32,11 @@ Evaluator* global_evaluator = nullptr;
 std::string logString;
 std::mutex logStringMutex;
 std::string designPath = "Designs\\Untitled.py";
+void setDesignPath(std::string dp) {
+	designPath = dp;
+	Utils::writeFile("designPath.txt", dp);
+}
+
 std::string newFileTemplate = 
 "from DesignCSG import *\n"
 "from DesignLibrary import *\n"
@@ -62,7 +67,8 @@ enum
 	ID_Export = 3,
 	ID_New = 4,
 	ID_Open = 5,
-	ID_Delete = 6
+	ID_Delete = 6,
+	ID_SaveAs = 7
 };
 
 class MyApp : public wxApp
@@ -97,6 +103,7 @@ private:
 	void OnNew(wxCommandEvent& event);
 	void OnOpen(wxCommandEvent& event);
 	void OnDelete(wxCommandEvent& event);
+	void OnSaveAs(wxCommandEvent& event);
 	void OnExportInner();
 
 	wxDECLARE_EVENT_TABLE();
@@ -113,6 +120,8 @@ EVT_MENU(ID_Export, MyFrame::OnExport)
 EVT_MENU(ID_New,MyFrame::OnNew)
 EVT_MENU(ID_Open,MyFrame::OnOpen)
 EVT_MENU(ID_Delete,MyFrame::OnDelete)
+EVT_MENU(ID_SaveAs, MyFrame::OnSaveAs)
+
 EVT_IDLE(MyFrame::OnIdle)
 wxEND_EVENT_TABLE()
 wxIMPLEMENT_APP(MyApp);
@@ -172,7 +181,7 @@ public:
 		else {
 
 			if (lb->GetSelection() == wxNOT_FOUND) {
-				designPath = "Designs\\Untitled.py";
+				setDesignPath("Designs\\Untitled.py");
 				if (!std::filesystem::is_regular_file("Designs\\Untitled.py")) {
 					Utils::writeFile("Designs\\Untitled.py", newFileTemplate);
 				}
@@ -223,6 +232,21 @@ std::string getDesignBasename() {
 }
 
 
+
+void MyFrame::OnSaveAs(wxCommandEvent& event) {
+	wxTextEntryDialog dlg(this, "Enter a new name for the new design.", "", "");
+	if (dlg.ShowModal() == wxID_OK)
+	{
+		
+		std::string value = stripPY(std::string(dlg.GetValue().c_str())) + ".py";
+		Utils::writeFile(("Designs\\" + value).c_str(), std::string(text->GetValue().c_str()));
+		std::filesystem::remove(std::filesystem::path(designPath));
+
+		designPath = "Designs\\" + value;
+		loadRoutine(this);
+	}
+}
+
 void MyFrame::OnOpen(wxCommandEvent& event) {
 	OFD ofd;
 }
@@ -240,7 +264,7 @@ void MyFrame::OnDelete(wxCommandEvent& event) {
 
 	if (mdlg.ShowModal() == wxID_YES) {
 		std::filesystem::remove(designPath);
-		designPath = "Designs\\Untitled.py";
+		setDesignPath("Designs\\Untitled.py");
 		loadRoutine(this);
 	}
 
@@ -307,7 +331,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		"Create a new design");
 	menuFile->Append(ID_Open, "&Open\tCtrl-O",
 		"Open an existing design");
-	menuFile->Append(ID_Delete, "&Delete this design\tCtrl+D", "Delete this design");
+	menuFile->Append(ID_Delete, "&Delete this design\tCtrl-Shift-D", "Delete this design");
+	menuFile->Append(ID_SaveAs, "&Save as\tCtrl-Shift-S");
 
 
 	wxMenu* menuHelp = new wxMenu;
@@ -422,6 +447,10 @@ void saveRoutine(MyFrame * ths) {
 }
 
 void loadRoutine(MyFrame* ths) {
+
+	if (!std::filesystem::is_regular_file(designPath)) {
+		Utils::writeFile(designPath.c_str(),newFileTemplate);
+	}
 	setEditorTitle(ths->tabs);
 	ths->text->SetValue(wxString(Utils::readFile(designPath.c_str()).c_str()));
 }
