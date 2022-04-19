@@ -472,7 +472,7 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 
 	saveRoutine(this);
 
-	Utils::writeFile("compiled.py", Utils::readFile("Designs\\Untitled.py"));
+	Utils::writeFile("compiled.py", Utils::readFile(designPath.c_str()));
 
 	clearLogs(debugConsole);
 
