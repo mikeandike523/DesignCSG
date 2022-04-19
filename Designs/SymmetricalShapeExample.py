@@ -4,7 +4,7 @@ import numpy as np
 
 
 def _arr(*args,**kwargs):
-	return 5*np.array(*args,**kwargs)
+	return np.array(*args,**kwargs)
 
 sphere_brush=define_brush(body=""" 
 	return length(v)-0.5;
@@ -22,7 +22,7 @@ draw(sphere_brush,Transform.initial(
 	yaw=-PI/2,
 	pitch=0,
 	roll=0,
-	scale=_arr([2.0,2.0,2.0])
+	scale=_arr([1.25,1.25,1.25])
 ))
 
 draw(box_brush,Transform.initial(
@@ -30,21 +30,22 @@ draw(box_brush,Transform.initial(
 	yaw=-PI/2,
 	pitch=0,
 	roll=0,
-	scale=_arr([1.5,1.5,1.5])
+	scale=_arr([0.95,0.95,0.95])
 ))
 
 for _x,_y,_z in np.ndindex((3,3,3)):
 	x=_x-1
 	y=_y-1
 	z=_z-1
-	if abs(x)+abs(y)+abs(z)==1:
+	if abs(x)+abs(y)+abs(z)==3:
 		erase(sphere_brush,Transform.initial(
 			position=_arr([x,y,z]),
 			yaw=-PI/2,
 			pitch=0,
 			roll=0,
-			scale=0.5*_arr([1.5,1.5,1.5])
+			scale=2.15*_arr([1.0,1.0,1.0])
 		))
+
 
 setExportConfig(
 
@@ -55,8 +56,8 @@ setExportConfig(
 	complexSurfaceThreshold=np.pi/2.0*0.5,
 	gradientDescentSteps = 30,
 	cacheSubdivision = 4,
-	queriesBeforeGC = 512,
-	queriesBeforeFree = 512*32
+	queriesBeforeGC = -1,
+	queriesBeforeFree = -1
 )
 
 commit()

@@ -332,8 +332,8 @@ setExportConfig(
 	complexSurfaceThreshold=np.pi/2.0*0.5,
 	gradientDescentSteps = 30,
 	cacheSubdivision = 4,
-	queriesBeforeGC = 512,
-	queriesBeforeFree = 512*32
+	queriesBeforeGC = -1,
+	queriesBeforeFree = -1
 )
 
 commit()
