@@ -2,7 +2,6 @@ from designlibrary import *
 from DesignCSG import *
 import numpy as np
 
-print("hello")
 
 def _arr(*args,**kwargs):
 	return 5*np.array(*args,**kwargs)
@@ -47,14 +46,5 @@ for _x,_y,_z in np.ndindex((3,3,3)):
 			scale=0.5*_arr([1.5,1.5,1.5])
 		))
 
-setExportConfig(
-
-	boundingBoxHalfDiameter=15.0,
-	minimumOctreeLevel=4,
-	maximumOctreeLevel=6,
-	gridLevel = 7,
-	complexSurfaceThreshold=np.pi/2.0*0.5,
-	gradientDescentSteps = 30
-)
 
 commit()
