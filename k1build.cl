@@ -654,12 +654,19 @@ __kernel void  k1(
 
 	float box(double3 point, double3 center, double3 halfDiameter ){
 
-		//courtesy of Inigo Quilez
+	
+	
+		point=fabs(point-center);
+		double3 q = point-halfDiameter;
+
+
+		//courtesy of Inigo Quiles
 		//https://iquilezles.org/articles/distfunctions/
+		//return length(upperClampVector3f(q))+T_min(0.0,maxComponent(q));
 
-		double3 q = fabs(point-center)-halfDiameter;
+		return maxComponent(q);
 
-		return length(upperClampVector3f(q))+T_min(maxComponent(q),0.0);
+
 		
 	}
 

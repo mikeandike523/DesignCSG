@@ -95,12 +95,19 @@ define_auxillary_function(function="""
 
 	float box(double3 point, double3 center, double3 halfDiameter ){
 
-		//courtesy of Inigo Quilez
+	
+	
+		point=fabs(point-center);
+		double3 q = point-halfDiameter;
+
+
+		//courtesy of Inigo Quiles
 		//https://iquilezles.org/articles/distfunctions/
+		//return length(upperClampVector3f(q))+T_min(0.0,maxComponent(q));
 
-		double3 q = fabs(point-center)-halfDiameter;
+		return maxComponent(q);
 
-		return length(upperClampVector3f(q))+T_min(maxComponent(q),0.0);
+
 		
 	}
 
@@ -331,13 +338,15 @@ setExportConfig(
 
 	boundingBoxHalfDiameter=2.0,
 	minimumOctreeLevel=6,
-	maximumOctreeLevel=8,
-	gridLevel = 9,
+	maximumOctreeLevel=9,
+	gridLevel = 10,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
 	gradientDescentSteps = 50,
-	cacheSubdivision = 32,
-	queriesBeforeGC = 1024,
-	queriesBeforeFree = 4096
+	cacheSubdivision = 1,
+	queriesBeforeGC = -1,
+	queriesBeforeFree = -1,
+	meshSubdivisionLevel = 3,
+	maxPoolSize = 12
 )
 
 commit()
