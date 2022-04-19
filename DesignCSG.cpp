@@ -248,7 +248,9 @@ void MyFrame::OnSaveAs(wxCommandEvent& event) {
 }
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
+	std::string originalPath = designPath;
 	OFD ofd;
+	if(designPath!=originalPath)
 	loadRoutine(this);
 }
 
