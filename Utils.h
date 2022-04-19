@@ -31,6 +31,9 @@ namespace Utils
 	void writeFile(const char* fn, std::string content);
 	void runProcess(std::string prgm, std::string cmd);
 	void write_stl(const char* fn, std::vector<Triangle3f> tris);
+	std::string replaceExtension(std::string path, std::string originalExtension, std::string newExtension);
+	std::string getBaseName(std::string path);
+
 
 
 #define DEBUG_MAX_CHARS 2048

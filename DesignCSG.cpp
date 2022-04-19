@@ -693,8 +693,8 @@ void MyFrame::OnExportInner() {
 
 
 
-		cms::writeTrianglesToSTL("Exports\\Untitled.stl", trs, &numTrianglesWritten);
-		cms::writeTrianglesToPLY("Exports\\Untitled.ply", trs, &numTrianglesWritten);
+		cms::writeTrianglesToSTL((std::string("Exports\\")+Utils::replaceExtension(Utils::getBaseName(designPath),".py",".stl")).c_str(), trs, &numTrianglesWritten);
+		cms::writeTrianglesToPLY((std::string("Exports\\") + Utils::replaceExtension(Utils::getBaseName(designPath), ".py", ".ply")).c_str(), trs, &numTrianglesWritten);
 
 		writingTriangles = 0;
 
