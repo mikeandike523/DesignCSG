@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include <mutex>
 namespace ISV {
 	using I643 = std::tuple<int64_t, int64_t, int64_t>;
 #define I643get(a,b) std::get<b>(a) 
@@ -9,9 +10,18 @@ namespace ISV {
 		ISV3D64(int W, int H, int D, int64_t WW, int64_t HH, int64_t DD, box_t* BB, F& DataSource, int MaxCounts, int GcFrequency)
 			:w(W), h(H), d(D), ww(WW), hh(HH), dd(DD), bb(BB), dataSource(DataSource), maxCounts(MaxCounts), gcFrequency(GcFrequency) {}
 		T getValue(v3f_t point) {
+
+
+			if(gcFrequency!=-1)
+			std::lock_guard<std::mutex> lock(accessMutex);
+
 			I643 coords = getCoords(point);
 			I643 hsh = hash(coords);
 			if (sections.find(hsh) == sections.end()) {
+
+				if(gcFrequency==-1)
+				std::lock_guard<std::mutex> lock(accessMutex);
+
 				std::vector<v3f_t> grid;
 				for (int iz = I643get(hsh, 2) * dd; iz < (I643get(hsh, 2) + 1) * dd; iz++)
 					for (int iy = I643get(hsh, 1) * hh; iy < (I643get(hsh, 1) + 1) * hh; iy++)
@@ -20,12 +30,12 @@ namespace ISV {
 						}
 
 				sections[hsh] = dataSource(grid);
-				//if(gcFrequency!=-1)
+				if(gcFrequency!=-1)
 				counts[hsh] = maxCounts;
 
 			}
 			else {
-				//if(gcFre)
+				if (gcFrequency != -1)
 				counts[hsh] = maxCounts;
 
 			}
@@ -35,21 +45,22 @@ namespace ISV {
 			T s = sections[hsh][getIndex(coords)];
 
 
-
-			if (gcFrequency!=-1) {
+			if (gcFrequency != -1) {
 				gcCount++;
-				if (gcCount == gcFrequency) {
+				if (gcCount >= gcFrequency) {
 
 					collectGarbage();
 					gcCount = 0;
 				}
 			}
+			
 
 			return s;
 
 		}
 
 	private:
+		std::mutex accessMutex;
 		int dimensions;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, std::vector<T>> sections;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, int> counts;

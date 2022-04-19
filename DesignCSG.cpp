@@ -563,6 +563,8 @@ int gradientDescentStepsCompleted = 0;
 int cacheSubdivision = 16;
 int queriesBeforeGC = 64;
 int queriesBeforeFree = 1024;
+int meshSubdivisionLevel = 4;
+int maxPoolSize = 12;
 
 ExportProcessState exportProcessState = ExportProcessState::IDLE;
 
@@ -669,7 +671,7 @@ void MyFrame::OnExportInner() {
 			[&samplerN](float x, float y, float z) {
 				v3f_t n = samplerN.getValue(v3f(x, y, z));
 				return cms::Vector3f(n.x, n.y, n.z);
-			}, trsMap, minimumOctreeLevel, maximumOctreeLevel, gridLevel, complexSurfaceThreshold, histogram);
+			}, trsMap, minimumOctreeLevel, maximumOctreeLevel, gridLevel, complexSurfaceThreshold, histogram,meshSubdivisionLevel,maxPoolSize);
 		wxTextCtrl* dC = debugConsole;
 		auto logAppend = [&dC](std::string message) {
 			log(dC, message, Mode::A);
@@ -770,6 +772,9 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 	cacheSubdivision = std::stoi(configLines[6]);
 	queriesBeforeGC = std::stoi(configLines[7]);
 	queriesBeforeFree = std::stoi(configLines[8]);
+	meshSubdivisionLevel = std::stoi(configLines[9]);
+	maxPoolSize = std::stoi(configLines[10]);
+
 		
 
 	auto task = [](MyFrame* frm) {

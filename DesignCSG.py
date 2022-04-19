@@ -179,7 +179,9 @@ complexSurfaceThreshold,
 gradientDescentSteps=10,
 cacheSubdivision=16,
 queriesBeforeGC=64,
-queriesBeforeFree=1024
+queriesBeforeFree=1024,
+meshSubdivisionLevel=4,
+maxPoolSize = 12
 ):
 
     with open("exportConfig.txt","w") as fl:
@@ -195,6 +197,8 @@ queriesBeforeFree=1024
         outstr+=(str(cacheSubdivision)+"\n")
         outstr+=(str(queriesBeforeGC)+"\n")
         outstr+=(str(queriesBeforeFree)+"\n")
+        outstr+=(str(meshSubdivisionLevel)+"\n")
+        outstr+=(str(maxPoolSize)+"\n")
 
         outstr.strip("\n")
         fl.write(outstr)

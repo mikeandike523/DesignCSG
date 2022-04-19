@@ -9,6 +9,7 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <mutex>
 
 #include "geometry.hpp"
 #include "octree.hpp"
@@ -31,7 +32,9 @@ namespace cms {
 			int _maximumOctreeLevel,
 			int _gridLevel,
 			float _complexSurfaceThreshold,
-			std::map<int, int>& _histogram
+			std::map<int, int>& _histogram,
+			int _meshSubdivisionLevel,
+			int _maxPoolSize
 
 
 		);
@@ -49,6 +52,8 @@ namespace cms {
 		std::function<cms::Vector3f(float, float, float)> unitNormalSampler;
 		std::map<int, std::vector<IndexTriangle>> trsMap;
 		int complete = 1;
+		int meshSubdivisionLevel = 4;
+		int maxPoolSize = 12;
 
 
 
@@ -61,7 +66,9 @@ namespace cms {
 		int _maximumOctreeLevel,
 		int _gridLevel,
 		float _complexSurfaceThreshold,
-		std::map<int, int>& _histogram
+		std::map<int, int>& _histogram,
+		int _meshSubdivisionLevel,
+		int _maxPoolSize
 
 
 	) {
@@ -74,7 +81,11 @@ namespace cms {
 		gridLevel = _gridLevel;
 		complexSurfaceThreshold = _complexSurfaceThreshold;
 		histogram = _histogram;
+		meshSubdivisionLevel = _meshSubdivisionLevel;
+		maxPoolSize = _maxPoolSize;
 	}
+
+	
 
 	inline std::vector<Triangle3f> Mesh::getSurface() {
 
@@ -83,172 +94,320 @@ namespace cms {
 		histogram.clear();
 		histogram[0] = 0;
 
-
 		std::vector<Triangle3f> mesh;
-		std::deque<Node> stack = { Node(boundingBox,0) };
-		int sp = 0;
+	
+
 		generation = 0;
-		logRoutine("Generation 0.\n");
-		int ticks = 1;
-		while (sp < stack.size()) {
-			remainingItems = stack.size() - sp;
-			Node* nd = &stack[sp++];
-			ticks--;
-			if (nd->level > generation) {
-				generation = nd->level;
-				histogram[generation] = 0;
-				logRoutine("Generation %d.\n", nd->level);
+
+		std::mutex meshMutex;
+
+
+		struct WorkItem {
+			std::deque<Node> stack;
+			int stackPointer = 0;
+			WorkItem(Node nd) {
+				stack = std::deque<Node>{nd};
+			}
+		};
+
+
+		auto task = [&meshMutex,&mesh](WorkItem* item, Mesh * ths,int * fakeMutex,int * poolSize) {
+
+			{
+				while (*fakeMutex == 1) {}
+				*fakeMutex = 1;
+				(* poolSize)++;
+				*fakeMutex = 0;
+
 			}
 
-			float d = sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
 
-			constexpr float sqrt3scaling = 1.5f;
-			if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
+			std::deque<Node>& stack = item->stack;
+			int& sp = item->stackPointer;
+
+			while (sp < stack.size()) {
+				//remainingItems = stack.size() - sp;
+				Node* nd = &stack[sp++];
+
+
+				{
+
+					std::lock_guard<std::mutex> lock(meshMutex);
+
+					if (nd->level > ths->generation) {
+						ths->generation = nd->level;
+						ths->histogram[ths->generation] = 0;
+
+					}
+
+				}
+
+				float d = ths->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
+
+				constexpr float sqrt3scaling = 1.5f;
+				if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
 
 
 
 
 
-			std::vector<Vector3f> cornerLocations = nd->bounds.getCorners(1.0);
-			std::vector<Vector3f> edgeLocations;
-			int corners[8] = { 0 };
-			int lookup = 0;
-			for (int i = 0; i < 8; i++) {
-				corners[i] = sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
-				lookup |= (corners[i] << i);
-			}
+				std::vector<Vector3f> cornerLocations = nd->bounds.getCorners(1.0);
+				std::vector<Vector3f> edgeLocations;
+				int corners[8] = { 0 };
+				int lookup = 0;
+				for (int i = 0; i < 8; i++) {
+					corners[i] = ths->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
+					lookup |= (corners[i] << i);
+				}
 
-			std::vector<std::pair<int, int>> edgeIndices;
+				std::vector<std::pair<int, int>> edgeIndices;
 
-			for (int i = 0; i < 4; i++) {
-				Vector3f A = cornerLocations[i];
-				Vector3f B = cornerLocations[(i + 1) % 4];
-				float sa = sampler(A.x, A.y, A.z);
-				float sb = sampler(B.x, B.y, B.z);
-				/*     if (corners[i] != corners[(i + 1) % 4]) {
+				for (int i = 0; i < 4; i++) {
+					Vector3f A = cornerLocations[i];
+					Vector3f B = cornerLocations[(i + 1) % 4];
+					float sa = ths->sampler(A.x, A.y, A.z);
+					float sb = ths->sampler(B.x, B.y, B.z);
+					/*     if (corners[i] != corners[(i + 1) % 4]) {
+							 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
+						 }
+						 else*/
+					edgeLocations.push_back(Vector3f::midpoint(A, B));
+					edgeIndices.push_back(std::make_pair(i, (i + 1) % 4));
+				}
+
+				for (int i = 0; i < 4; i++) {
+					Vector3f A = cornerLocations[i + 4];
+					Vector3f B = cornerLocations[(i + 1) % 4 + 4];
+					float sa = ths->sampler(A.x, A.y, A.z);
+					float sb = ths->sampler(B.x, B.y, B.z);
+					/*   if (corners[i+4] != corners[(i + 1) % 4+4]) {
+						   edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
+					   }
+					   else*/
+					edgeLocations.push_back(Vector3f::midpoint(A, B));
+					edgeIndices.push_back(std::make_pair(i + 4, (i + 1) % 4 + 4));
+				}
+
+				for (int i = 0; i < 4; i++) {
+					Vector3f A = cornerLocations[i];
+					Vector3f B = cornerLocations[i + 4];
+					float sa = ths->sampler(A.x, A.y, A.z);
+					float sb = ths->sampler(B.x, B.y, B.z);
+					/* if (corners[i] != corners[i+4]) {
 						 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 					 }
 					 else*/
-				edgeLocations.push_back(Vector3f::midpoint(A, B));
-				edgeIndices.push_back(std::make_pair(i, (i + 1) % 4));
-			}
-
-			for (int i = 0; i < 4; i++) {
-				Vector3f A = cornerLocations[i + 4];
-				Vector3f B = cornerLocations[(i + 1) % 4 + 4];
-				float sa = sampler(A.x, A.y, A.z);
-				float sb = sampler(B.x, B.y, B.z);
-				/*   if (corners[i+4] != corners[(i + 1) % 4+4]) {
-					   edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
-				   }
-				   else*/
-				edgeLocations.push_back(Vector3f::midpoint(A, B));
-				edgeIndices.push_back(std::make_pair(i + 4, (i + 1) % 4 + 4));
-			}
-
-			for (int i = 0; i < 4; i++) {
-				Vector3f A = cornerLocations[i];
-				Vector3f B = cornerLocations[i + 4];
-				float sa = sampler(A.x, A.y, A.z);
-				float sb = sampler(B.x, B.y, B.z);
-				/* if (corners[i] != corners[i+4]) {
-					 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
-				 }
-				 else*/
-				edgeLocations.push_back(Vector3f::midpoint(A, B));
-				edgeIndices.push_back(std::make_pair(i, i + 4));
-			}
+					edgeLocations.push_back(Vector3f::midpoint(A, B));
+					edgeIndices.push_back(std::make_pair(i, i + 4));
+				}
 
 
-			bool shouldSubdivide = false;
+				bool shouldSubdivide = false;
 
-			if (nd->level < minimumOctreeLevel) {
-				shouldSubdivide = true;
+				if (nd->level < ths->minimumOctreeLevel) {
+					shouldSubdivide = true;
 
-			}
-			else {
+				}
+				else {
 
 
-				// Edge Ambiguity
-				int pointsAlongEdge = 1 << (gridLevel - nd->level);
-				for (std::pair<int, int> edge : edgeIndices) {
-					Vector3f start = cornerLocations[edge.first];
-					Vector3f end = cornerLocations[edge.second];
-					Vector3f delta = end.diff(start);
+					// Edge Ambiguity
+					int pointsAlongEdge = 1 << (ths->gridLevel - nd->level);
+					for (std::pair<int, int> edge : edgeIndices) {
+						Vector3f start = cornerLocations[edge.first];
+						Vector3f end = cornerLocations[edge.second];
+						Vector3f delta = end.diff(start);
 
-					for (int i = 1; i < pointsAlongEdge; i++) {
-						float fractionAlongEdge = (float)i / (float)pointsAlongEdge;
-						Vector3f testPoint = start.sum(delta.scaled(fractionAlongEdge));
-						int currentValue = sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
-						if (currentValue == 1) {
+						for (int i = 1; i < pointsAlongEdge; i++) {
+							float fractionAlongEdge = (float)i / (float)pointsAlongEdge;
+							Vector3f testPoint = start.sum(delta.scaled(fractionAlongEdge));
+							int currentValue = ths->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
+							if (currentValue == 1) {
+								shouldSubdivide = true;
+								goto condition1EarlyExit;
+							}
+
+						}
+					}
+
+
+
+					//Complex Edges
+					//In this implementation, large angles are detected in 3D instead of 2D. This differs from the original paper
+					for (std::pair<int, int> edge : edgeIndices) {
+						Vector3f start = cornerLocations[edge.first];
+						Vector3f end = cornerLocations[edge.second];
+
+						float angle = Vector3f::angleBetweenVectors(ths->unitNormalSampler(start.x, start.y, start.z),
+							ths->unitNormalSampler(end.x, end.y, end.z),
+							1e-6f);
+
+						// logRoutine("angle %f\n",angle);
+						if (angle > ths->complexSurfaceThreshold) {
 							shouldSubdivide = true;
-							goto condition1EarlyExit;
+							goto condition2EarlyExit;
 						}
 
 					}
+
 				}
 
+			condition1EarlyExit:
+			condition2EarlyExit:
+
+				if (nd->level == ths->maximumOctreeLevel) {
+					shouldSubdivide = false;
+				}
+
+				if (shouldSubdivide) {
+
+					nd->subdivideIntoQueue(stack);
+
+				}
+				else {
 
 
-				//Complex Edges
-				//In this implementation, large angles are detected in 3D instead of 2D. This differs from the original paper
-				for (std::pair<int, int> edge : edgeIndices) {
-					Vector3f start = cornerLocations[edge.first];
-					Vector3f end = cornerLocations[edge.second];
 
-					float angle = Vector3f::angleBetweenVectors(unitNormalSampler(start.x, start.y, start.z),
-						unitNormalSampler(end.x, end.y, end.z),
-						1e-6f);
+					std::vector<IndexTriangle> components = ths->trsMap[lookup];
 
-					// logRoutine("angle %f\n",angle);
-					if (angle > complexSurfaceThreshold) {
-						shouldSubdivide = true;
-						goto condition2EarlyExit;
+					/*  #ifdef CMS_DEBUG
+					  if(components.size()>0)
+					  logRoutine("%d %d %f %f %f\n",nd->level,lookup,nd->bounds.center.x,nd->bounds.center.y,nd->bounds.center.z);
+					  #endif*/
+
+					for (IndexTriangle it : components) {
+						// logRoutine("%d %d %d\n",it.x,it.y,it.z);
+						Vector3f A = edgeLocations[it.x];
+						Vector3f B = edgeLocations[it.y];
+						Vector3f C = edgeLocations[it.z];
+
+						{
+
+							std::lock_guard<std::mutex> lock(meshMutex);
+							mesh.push_back(Triangle3f(A, B, C));
+							ths->histogram[ths->generation]++;
+
+						}
 					}
 
 				}
 
 			}
 
-		condition1EarlyExit:
-		condition2EarlyExit:
 
-			if (nd->level == maximumOctreeLevel) {
-				shouldSubdivide = false;
+
+
+			{
+				while (*fakeMutex == 1) {}
+				*fakeMutex = 1;
+				(* poolSize)--;
+				*fakeMutex = 0;
 			}
 
-			if (shouldSubdivide) {
+		};
 
-				nd->subdivideIntoQueue(stack);
 
+
+		
+		auto setRemainingItems = [](Mesh* ths, std::vector<WorkItem> items) {
+			int rI = 0;
+			for (WorkItem item : items) {
+				rI += item.stack.size() - item.stackPointer;
 			}
-			else {
+			ths->remainingItems = rI;
+
+		};
+
+		//Single Threaded:
 
 
 
-				std::vector<IndexTriangle> components = trsMap[lookup];
+		const int workDivisionLevel = meshSubdivisionLevel;
 
-				/*  #ifdef CMS_DEBUG
-				  if(components.size()>0)
-				  logRoutine("%d %d %f %f %f\n",nd->level,lookup,nd->bounds.center.x,nd->bounds.center.y,nd->bounds.center.z);
-				  #endif*/
+		std::deque<Node> root_nodes{Node(boundingBox,0)};
 
-				for (IndexTriangle it : components) {
-					// logRoutine("%d %d %d\n",it.x,it.y,it.z);
-					Vector3f A = edgeLocations[it.x];
-					Vector3f B = edgeLocations[it.y];
-					Vector3f C = edgeLocations[it.z];
-					mesh.push_back(Triangle3f(A, B, C));
-					histogram[generation]++;
+
+		if (maxPoolSize>0) {
+			int _sp = 0;
+			while (_sp < root_nodes.size()) {
+				Node* nd = &root_nodes[_sp++];
+				if (nd->level < workDivisionLevel) {
+					nd->subdivideIntoQueue(root_nodes);
+				}
+			}
+		}
+
+		std::vector<WorkItem> work;
+		int workPointer = 0;
+
+		if (maxPoolSize > 0) {
+			for (int i = root_nodes.size() - 1; i >= root_nodes.size() - ((1 << workDivisionLevel) * (1 << workDivisionLevel) * (1 << workDivisionLevel)); i--) {
+				work.push_back(WorkItem(root_nodes[i]));
+			}
+		}
+
+		int poolFakeMutex = 0;
+		int poolSize = 0;
+
+		if (maxPoolSize>0) {
+		
+			while (workPointer < work.size()) {
+				while (poolSize >= maxPoolSize) {
+
+
+					setRemainingItems(this, work);
+					wxMilliSleep(100);
+					setRemainingItems(this, work);
 				}
 
+				DebugPrint("Starting thread for task %d\n", workPointer);
+				std::thread t(task, &work[workPointer++], this, &poolFakeMutex, &poolSize);
+				t.detach();
+				setRemainingItems(this, work);
+
+
+				//task(&work[workPointer++], this, &poolFakeMutex, &poolSize);
+
+
+
 			}
 
+			while (poolSize > 0) {}
+			setRemainingItems(this, work);
 		}
+		else {
+
+
+			work.push_back(WorkItem(Node(boundingBox,0)));
+			std::thread t([&work,&workPointer,&setRemainingItems](Mesh * ths) {
+				while (work[0].stackPointer<work[0].stack.size()) {
+				
+					setRemainingItems(ths, work);
+
+					wxMilliSleep(100);
+		
+
+				}
+				},this);
+			t.detach();
+		
+
+			DebugPrint("Starting thread for task %d\n", workPointer);
+			task(& work[0], this, & poolFakeMutex, & poolSize);
+			
+
+			setRemainingItems(this, work);
+		
+		}
+
+
+
 
 		complete = 1;
 
 		return mesh;
+
+
 	}
 
 	template<typename T_key, typename T_value, typename T_classcomp>
