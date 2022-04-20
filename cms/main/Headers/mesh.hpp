@@ -42,7 +42,7 @@ namespace cms {
 			float _complexSurfaceThreshold,
 			std::map<int, int>& _histogram
 
-		) : sampler(_sampler), unitNormalSampler(unitNormalSampler) {
+		) : sampler(_sampler), unitNormalSampler(_unitNormalSampler) {
 			boundingBox = _boundingBox;
 			trsMap = _trsMap;
 			minimumOctreeLevel = _minimumOctreeLevel;

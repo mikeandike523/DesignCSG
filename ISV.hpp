@@ -74,7 +74,6 @@ namespace ISV {
 		{}
 
 		std::mutex accessMutex;
-		int dimensions;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, std::vector<T>> sections;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, int> counts;
 		int64_t ww, hh, dd, w, h, d;
