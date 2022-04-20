@@ -13,7 +13,15 @@
 #define T_min(a,b) ((a<b) ? a : b)
 #define T_max(a,b) ((a>b) ? a : b)
 
-typedef struct Vector3f { float x; float y; float z; } Vector3f;
+typedef struct Vector3f { float x; float y; float z; 
+
+template<typename T_vector> 
+T_vector toVectorType() {
+
+	return T_vector(x,y,z);
+}
+
+} Vector3f;
 typedef struct Matrix3f {
 
 	float m00; float m01; float m02;
