@@ -200,8 +200,7 @@ maxPoolSize = 0
         outstr+=(str(cacheSubdivision)+"\n")
         outstr+=(str(queriesBeforeGC)+"\n")
         outstr+=(str(queriesBeforeFree)+"\n")
-        outstr+=(str(meshSubdivisionLevel)+"\n")
-        outstr+=(str(maxPoolSize)+"\n")
+
 
         outstr.strip("\n")
         fl.write(outstr)

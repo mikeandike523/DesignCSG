@@ -23,8 +23,8 @@ namespace cms {
 	class Mesh {
 
 	public:
-		int getGeneration() { return generation; }
-		int getRemainingItems() { return remainingItems; };
+
+
 		Mesh(Box3f _boundingBox, std::function<float(float, float, float)> _sampler,
 			std::function<cms::Vector3f(float, float, float)> _unitNormalSampler,
 			std::map<int, std::vector<IndexTriangle>> _trsMap,
@@ -32,12 +32,25 @@ namespace cms {
 			int _maximumOctreeLevel,
 			int _gridLevel,
 			float _complexSurfaceThreshold,
-			std::map<int, int>& _histogram,
-			int _meshSubdivisionLevel,
-			int _maxPoolSize
+			std::map<int, int>& _histogram
+
+		) {
+			boundingBox = _boundingBox;
+			sampler = _sampler;
+			unitNormalSampler = _unitNormalSampler;
+			trsMap = _trsMap;
+			minimumOctreeLevel = _minimumOctreeLevel;
+			maximumOctreeLevel = _maximumOctreeLevel;
+			gridLevel = _gridLevel;
+			complexSurfaceThreshold = _complexSurfaceThreshold;
+			histogram = _histogram;
+
+		}
 
 
-		);
+		int getGeneration() { return generation; }
+		int getRemainingItems() { return remainingItems; };
+	
 		std::map<int, int> defaultHistogram;
 		std::map<int, int>& histogram = defaultHistogram;
 		std::vector<Triangle3f> getSurface();
@@ -59,31 +72,6 @@ namespace cms {
 
 	};
 
-	inline Mesh::Mesh(Box3f _boundingBox, std::function<float(float, float, float)> _sampler,
-		std::function<cms::Vector3f(float, float, float)> _unitNormalSampler,
-		std::map<int, std::vector<IndexTriangle>> _trsMap,
-		int _minimumOctreeLevel,
-		int _maximumOctreeLevel,
-		int _gridLevel,
-		float _complexSurfaceThreshold,
-		std::map<int, int>& _histogram,
-		int _meshSubdivisionLevel,
-		int _maxPoolSize
-
-
-	) {
-		boundingBox = _boundingBox;
-		sampler = _sampler;
-		unitNormalSampler = _unitNormalSampler;
-		trsMap = _trsMap;
-		minimumOctreeLevel = _minimumOctreeLevel;
-		maximumOctreeLevel = _maximumOctreeLevel;
-		gridLevel = _gridLevel;
-		complexSurfaceThreshold = _complexSurfaceThreshold;
-		histogram = _histogram;
-		meshSubdivisionLevel = _meshSubdivisionLevel;
-		maxPoolSize = _maxPoolSize;
-	}
 
 	
 
