@@ -80,6 +80,10 @@ namespace cms {
 
 	inline std::vector<Triangle3f> Mesh::getSurface() {
 
+
+		std::mutex meshMutex;
+		int poolSize = 0;
+
 		complete = 0;
 
 		histogram.clear();
@@ -114,7 +118,16 @@ namespace cms {
 			workItems.pop_front();
 		}
 
-		auto task = [&mesh](Mesh * context,Node root) {
+		auto task = [&mesh,&meshMutex,&poolSize](Mesh * context,Node root) {
+
+			{
+				std::lock_guard<std::mutex> lock(meshMutex);
+				poolSize++;
+			
+			}
+
+#define addRemainingItems(rI) {std::lock_guard<std::mutex> lock(meshMutex); context->remainingItems += rI;}
+
 
 			SdfISV sdfISV = context->sampler.fork();
 			NormalISV normalISV = context->unitNormalSampler.fork();
@@ -123,18 +136,21 @@ namespace cms {
 	
 
 			std::deque<Node> stack = { root};
-			context->remainingItems += 1;
+			addRemainingItems(1);
 			int sp = 0;
 
 			while (sp < stack.size()) {
 				//remainingItems = stack.size() - sp;
 				Node* nd = &stack[sp++];
-				context->remainingItems -= 1;
+				addRemainingItems(-1);
 
 				//context->remainingItems = stack.size() - sp;
 
 
 				if (nd->level > context->generation) {
+
+					std::lock_guard<std::mutex> lock(meshMutex);
+
 					context->generation = nd->level;
 					context->histogram[context->generation] = 0;
 
@@ -250,7 +266,7 @@ namespace cms {
 
 					int oldSize = stack.size();
 					nd->subdivideIntoQueue(stack);
-					context->remainingItems += stack.size() - oldSize;
+					addRemainingItems(stack.size() - oldSize);
 				
 
 				}
@@ -265,25 +281,40 @@ namespace cms {
 					  logRoutine("%d %d %f %f %f\n",nd->level,lookup,nd->bounds.center.x,nd->bounds.center.y,nd->bounds.center.z);
 					  #endif*/
 
-					for (IndexTriangle it : components) {
-						// logRoutine("%d %d %d\n",it.x,it.y,it.z);
-						Vector3f A = edgeLocations[it.x];
-						Vector3f B = edgeLocations[it.y];
-						Vector3f C = edgeLocations[it.z];
 
 
-						mesh.push_back(Triangle3f(A, B, C));
-						context->histogram[context->generation]++;
+					{
+						std::lock_guard<std::mutex> lock(meshMutex);
+						for (IndexTriangle it : components) {
+							// logRoutine("%d %d %d\n",it.x,it.y,it.z);
+							Vector3f A = edgeLocations[it.x];
+							Vector3f B = edgeLocations[it.y];
+							Vector3f C = edgeLocations[it.z];
 
+
+							mesh.push_back(Triangle3f(A, B, C));
+							context->histogram[context->generation]++;
+
+
+						}
 
 					}
 
 				}
 
 			}
+
+
+			{
+						std::lock_guard<std::mutex> lock(meshMutex);
+						poolSize--;
+
+			}
 		};
 
 
+
+#if useThreads == 0
 
 		while (workItems.size() > 0) {
 		
@@ -291,6 +322,23 @@ namespace cms {
 			workItems.pop_back();
 			task(this, workItem);
 		}
+
+#else
+
+		int workItemCounter = 0;
+		while (workItems.size() > 0 || poolSize > 0) {
+
+			while (poolSize > maxPoolSize) {}
+
+			workItemCounter++;
+			Node workItem = workItems.back();
+			workItems.pop_back();
+			std::thread t (task,this, workItem));
+			t.detach();
+
+		}
+
+#endif
 
 
 
