@@ -14,6 +14,7 @@
 #include "geometry.hpp"
 #include "octree.hpp"
 #include "Evaluator.h"
+#include "ISV.hpp"
 
 
 
@@ -23,8 +24,8 @@
 
 namespace cms {
 
-	using sdfISV = ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>)>>;
-	using normalISV = ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>)>>;
+	using SdfISV = ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>)>>;
+	using NormalISV = ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>)>>;
 
 
 	class Mesh {
@@ -32,8 +33,8 @@ namespace cms {
 	public:
 
 
-		Mesh(Box3f _boundingBox, sdfISV _sampler,
-			normalISV _unitNormalSampler,
+		Mesh(Box3f _boundingBox, SdfISV _sampler,
+			NormalISV _unitNormalSampler,
 			std::map<int, std::vector<IndexTriangle>> _trsMap,
 			int _minimumOctreeLevel,
 			int _maximumOctreeLevel,
@@ -66,8 +67,8 @@ namespace cms {
 		int maximumOctreeLevel = 7;
 		int gridLevel = 8;
 		float complexSurfaceThreshold = PI / 12.0f; //todo -- obtain value and equation for complex surface threshold
-		sdfISV sampler;
-		normalISV unitNormalSampler;
+		SdfISV sampler;
+		NormalISV unitNormalSampler;
 		std::map<int, std::vector<IndexTriangle>> trsMap;
 		int complete = 1;
 
@@ -114,6 +115,10 @@ namespace cms {
 		}
 
 		auto task = [&mesh](Mesh * context,Node root) {
+
+			SdfISV sdfISV = context->sampler.fork();
+			NormalISV normalISV = context->unitNormalSampler.fork();
+
 
 	
 

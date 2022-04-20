@@ -120,6 +120,16 @@ namespace ISV {
 
 		}
 
+		T getValue(float x, float y, float z) {
+		
+		
+			return getValue(Vector3f(x, y, z));
+		}
+
+		T operator(float x, float y, float z) {
+			return getValue(x,y,z);
+		}
+
 
 
 	};
