@@ -8,3 +8,5 @@ __pycache__/**
 __pycache__/*
 Python310/Lib/__pycache__/*
 Python310/Lib/__pycache__/**
+**/__pycache__/*
+**/__pycache__/**
