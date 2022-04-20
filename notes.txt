@@ -1,6 +1,0 @@
-notes:
-It seems as though adding multithreading did not significantly help export time. Perhaps batch processing with the GPU could help.
-
-todo:
-write code to prevent adding points from sub-boxes that are part of another patch face (i.e., leave holes in large patch faces and then handle sub patch faces)
-write code to connect stranded patch face edge point to nearest patch face edge point on other another edge

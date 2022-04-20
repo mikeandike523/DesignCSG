@@ -1,6 +1,0 @@
-Version 0.1:
-Estimate intersections with isosurface using SDF values.
-Package for distribution
-
-Version 0.2:
-Test if gradient descent will help.
