@@ -181,8 +181,11 @@ cacheSubdivision=16,
 queriesBeforeGC=64,
 queriesBeforeFree=1024,
 meshSubdivisionLevel=4,
-maxPoolSize = 12
+maxPoolSize = 0
 ):
+
+    meshSubdivisionLevel = 0
+    maxPoolSize = 0
 
     with open("exportConfig.txt","w") as fl:
 

@@ -99,50 +99,29 @@ namespace cms {
 
 		generation = 0;
 
-		std::mutex meshMutex;
 
 
-		struct WorkItem {
-			std::deque<Node> stack;
-			int stackPointer = 0;
-			WorkItem(Node nd) {
-				stack = std::deque<Node>{nd};
-			}
-		};
 
 
-		auto task = [&meshMutex,&mesh](WorkItem* item, Mesh * ths,int * fakeMutex,int * poolSize) {
-
-			{
-				while (*fakeMutex == 1) {}
-				*fakeMutex = 1;
-				(* poolSize)++;
-				*fakeMutex = 0;
-
-			}
-
-
-			std::deque<Node>& stack = item->stack;
-			int& sp = item->stackPointer;
+		std::deque<Node> stack = {Node(boundingBox,0)};
+		int sp = 0;
 
 			while (sp < stack.size()) {
 				//remainingItems = stack.size() - sp;
 				Node* nd = &stack[sp++];
 
+				remainingItems = stack.size() - sp;
 
-				{
 
-					std::lock_guard<std::mutex> lock(meshMutex);
-
-					if (nd->level > ths->generation) {
-						ths->generation = nd->level;
-						ths->histogram[ths->generation] = 0;
-
-					}
+				if (nd->level > this->generation) {
+					this->generation = nd->level;
+					this->histogram[this->generation] = 0;
 
 				}
 
-				float d = ths->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
+				
+
+				float d = this->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
 
 				constexpr float sqrt3scaling = 1.5f;
 				if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
@@ -156,7 +135,7 @@ namespace cms {
 				int corners[8] = { 0 };
 				int lookup = 0;
 				for (int i = 0; i < 8; i++) {
-					corners[i] = ths->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
+					corners[i] = this->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
 					lookup |= (corners[i] << i);
 				}
 
@@ -165,8 +144,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[(i + 1) % 4];
-					float sa = ths->sampler(A.x, A.y, A.z);
-					float sb = ths->sampler(B.x, B.y, B.z);
+					float sa = this->sampler(A.x, A.y, A.z);
+					float sb = this->sampler(B.x, B.y, B.z);
 					/*     if (corners[i] != corners[(i + 1) % 4]) {
 							 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 						 }
@@ -178,8 +157,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i + 4];
 					Vector3f B = cornerLocations[(i + 1) % 4 + 4];
-					float sa = ths->sampler(A.x, A.y, A.z);
-					float sb = ths->sampler(B.x, B.y, B.z);
+					float sa = this->sampler(A.x, A.y, A.z);
+					float sb = this->sampler(B.x, B.y, B.z);
 					/*   if (corners[i+4] != corners[(i + 1) % 4+4]) {
 						   edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 					   }
@@ -191,8 +170,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[i + 4];
-					float sa = ths->sampler(A.x, A.y, A.z);
-					float sb = ths->sampler(B.x, B.y, B.z);
+					float sa = this->sampler(A.x, A.y, A.z);
+					float sb = this->sampler(B.x, B.y, B.z);
 					/* if (corners[i] != corners[i+4]) {
 						 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 					 }
@@ -204,7 +183,7 @@ namespace cms {
 
 				bool shouldSubdivide = false;
 
-				if (nd->level < ths->minimumOctreeLevel) {
+				if (nd->level < this->minimumOctreeLevel) {
 					shouldSubdivide = true;
 
 				}
@@ -212,7 +191,7 @@ namespace cms {
 
 
 					// Edge Ambiguity
-					int pointsAlongEdge = 1 << (ths->gridLevel - nd->level);
+					int pointsAlongEdge = 1 << (this->gridLevel - nd->level);
 					for (std::pair<int, int> edge : edgeIndices) {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
@@ -221,7 +200,7 @@ namespace cms {
 						for (int i = 1; i < pointsAlongEdge; i++) {
 							float fractionAlongEdge = (float)i / (float)pointsAlongEdge;
 							Vector3f testPoint = start.sum(delta.scaled(fractionAlongEdge));
-							int currentValue = ths->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
+							int currentValue = this->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
 							if (currentValue == 1) {
 								shouldSubdivide = true;
 								goto condition1EarlyExit;
@@ -238,12 +217,12 @@ namespace cms {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
 
-						float angle = Vector3f::angleBetweenVectors(ths->unitNormalSampler(start.x, start.y, start.z),
-							ths->unitNormalSampler(end.x, end.y, end.z),
+						float angle = Vector3f::angleBetweenVectors(this->unitNormalSampler(start.x, start.y, start.z),
+							this->unitNormalSampler(end.x, end.y, end.z),
 							1e-6f);
 
 						// logRoutine("angle %f\n",angle);
-						if (angle > ths->complexSurfaceThreshold) {
+						if (angle > this->complexSurfaceThreshold) {
 							shouldSubdivide = true;
 							goto condition2EarlyExit;
 						}
@@ -255,7 +234,7 @@ namespace cms {
 			condition1EarlyExit:
 			condition2EarlyExit:
 
-				if (nd->level == ths->maximumOctreeLevel) {
+				if (nd->level == this->maximumOctreeLevel) {
 					shouldSubdivide = false;
 				}
 
@@ -268,7 +247,7 @@ namespace cms {
 
 
 
-					std::vector<IndexTriangle> components = ths->trsMap[lookup];
+					std::vector<IndexTriangle> components = this->trsMap[lookup];
 
 					/*  #ifdef CMS_DEBUG
 					  if(components.size()>0)
@@ -281,13 +260,11 @@ namespace cms {
 						Vector3f B = edgeLocations[it.y];
 						Vector3f C = edgeLocations[it.z];
 
-						{
-
-							std::lock_guard<std::mutex> lock(meshMutex);
+					
 							mesh.push_back(Triangle3f(A, B, C));
-							ths->histogram[ths->generation]++;
+							this->histogram[this->generation]++;
 
-						}
+						
 					}
 
 				}
@@ -297,108 +274,12 @@ namespace cms {
 
 
 
-			{
-				while (*fakeMutex == 1) {}
-				*fakeMutex = 1;
-				(* poolSize)--;
-				*fakeMutex = 0;
-			}
-
-		};
 
 
 
 		
-		auto setRemainingItems = [](Mesh* ths, std::vector<WorkItem> items) {
-			int rI = 0;
-			for (WorkItem item : items) {
-				rI += item.stack.size() - item.stackPointer;
-			}
-			ths->remainingItems = rI;
-
-		};
-
-		//Single Threaded:
-
-
-
-		const int workDivisionLevel = meshSubdivisionLevel;
-
-		std::deque<Node> root_nodes{Node(boundingBox,0)};
-
-
-		if (maxPoolSize>0) {
-			int _sp = 0;
-			while (_sp < root_nodes.size()) {
-				Node* nd = &root_nodes[_sp++];
-				if (nd->level < workDivisionLevel) {
-					nd->subdivideIntoQueue(root_nodes);
-				}
-			}
-		}
-
-		std::vector<WorkItem> work;
-		int workPointer = 0;
-
-		if (maxPoolSize > 0) {
-			for (int i = root_nodes.size() - 1; i >= root_nodes.size() - ((1 << workDivisionLevel) * (1 << workDivisionLevel) * (1 << workDivisionLevel)); i--) {
-				work.push_back(WorkItem(root_nodes[i]));
-			}
-		}
-
-		int poolFakeMutex = 0;
-		int poolSize = 0;
-
-		if (maxPoolSize>0) {
+		remainingItems = 0;
 		
-			while (workPointer < work.size()) {
-				while (poolSize >= maxPoolSize) {
-
-
-					setRemainingItems(this, work);
-					wxMilliSleep(100);
-					setRemainingItems(this, work);
-				}
-
-				DebugPrint("Starting thread for task %d\n", workPointer);
-				std::thread t(task, &work[workPointer++], this, &poolFakeMutex, &poolSize);
-				t.detach();
-				setRemainingItems(this, work);
-
-
-				//task(&work[workPointer++], this, &poolFakeMutex, &poolSize);
-
-
-
-			}
-
-			while (poolSize > 0) {}
-			setRemainingItems(this, work);
-		}
-		else {
-
-
-			work.push_back(WorkItem(Node(boundingBox,0)));
-			std::thread t([&work,&workPointer,&setRemainingItems](Mesh * ths) {
-				while (work[0].stackPointer<work[0].stack.size()) {
-				
-					setRemainingItems(ths, work);
-
-					wxMilliSleep(100);
-		
-
-				}
-				},this);
-			t.detach();
-		
-
-			DebugPrint("Starting thread for task %d\n", workPointer);
-			task(& work[0], this, & poolFakeMutex, & poolSize);
-			
-
-			setRemainingItems(this, work);
-		
-		}
 
 
 

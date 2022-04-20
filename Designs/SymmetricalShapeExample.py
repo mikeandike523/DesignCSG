@@ -50,14 +50,14 @@ for _x,_y,_z in np.ndindex((3,3,3)):
 setExportConfig(
 
 	boundingBoxHalfDiameter=2.0,
-	minimumOctreeLevel=6,
-	maximumOctreeLevel=8,
-	gridLevel = 9,
+	minimumOctreeLevel=5,
+	maximumOctreeLevel=7,
+	gridLevel = 8,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
-	gradientDescentSteps = 30,
-	cacheSubdivision = 4,
-	queriesBeforeGC = -1,
-	queriesBeforeFree = -1
+	gradientDescentSteps = 50,
+	cacheSubdivision = 16,
+	queriesBeforeGC = 512,
+	queriesBeforeFree = 4096
 )
 
 commit()
