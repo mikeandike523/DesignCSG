@@ -142,7 +142,7 @@ namespace cms {
 
 
 
-				float d = context->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
+				float d = sdfISV(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
 
 				constexpr float sqrt3scaling = 1.1f;
 				if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
@@ -156,7 +156,7 @@ namespace cms {
 				int corners[8] = { 0 };
 				int lookup = 0;
 				for (int i = 0; i < 8; i++) {
-					corners[i] = context->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
+					corners[i] = sdfISV(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
 					lookup |= (corners[i] << i);
 				}
 
@@ -165,12 +165,7 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[(i + 1) % 4];
-					float sa = context->sampler(A.x, A.y, A.z);
-					float sb = context->sampler(B.x, B.y, B.z);
-					/*     if (corners[i] != corners[(i + 1) % 4]) {
-							 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
-						 }
-						 else*/
+
 					edgeLocations.push_back(Vector3f::midpoint(A, B));
 					edgeIndices.push_back(std::make_pair(i, (i + 1) % 4));
 				}
@@ -178,12 +173,7 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i + 4];
 					Vector3f B = cornerLocations[(i + 1) % 4 + 4];
-					float sa = context->sampler(A.x, A.y, A.z);
-					float sb = context->sampler(B.x, B.y, B.z);
-					/*   if (corners[i+4] != corners[(i + 1) % 4+4]) {
-						   edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
-					   }
-					   else*/
+		
 					edgeLocations.push_back(Vector3f::midpoint(A, B));
 					edgeIndices.push_back(std::make_pair(i + 4, (i + 1) % 4 + 4));
 				}
@@ -191,12 +181,7 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[i + 4];
-					float sa = context->sampler(A.x, A.y, A.z);
-					float sb = context->sampler(B.x, B.y, B.z);
-					/* if (corners[i] != corners[i+4]) {
-						 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
-					 }
-					 else*/
+		
 					edgeLocations.push_back(Vector3f::midpoint(A, B));
 					edgeIndices.push_back(std::make_pair(i, i + 4));
 				}
@@ -221,7 +206,7 @@ namespace cms {
 						for (int i = 1; i < pointsAlongEdge; i++) {
 							float fractionAlongEdge = (float)i / (float)pointsAlongEdge;
 							Vector3f testPoint = start.sum(delta.scaled(fractionAlongEdge));
-							int currentValue = context->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
+							int currentValue = sdfISV(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
 							if (currentValue == 1) {
 								shouldSubdivide = true;
 								goto condition1EarlyExit;
@@ -238,8 +223,8 @@ namespace cms {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
 
-						float angle = Vector3f::angleBetweenVectors(context->unitNormalSampler(start.x, start.y, start.z),
-							context->unitNormalSampler(end.x, end.y, end.z),
+						float angle = Vector3f::angleBetweenVectors(normalISV(start.x, start.y, start.z),
+							normalISV(end.x, end.y, end.z),
 							1e-6f);
 
 						// logRoutine("angle %f\n",angle);
