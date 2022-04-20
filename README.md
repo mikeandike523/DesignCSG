@@ -30,7 +30,7 @@
 * Save your design with `file -> save`
 * View your changes by selecting `file -> run`
 * When you are ready, export your design.
-    * *At this time, exporting may take several hours. We are actively working to optimize the export algorithm.*
+    * *At this time, exporting may take several hours. Active work is being done to optimize the export algorithm.*
 ## API Reference
 * Todo.
 ## License
