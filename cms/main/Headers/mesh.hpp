@@ -111,7 +111,7 @@ namespace cms {
 
 				float d = this->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
 
-				constexpr float sqrt3scaling = 1.5f;
+				constexpr float sqrt3scaling = 1.1f;
 				if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
 
 
