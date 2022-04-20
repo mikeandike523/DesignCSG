@@ -65,9 +65,6 @@ namespace cms {
 		std::function<cms::Vector3f(float, float, float)> unitNormalSampler;
 		std::map<int, std::vector<IndexTriangle>> trsMap;
 		int complete = 1;
-		int meshSubdivisionLevel = 4;
-		int maxPoolSize = 12;
-
 
 
 	};
@@ -87,29 +84,52 @@ namespace cms {
 
 		generation = 0;
 
+		remainingItems = 0;
+
+#define meshSubdivision 0
+#define useThreads 0
+#define maxPoolSize 12
 
 
+		std::deque<Node> workItems = { Node(boundingBox,0) };
+		int _sp = 0;
+		while (_sp < workItems.size()) {
+			Node* nd = &workItems[_sp++];
+			if (nd->level < meshSubdivision) {
+				nd->subdivideIntoQueue(workItems);
+			}
+		}
+
+		int divisionsPerSide = 1 << meshSubdivision;
+		int totalDivisions = divisionsPerSide * divisionsPerSide * divisionsPerSide;
 
 
-		std::deque<Node> stack = {Node(boundingBox,0)};
-		int sp = 0;
+		while (workItems.size() > totalDivisions) {
+			workItems.pop_front();
+		}
+
+		auto task = [&mesh](Mesh * context,Node root) {
+			std::deque<Node> stack = { root};
+			context->remainingItems += 1;
+			int sp = 0;
 
 			while (sp < stack.size()) {
 				//remainingItems = stack.size() - sp;
 				Node* nd = &stack[sp++];
+				context->remainingItems -= 1;
 
-				remainingItems = stack.size() - sp;
+				//context->remainingItems = stack.size() - sp;
 
 
-				if (nd->level > this->generation) {
-					this->generation = nd->level;
-					this->histogram[this->generation] = 0;
+				if (nd->level > context->generation) {
+					context->generation = nd->level;
+					context->histogram[context->generation] = 0;
 
 				}
 
-				
 
-				float d = this->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
+
+				float d = context->sampler(nd->bounds.center.x, nd->bounds.center.y, nd->bounds.center.z);
 
 				constexpr float sqrt3scaling = 1.1f;
 				if (fabs(d) > nd->bounds.halfDiameter.magnitude() * sqrt3scaling) continue;
@@ -123,7 +143,7 @@ namespace cms {
 				int corners[8] = { 0 };
 				int lookup = 0;
 				for (int i = 0; i < 8; i++) {
-					corners[i] = this->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
+					corners[i] = context->sampler(cornerLocations[i].x, cornerLocations[i].y, cornerLocations[i].z) < 0.0f ? 1 : 0;
 					lookup |= (corners[i] << i);
 				}
 
@@ -132,8 +152,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[(i + 1) % 4];
-					float sa = this->sampler(A.x, A.y, A.z);
-					float sb = this->sampler(B.x, B.y, B.z);
+					float sa = context->sampler(A.x, A.y, A.z);
+					float sb = context->sampler(B.x, B.y, B.z);
 					/*     if (corners[i] != corners[(i + 1) % 4]) {
 							 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 						 }
@@ -145,8 +165,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i + 4];
 					Vector3f B = cornerLocations[(i + 1) % 4 + 4];
-					float sa = this->sampler(A.x, A.y, A.z);
-					float sb = this->sampler(B.x, B.y, B.z);
+					float sa = context->sampler(A.x, A.y, A.z);
+					float sb = context->sampler(B.x, B.y, B.z);
 					/*   if (corners[i+4] != corners[(i + 1) % 4+4]) {
 						   edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 					   }
@@ -158,8 +178,8 @@ namespace cms {
 				for (int i = 0; i < 4; i++) {
 					Vector3f A = cornerLocations[i];
 					Vector3f B = cornerLocations[i + 4];
-					float sa = this->sampler(A.x, A.y, A.z);
-					float sb = this->sampler(B.x, B.y, B.z);
+					float sa = context->sampler(A.x, A.y, A.z);
+					float sb = context->sampler(B.x, B.y, B.z);
 					/* if (corners[i] != corners[i+4]) {
 						 edgeLocations.push_back(Vector3f::weightedSum(A, B, sa, sb, 1e-12));
 					 }
@@ -171,7 +191,7 @@ namespace cms {
 
 				bool shouldSubdivide = false;
 
-				if (nd->level < this->minimumOctreeLevel) {
+				if (nd->level < context->minimumOctreeLevel) {
 					shouldSubdivide = true;
 
 				}
@@ -179,7 +199,7 @@ namespace cms {
 
 
 					// Edge Ambiguity
-					int pointsAlongEdge = 1 << (this->gridLevel - nd->level);
+					int pointsAlongEdge = 1 << (context->gridLevel - nd->level);
 					for (std::pair<int, int> edge : edgeIndices) {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
@@ -188,7 +208,7 @@ namespace cms {
 						for (int i = 1; i < pointsAlongEdge; i++) {
 							float fractionAlongEdge = (float)i / (float)pointsAlongEdge;
 							Vector3f testPoint = start.sum(delta.scaled(fractionAlongEdge));
-							int currentValue = this->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
+							int currentValue = context->sampler(testPoint.x, testPoint.y, testPoint.z) < 0.0f ? 1 : 0;
 							if (currentValue == 1) {
 								shouldSubdivide = true;
 								goto condition1EarlyExit;
@@ -200,17 +220,17 @@ namespace cms {
 
 
 					//Complex Edges
-					//In this implementation, large angles are detected in 3D instead of 2D. This differs from the original paper
+					//In context implementation, large angles are detected in 3D instead of 2D. context differs from the original paper
 					for (std::pair<int, int> edge : edgeIndices) {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
 
-						float angle = Vector3f::angleBetweenVectors(this->unitNormalSampler(start.x, start.y, start.z),
-							this->unitNormalSampler(end.x, end.y, end.z),
+						float angle = Vector3f::angleBetweenVectors(context->unitNormalSampler(start.x, start.y, start.z),
+							context->unitNormalSampler(end.x, end.y, end.z),
 							1e-6f);
 
 						// logRoutine("angle %f\n",angle);
-						if (angle > this->complexSurfaceThreshold) {
+						if (angle > context->complexSurfaceThreshold) {
 							shouldSubdivide = true;
 							goto condition2EarlyExit;
 						}
@@ -222,20 +242,25 @@ namespace cms {
 			condition1EarlyExit:
 			condition2EarlyExit:
 
-				if (nd->level == this->maximumOctreeLevel) {
+				if (nd->level == context->maximumOctreeLevel) {
 					shouldSubdivide = false;
 				}
 
 				if (shouldSubdivide) {
 
+
+
+					int oldSize = stack.size();
 					nd->subdivideIntoQueue(stack);
+					context->remainingItems += stack.size() - oldSize;
+				
 
 				}
 				else {
 
 
 
-					std::vector<IndexTriangle> components = this->trsMap[lookup];
+					std::vector<IndexTriangle> components = context->trsMap[lookup];
 
 					/*  #ifdef CMS_DEBUG
 					  if(components.size()>0)
@@ -248,20 +273,26 @@ namespace cms {
 						Vector3f B = edgeLocations[it.y];
 						Vector3f C = edgeLocations[it.z];
 
-					
-							mesh.push_back(Triangle3f(A, B, C));
-							this->histogram[this->generation]++;
 
-						
+						mesh.push_back(Triangle3f(A, B, C));
+						context->histogram[context->generation]++;
+
+
 					}
 
 				}
 
 			}
+		};
 
 
 
-
+		while (workItems.size() > 0) {
+		
+			Node workItem = workItems.back();
+			workItems.pop_back();
+			task(this, workItem);
+		}
 
 
 
