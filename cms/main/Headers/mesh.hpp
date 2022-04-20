@@ -24,8 +24,8 @@
 
 namespace cms {
 
-	using SdfISV = ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>)>>;
-	using NormalISV = ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>)>>;
+	#define SdfISV ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>&)>>
+	#define NormalISV ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>>
 
 
 	class Mesh {
@@ -223,8 +223,8 @@ namespace cms {
 						Vector3f start = cornerLocations[edge.first];
 						Vector3f end = cornerLocations[edge.second];
 
-						float angle = Vector3f::angleBetweenVectors(normalISV(start.x, start.y, start.z),
-							normalISV(end.x, end.y, end.z),
+						float angle = Vector3f::angleBetweenVectors(normalISV(start.x, start.y, start.z).toVectorType<cms::Vector3f>(),
+							normalISV(end.x, end.y, end.z).toVectorType<cms::Vector3f>(),
 							1e-6f);
 
 						// logRoutine("angle %f\n",angle);
