@@ -9,6 +9,9 @@ namespace ISV {
 	public:
 		ISV3D64(int W, int H, int D, int64_t WW, int64_t HH, int64_t DD, box_t* BB, F& DataSource, int MaxCounts, int GcFrequency)
 			:w(W), h(H), d(D), ww(WW), hh(HH), dd(DD), bb(BB), dataSource(DataSource), maxCounts(MaxCounts), gcFrequency(GcFrequency) {}
+
+
+
 		T getValue(v3f_t point) {
 
 
@@ -123,7 +126,7 @@ namespace ISV {
 		T getValue(float x, float y, float z) {
 		
 		
-			return getValue(Vector3f(x, y, z));
+			return getValue(v3f(x, y, z));
 		}
 
 		T operator()(float x, float y, float z) {

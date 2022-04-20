@@ -662,13 +662,8 @@ void MyFrame::OnExportInner() {
 		int res = 1 << gridLevel;
 		ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>&)>> sampler(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evr, queriesBeforeFree, queriesBeforeGC);
 		ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>> samplerN(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, &bx, evrN, queriesBeforeFree, queriesBeforeGC);
-		mesh = new cms::Mesh(boundingBox, [&sampler](float x, float y, float z) {
-			return sampler.getValue(v3f(x, y, z));
-			}, 
-			[&samplerN](float x, float y, float z) {
-				v3f_t n = samplerN.getValue(v3f(x, y, z));
-				return cms::Vector3f(n.x, n.y, n.z);
-			}, trsMap, minimumOctreeLevel, maximumOctreeLevel, gridLevel, complexSurfaceThreshold, histogram);
+		mesh = new cms::Mesh(boundingBox, sampler, 
+		samplerN, trsMap, minimumOctreeLevel, maximumOctreeLevel, gridLevel, complexSurfaceThreshold, histogram);
 		wxTextCtrl* dC = debugConsole;
 		auto logAppend = [&dC](std::string message) {
 			log(dC, message, Mode::A);
