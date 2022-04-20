@@ -18,11 +18,4 @@ C:\Projects\DesignCSG\DesignCSG.cpp(554,48): warning C4305: 'initializing': trun
 C:\Projects\DesignCSG\DesignCSG.cpp(681,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
 C:\Projects\DesignCSG\DesignCSG.cpp(681,3): message : consider using '%zd' in the format string
 C:\Projects\DesignCSG\DesignCSG.cpp(704,24): warning C4129: '%': unrecognized character escape sequence
-C:\Projects\DesignCSG\ISV.hpp(70,41): error C2530: 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>::dataSource': references must be initialized
-C:\Projects\DesignCSG\ISV.hpp(70): message : while compiling class template member function 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>::ISV3D64(const ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>> &)'
-C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(45): message : see reference to function template instantiation 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>::ISV3D64(const ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>> &)' being compiled
-C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(71): message : see reference to class template instantiation 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>' being compiled
-C:\Projects\DesignCSG\ISV.hpp(71,4): error C2534: 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>': constructor cannot return a value
-C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(37): message : see declaration of 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>'
-C:\Projects\DesignCSG\ISV.hpp(71,4): error C2562: 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>::ISV3D64': 'void' function returning a value
-C:\Projects\DesignCSG\ISV.hpp(70): message : see declaration of 'ISV::ISV3D64<v3f_t,std::function<std::vector<v3f_t,std::allocator<v3f_t>> (std::vector<v3f_t,std::allocator<v3f_t>> &)>>::ISV3D64'
+  DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe

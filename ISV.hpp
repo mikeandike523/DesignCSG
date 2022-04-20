@@ -67,10 +67,11 @@ namespace ISV {
 		
 		}
 
-		ISV3D64<T, F> (const ISV3D64& toFork) {
-			return ISV3D64(toFork.w, toFork.h, toFork.d, toFork.ww, toFork.hh, toFork.dd, toFork.bb, toFork.dataSource, toFork.maxCounts, toFork.gcFrequency);
-
-		}
+		ISV3D64<T, F> (const ISV3D64& toFork) : w(toFork.w), h(toFork.h), d(toFork.d), 
+			ww(toFork.ww), hh(toFork.hh), dd(toFork.dd),
+			bb(toFork.bb),dataSource(toFork.dataSource),maxCounts(toFork.maxCounts),gcFrequency(toFork.gcFrequency)
+		
+		{}
 
 		std::mutex accessMutex;
 		int dimensions;
