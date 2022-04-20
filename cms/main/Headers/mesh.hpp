@@ -124,15 +124,15 @@ namespace cms {
 			workItems.pop_front();
 		}
 
-		auto task = [&mesh,&meshMutex,&poolSize](Mesh * context,Node root) {
+		auto task = [&mesh,&poolSize](Mesh * context,Node root) {
 
 			{
-				std::lock_guard<std::mutex> lock(meshMutex);
+				std::lock_guard<std::mutex> lock(context->meshMutex);
 				poolSize++;
 			
 			}
 
-#define addRemainingItems(rI) {std::lock_guard<std::mutex> lock(meshMutex); context->remainingItems += rI;}
+#define addRemainingItems(rI) {std::lock_guard<std::mutex> lock(context->meshMutex); context->remainingItems += rI;}
 
 
 			SdfISV sdfISV = context->sampler.fork();
@@ -155,7 +155,7 @@ namespace cms {
 
 				if (nd->level > context->generation) {
 
-					std::lock_guard<std::mutex> lock(meshMutex);
+					std::lock_guard<std::mutex> lock(context->meshMutex);
 
 					context->generation = nd->level;
 					context->histogram[context->generation] = 0;
@@ -290,7 +290,7 @@ namespace cms {
 
 
 					{
-						std::lock_guard<std::mutex> lock(meshMutex);
+						std::lock_guard<std::mutex> lock(context->meshMutex);
 						for (IndexTriangle it : components) {
 							// logRoutine("%d %d %d\n",it.x,it.y,it.z);
 							Vector3f A = edgeLocations[it.x];
@@ -312,7 +312,7 @@ namespace cms {
 
 
 			{
-						std::lock_guard<std::mutex> lock(meshMutex);
+						std::lock_guard<std::mutex> lock(context->meshMutex);
 						poolSize--;
 
 			}
