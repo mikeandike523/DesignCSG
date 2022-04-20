@@ -17,6 +17,10 @@
 
 ## Export Examples
 
+![3D Hilbert Curve](FilesForREADME/HilbertExport.png)
+* Abstract Geometry
+  
+![Abstract Geometry](FilesForREADME/Design1Export.png)
 
 ## Software Requirements
 * Windows 10 or 11
@@ -29,7 +33,7 @@
 * Use the API documentation to modify the code to your liking
 * Save your design with `file -> save`
 * View your changes by selecting `file -> run`
-* When you are ready, export your design.
+* When you are ready, export your design using `file -> export`.
     * *At this time, exporting may take several hours. Active work is being done to optimize the export algorithm.*
 ## API Reference
 * Todo.
