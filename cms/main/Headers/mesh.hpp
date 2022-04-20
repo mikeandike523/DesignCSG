@@ -98,7 +98,7 @@ namespace cms {
 		remainingItems = 0;
 
 #define meshSubdivision 2
-#define useThreads 1
+#define useThreads 0
 #define maxPoolSize 12
 #define raisePriority 1
 #if useThreads == 0
