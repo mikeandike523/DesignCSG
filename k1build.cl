@@ -2,6 +2,7 @@
 #define MAX_DISTANCE 64.0
 #define SDF_EPSILON 0.005
 #define NORMAL_EPSILON 0.005
+#define AXES_RADIUS 0.015
 #define TOLERANCE_FACTOR_MARCHSTEP 0.85
 #define TOLERANCE_FACTOR_MATERIAL 2.0
 #define RCOMP(c) (clip((int)(255.0*c.x)))
@@ -235,7 +236,7 @@ float primary_sdf(
             
             float r = sqrt(v.y*v.y+v.z*v.z);
             float h = v.x-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, 0.025));
+            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
         
         
         }
@@ -245,7 +246,7 @@ float primary_sdf(
             
             float r = sqrt(v.x*v.x+v.z*v.z);
             float h = v.y-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, 0.025));
+            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
         
         
         }
@@ -256,7 +257,7 @@ float primary_sdf(
             
             float r = sqrt(v.x*v.x+v.y*v.y);
             float h = v.z-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, 0.025));
+            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
         
         
         }
