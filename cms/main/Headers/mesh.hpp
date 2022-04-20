@@ -18,15 +18,22 @@
 
 
 
+
+
+
 namespace cms {
+
+	using sdfISV = ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>)>>;
+	using normalISV = ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>)>>;
+
 
 	class Mesh {
 
 	public:
 
 
-		Mesh(Box3f _boundingBox, std::function<float(float, float, float)> _sampler,
-			std::function<cms::Vector3f(float, float, float)> _unitNormalSampler,
+		Mesh(Box3f _boundingBox, sdfISV _sampler,
+			normalISV _unitNormalSampler,
 			std::map<int, std::vector<IndexTriangle>> _trsMap,
 			int _minimumOctreeLevel,
 			int _maximumOctreeLevel,
@@ -34,10 +41,8 @@ namespace cms {
 			float _complexSurfaceThreshold,
 			std::map<int, int>& _histogram
 
-		) {
+		) : sampler(_sampler), unitNormalSampler(unitNormalSampler) {
 			boundingBox = _boundingBox;
-			sampler = _sampler;
-			unitNormalSampler = _unitNormalSampler;
 			trsMap = _trsMap;
 			minimumOctreeLevel = _minimumOctreeLevel;
 			maximumOctreeLevel = _maximumOctreeLevel;
@@ -61,8 +66,8 @@ namespace cms {
 		int maximumOctreeLevel = 7;
 		int gridLevel = 8;
 		float complexSurfaceThreshold = PI / 12.0f; //todo -- obtain value and equation for complex surface threshold
-		std::function<float(float, float, float)> sampler;
-		std::function<cms::Vector3f(float, float, float)> unitNormalSampler;
+		sdfISV sampler;
+		normalISV unitNormalSampler;
 		std::map<int, std::vector<IndexTriangle>> trsMap;
 		int complete = 1;
 
@@ -109,6 +114,9 @@ namespace cms {
 		}
 
 		auto task = [&mesh](Mesh * context,Node root) {
+
+	
+
 			std::deque<Node> stack = { root};
 			context->remainingItems += 1;
 			int sp = 0;
