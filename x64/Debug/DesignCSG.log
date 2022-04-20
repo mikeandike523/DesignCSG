@@ -1,2 +1,9 @@
-﻿  LINK : C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe not found or not built by the last incremental link; performing full link
+﻿  Evaluator.cpp
+  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 220 (OpenCL 2.2)
+C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
+C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
+C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
+C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
+C:\Projects\DesignCSG\Evaluator.cpp(142,29): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
+C:\Projects\DesignCSG\Evaluator.cpp(188,29): warning C4838: conversion from 'int' to 'const size_t' requires a narrowing conversion
   DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
