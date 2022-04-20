@@ -99,8 +99,12 @@ namespace cms {
 #define meshSubdivision 0
 #define useThreads 0
 #define maxPoolSize 12
+#if useThreads == 0
+#undef meshSubdivision
+#define meshSubdivision 0
+#endif
 
-
+		
 		std::deque<Node> workItems = { Node(boundingBox,0) };
 		int _sp = 0;
 		while (_sp < workItems.size()) {
