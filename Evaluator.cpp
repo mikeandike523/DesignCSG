@@ -1,9 +1,13 @@
 #include "Evaluator.h"
 
 #include <wx/wx.h>
+#include <mutex>
 
 //need to find a way to define STACK_MEMORY_PER_PIXEL globally
 #define STACK_MEMORY_PER_PIXEL 64
+
+
+std::mutex evaluatorMutex;
 
 
 
@@ -106,6 +110,8 @@ std::pair<int,std::string> Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem 
 std::vector<float> Evaluator::eval_sdf_at_points(std::vector<v3f_t>& points)
 {
 
+	std::lock_guard<std::mutex> lock(evaluatorMutex);
+
 	std::vector<float> evaluations;
 	evaluations.reserve(points.size());
 
@@ -153,6 +159,10 @@ std::vector<float> Evaluator::eval_sdf_at_points(std::vector<v3f_t>& points)
 
 std::vector<v3f_t> Evaluator::eval_normal_at_points(std::vector<v3f_t>& points)
 {
+
+	std::lock_guard<std::mutex> lock(evaluatorMutex);
+
+
 	std::vector<v3f_t> evaluations;
 	evaluations.reserve(points.size());
 	eval_types_bank[0] = EVAL_TYPE_NORMAL;
