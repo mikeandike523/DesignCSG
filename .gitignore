@@ -10,3 +10,6 @@ Python310/Lib/__pycache__/*
 Python310/Lib/__pycache__/**
 **/__pycache__/*
 **/__pycache__/**
+x64/Debug/*
+!x64/Debug/*.exe
+!x64/Debug/*.dll
