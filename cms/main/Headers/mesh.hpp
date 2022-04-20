@@ -337,11 +337,15 @@ namespace cms {
 
 			while (poolSize > maxPoolSize) {}
 
-			workItemCounter++;
-			Node workItem = workItems.back();
-			workItems.pop_back();
-			std::thread t (task,this, workItem);
-			t.detach();
+
+			if (workItems.size()>0) {
+				workItemCounter++;
+				Node workItem = workItems.back();
+				workItems.pop_back();
+				std::thread t(task, this, workItem);
+				t.detach();
+
+			}
 
 		}
 
