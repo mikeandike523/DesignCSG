@@ -7,7 +7,7 @@ namespace ISV {
 	template <typename T, typename F>
 	class ISV3D64 {
 	public:
-		ISV3D64(int W, int H, int D, int64_t WW, int64_t HH, int64_t DD, box_t* BB, F& DataSource, int MaxCounts, int GcFrequency)
+		ISV3D64(int W, int H, int D, int64_t WW, int64_t HH, int64_t DD, box_t BB, F& DataSource, int MaxCounts, int GcFrequency)
 			:w(W), h(H), d(D), ww(WW), hh(HH), dd(DD), bb(BB), dataSource(DataSource), maxCounts(MaxCounts), gcFrequency(GcFrequency) {}
 
 
@@ -78,7 +78,7 @@ namespace ISV {
 		std::map<std::tuple<int64_t, int64_t, int64_t>, std::vector<T>> sections;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, int> counts;
 		int64_t ww, hh, dd, w, h, d;
-		box_t* bb;
+		box_t bb;
 		F& dataSource;
 		int maxCounts;
 		int gcFrequency;
@@ -90,9 +90,9 @@ namespace ISV {
 			return hash(I643get(coords, 0), I643get(coords, 1), I643get(coords, 2));
 		}
 		std::tuple<int64_t, int64_t, int64_t> getCoords(v3f_t point) {
-			int64_t ix = (int64_t)(w * (point.x - bb->center.x + bb->diameters.x / 2.0f) / (bb->diameters.x));
-			int64_t iy = (int64_t)(h * (point.y - bb->center.y + bb->diameters.y / 2.0f) / (bb->diameters.y));
-			int64_t iz = (int64_t)(d * (point.z - bb->center.z + bb->diameters.z / 2.0f) / (bb->diameters.z));
+			int64_t ix = (int64_t)(w * (point.x - bb.center.x + bb.diameters.x / 2.0f) / (bb.diameters.x));
+			int64_t iy = (int64_t)(h * (point.y - bb.center.y + bb.diameters.y / 2.0f) / (bb.diameters.y));
+			int64_t iz = (int64_t)(d * (point.z - bb.center.z + bb.diameters.z / 2.0f) / (bb.diameters.z));
 			return std::make_tuple(ix, iy, iz);
 		}
 		int64_t getIndex(I643 coords) {
@@ -102,10 +102,10 @@ namespace ISV {
 			return ixx + iyy * dd + izz * hh * dd;
 		}
 		v3f_t getPoint(int ix, int iy, int iz) {
-			return v3f_add(v3f_sub(bb->center, v3f_scale(bb->diameters, 0.5)), v3f(
-				bb->diameters.x * (float)ix / (float)w,
-				bb->diameters.y * (float)iy / (float)h,
-				bb->diameters.z * (float)iz / (float)d
+			return v3f_add(v3f_sub(bb.center, v3f_scale(bb.diameters, 0.5)), v3f(
+				bb.diameters.x * (float)ix / (float)w,
+				bb.diameters.y * (float)iy / (float)h,
+				bb.diameters.z * (float)iz / (float)d
 			));
 		}
 		void collectGarbage() {

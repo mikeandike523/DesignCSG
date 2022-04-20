@@ -316,11 +316,14 @@ namespace cms {
 
 #if useThreads == 0
 
+		int workItemCounter = 0;
 		while (workItems.size() > 0) {
-		
+			DebugPrint("Starting item %d.\n", workItemCounter);
 			Node workItem = workItems.back();
 			workItems.pop_back();
 			task(this, workItem);
+
+			workItemCounter++;
 		}
 
 #else
