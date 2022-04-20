@@ -96,8 +96,8 @@ namespace cms {
 
 		remainingItems = 0;
 
-#define meshSubdivision 0
-#define useThreads 0
+#define meshSubdivision 2
+#define useThreads 1
 #define maxPoolSize 12
 #if useThreads == 0
 #undef meshSubdivision
@@ -340,7 +340,7 @@ namespace cms {
 			workItemCounter++;
 			Node workItem = workItems.back();
 			workItems.pop_back();
-			std::thread t (task,this, workItem));
+			std::thread t (task,this, workItem);
 			t.detach();
 
 		}
