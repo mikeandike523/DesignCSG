@@ -59,7 +59,16 @@ namespace ISV {
 
 		}
 
-	private:
+		ISV3D64<T, F> fork() {
+			return ISV3D64(w,h,d,ww,hh,dd,bb,dataSource,maxCounts,gcFrequency);
+		
+		}
+
+		ISV3D64<T, F> (const ISV3D64& toFork) {
+			return ISV3D64(toFork.w, toFork.h, toFork.d, toFork.ww, toFork.hh, toFork.dd, toFork.bb, toFork.dataSource, toFork.maxCounts, toFork.gcFrequency);
+
+		}
+
 		std::mutex accessMutex;
 		int dimensions;
 		std::map<std::tuple<int64_t, int64_t, int64_t>, std::vector<T>> sections;
