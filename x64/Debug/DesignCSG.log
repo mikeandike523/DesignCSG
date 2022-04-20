@@ -4,18 +4,16 @@ C:\Projects\DesignCSG\Utils.h(20,1): warning C4005: 'T_max': macro redefinition
 C:\Projects\DesignCSG\CVector.h(14): message : see previous definition of 'T_max'
 C:\Projects\DesignCSG\Utils.h(21,1): warning C4005: 'T_min': macro redefinition
 C:\Projects\DesignCSG\CVector.h(13): message : see previous definition of 'T_min'
+C:\Projects\DesignCSG\ISV.hpp(129,1): error C2544: expected ')' for operator '()'
+C:\Projects\DesignCSG\ISV.hpp(135): message : see reference to class template instantiation 'ISV::ISV3D64<T,F>' being compiled
+C:\Projects\DesignCSG\ISV.hpp(129,14): error C2144: syntax error: 'float' should be preceded by ';'
+C:\Projects\DesignCSG\ISV.hpp(129,23): error C2062: type 'float' unexpected
+C:\Projects\DesignCSG\ISV.hpp(129,41): error C2059: syntax error: '{'
+C:\Projects\DesignCSG\ISV.hpp(129,1): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+C:\Projects\DesignCSG\ISV.hpp(126,29): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'Vector3f'
+C:\Projects\DesignCSG\ISV.hpp(135,1): message : No constructor could take the source type, or constructor overload resolution was ambiguous
+C:\Projects\DesignCSG\ISV.hpp(126,28): message : 'Vector3f': function declaration must be available as none of the arguments depend on a template parameter
 C:\Projects\DesignCSG\cms\main\Headers\geometry.hpp(11,1): warning C4005: 'PI': macro redefinition
 C:\Projects\DesignCSG\DrawPane.h(11): message : see previous definition of 'PI'
-C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(63,33): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(50,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-C:\Projects\DesignCSG\cms\main\Headers\utils.hpp(50,3): message : consider using '%zd' in the format string
-C:\Projects\DesignCSG\GetThreadCount.h(80,3): warning C4477: 'sprintf' : format string '%s' requires an argument of type 'char *', but variadic argument 3 has type 'TCHAR *'
-C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ls' in the format string
-C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%lls' in the format string
-C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%Ls' in the format string
-C:\Projects\DesignCSG\GetThreadCount.h(80,3): message : consider using '%ws' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(554,48): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Projects\DesignCSG\DesignCSG.cpp(686,3): warning C4477: 'sprintf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-C:\Projects\DesignCSG\DesignCSG.cpp(686,3): message : consider using '%zd' in the format string
-C:\Projects\DesignCSG\DesignCSG.cpp(709,24): warning C4129: '%': unrecognized character escape sequence
-  DesignCSG.vcxproj -> C:\Projects\DesignCSG\x64\Debug\DesignCSG.exe
+C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(69,33): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Projects\DesignCSG\cms\main\Headers\mesh.hpp(145,1): fatal error C1903: unable to recover from previous error(s); stopping compilation
