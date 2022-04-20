@@ -71,6 +71,7 @@ namespace cms {
 		NormalISV unitNormalSampler;
 		std::map<int, std::vector<IndexTriangle>> trsMap;
 		int complete = 1;
+		std::mutex meshMutex;
 
 
 	};
@@ -81,7 +82,7 @@ namespace cms {
 	inline std::vector<Triangle3f> Mesh::getSurface() {
 
 
-		std::mutex meshMutex;
+	
 		int poolSize = 0;
 
 		complete = 0;
@@ -99,6 +100,7 @@ namespace cms {
 #define meshSubdivision 2
 #define useThreads 1
 #define maxPoolSize 12
+#define raisePriority 1
 #if useThreads == 0
 #undef meshSubdivision
 #define meshSubdivision 0
@@ -320,6 +322,15 @@ namespace cms {
 
 #if useThreads == 0
 
+#if raisePriority == 1
+		if (SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_ABOVE_NORMAL)==0) {
+			DebugPrint("Failed to set thread priority to above normal. The program will still proceed.\n");
+		}
+		else {
+			DebugPrint("Successfully raised thread prioirty to above normal.\n");
+		}
+#endif
+
 		int workItemCounter = 0;
 		while (workItems.size() > 0) {
 			DebugPrint("Starting item %d.\n", workItemCounter);
@@ -343,6 +354,16 @@ namespace cms {
 				Node workItem = workItems.back();
 				workItems.pop_back();
 				std::thread t(task, this, workItem);
+
+#if raisePriority == 1
+				if (SetThreadPriority(t.native_handle(), THREAD_PRIORITY_ABOVE_NORMAL) == 0) {
+					DebugPrint("Failed to set thread priority to above normal. The program will still proceed.\n");
+				}
+				else {
+					DebugPrint("Successfully raised thread prioirty to above normal.\n");
+				}
+#endif
+
 				t.detach();
 
 			}

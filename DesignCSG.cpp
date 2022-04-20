@@ -837,6 +837,8 @@ void MyFrame::OnExport(wxCommandEvent& event) {
 						message += "Triangle counts:\t";
 
 						if (!mesh->complete) {
+
+							std::lock_guard<std::mutex> lock(mesh->meshMutex);
 							hS = "";
 							for (auto p : mesh->histogram) {
 								snprintf(buff1,4096, "lvl%d->%d\t", p.first, p.second);
