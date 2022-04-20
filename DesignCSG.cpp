@@ -22,8 +22,6 @@ int hasModel = 0;
 #include "mesh.hpp"
 #include "readLookupTable.hpp"
 #include "utils.hpp"
-#define _MSC_VER
-#include "StdCapture.h"
 #include "GetThreadCount.h"
 #include <mutex>
 #include <filesystem>
