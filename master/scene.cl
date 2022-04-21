@@ -43,6 +43,13 @@
         }
         
 
+        float sd4( double3 v){
+
+            return T_max(fabs(v.x)-0.5,T_max(fabs(v.y)-0.5,fabs(v.z)-0.5));
+
+        }
+        
+
         
         double3 shader0 (double3 gv, double3 lv, double3 n){
 
@@ -82,6 +89,9 @@ case 2: return sd2(v); break;
 
 
 case 3: return sd3(v); break;
+
+
+case 4: return sd4(v); break;
 
 
             }
