@@ -24,7 +24,7 @@
 * Clone the repo and run the program using `master/run.bat`.
   * If you get a dll error, run `master/copydlls.bat`.
 * At any time, you can download the latest updates using `git pull`.
-* Open the example code with `file -> open -> Example.py`, and visualize your design using `file -> run`. Use the API reference to modify the code to your liking.
+* Open the example code with `file -> open -> Design1.py`, and visualize your design using `file -> run`. Use the API reference to modify the code to your liking.
 * Save your design with `file -> save`.
 * View your changes by selecting `file -> run`.
 * When you are ready, export your design using `file -> export`. Most medium resolution exports can be completed in less than half an hour.
