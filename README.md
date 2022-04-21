@@ -13,6 +13,8 @@
 
 ## Export Examples
 
+![](FilesForREADME/Hilbert_export_cropped.png) ![](FilesForREADME/Design1_export_cropped.png)
+
 ## Software Requirements
 * Windows 10 or 11
 ## Hardware Requirements

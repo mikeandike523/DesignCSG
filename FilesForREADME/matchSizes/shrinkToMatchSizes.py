@@ -29,7 +29,7 @@ cropStartH2 = (sz2[1]-minHeight)//2
 
 
 newimg1 = img1.crop((cropStartW1,cropStartH1,cropStartW1+minWidth,cropStartH1+minHeight))
-newimg2 = img1.crop((cropStartW2,cropStartH2,cropStartW2+minWidth,cropStartH2+minHeight))
+newimg2 = img2.crop((cropStartW2,cropStartH2,cropStartW2+minWidth,cropStartH2+minHeight))
 
 
 dirn1 = os.path.dirname(filepath1)
