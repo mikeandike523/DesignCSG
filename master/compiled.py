@@ -1,5 +1,5 @@
 from DesignCSG import *
-from designLibrary import *
+from designlibrary import *
 
 
 #Courtesy of everestial007 on StackOverflow

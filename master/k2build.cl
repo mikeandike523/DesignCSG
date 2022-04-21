@@ -317,25 +317,6 @@ __kernel void  k2(
         }
         
 
-        float sd4( double3 v){
-
-             
-	return length(v)-0.5;
-
-
-        }
-        
-
-        float sd5( double3 v){
-
-             
-	v= fabs(v);
-	return T_max(T_max(v.x-0.5,v.y-0.5),v.z-0.5);
-
-
-        }
-        
-
         
         double3 shader0 (double3 gv, double3 lv, double3 n){
 
@@ -375,12 +356,6 @@ case 2: return sd2(v); break;
 
 
 case 3: return sd3(v); break;
-
-
-case 4: return sd4(v); break;
-
-
-case 5: return sd5(v); break;
 
 
             }
