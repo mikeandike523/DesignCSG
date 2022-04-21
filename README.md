@@ -10,17 +10,17 @@
 ## Design Examples
 * 3D Hilbert Curve
   
-![3D Hilbert Curve](FilesForREADME/Hilbert_padded.png)
+![3D Hilbert Curve](FilesForREADME/Hilbert.png)
 * Abstract Geometry
   
-![Abstract Geometry](FilesForREADME/Design1_padded.png)
+![Abstract Geometry](FilesForREADME/Design1.png)
 
 ## Export Examples
 
-![3D Hilbert Curve](FilesForREADME/HilbertExport_padded.png)
+![3D Hilbert Curve](FilesForREADME/HilbertExport.png)
 * Abstract Geometry
   
-![Abstract Geometry](FilesForREADME/Design1Export_padded.png)
+![Abstract Geometry](FilesForREADME/Design1Export.png)
 
 ## Software Requirements
 * Windows 10 or 11
