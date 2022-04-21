@@ -33,8 +33,7 @@
 * Use the API documentation to modify the code to your liking
 * Save your design with `file -> save`
 * View your changes by selecting `file -> run`
-* When you are ready, export your design using `file -> export`.
-    * *At this time, exporting may take several hours. Active work is being done to optimize the export algorithm.*
+* When you are ready, export your design using `file -> export`. Medium resolution exports can be completed in less than half an hour
 ## API Reference
 * Todo.
 ## License
