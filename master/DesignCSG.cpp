@@ -133,9 +133,17 @@ std::string stripPY(std::string s) {
 	return s;
 }
 
+enum OFD_Ids {
+
+	ID_ok_button = 10
+
+};
+
 class OFD : wxDialog {
 
 public:
+
+	int selected = 0;
 
 	OFD() : wxDialog(nullptr,wxID_ANY,"Open an Existing Design") {
 
@@ -157,7 +165,9 @@ public:
 			lb->Append(std::vector<wxString>{wxString(s)});
 		}
 
-		wxButton* okButton = new wxButton(this,wxID_OK,"Open");
+		
+
+		wxButton* okButton = new wxButton(this,ID_ok_button, "Open");
 
 		//okButton->Bind(wxEVT_BUTTON, &okButtonPressed, this);
 	//	okButton->Bind(wxEVT_BUTTON, wxEventHandler(okButtonPressed),-1,-1,nullptr);
@@ -171,12 +181,14 @@ public:
 
 		int retCode = ShowModal();
 
-		DebugPrint("Modal exit code: %d", retCode);
+		DebugPrint("Modal exit code: %d\n", retCode);
 
-		if (retCode != 0) {
+		if (selected==0) {
 			DebugPrint("Modal was exited or there was an error.\n");
 		}
 		else {
+
+			DebugPrint("Ok button pressed.\n");
 
 			if (lb->GetSelection() == wxNOT_FOUND) {
 				setDesignPath("Designs\\Untitled.py");
@@ -189,17 +201,15 @@ public:
 		
 		}
 
-	//	delete vbox;
-	//	delete lb;
-	//	delete okButton;
-
-		//Connect(ID_Ok, wxEVT_BUTTON, wxEventHandler(okButtonPressed));
 
 
+	
+		Destroy();
 	
 	}
 
 	void okButtonPressed(wxCommandEvent& event) {
+		selected = 1;
 		EndModal(0);
 	}
 
@@ -210,7 +220,7 @@ public:
 
 BEGIN_EVENT_TABLE(OFD,wxDialog)
 
-EVT_BUTTON(wxID_OK,OFD::okButtonPressed)
+EVT_BUTTON(ID_ok_button,OFD::okButtonPressed)
 
 END_EVENT_TABLE()
 
@@ -246,6 +256,8 @@ void MyFrame::OnSaveAs(wxCommandEvent& event) {
 }
 
 void MyFrame::OnOpen(wxCommandEvent& event) {
+
+
 	std::string originalPath = designPath;
 	OFD ofd;
 	if(designPath!=originalPath)
