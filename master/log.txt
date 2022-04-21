@@ -1,4 +1,10 @@
+<fontTools.ttLib.ttFont.TTFont object at 0x000001BF9A6C3D90>
+['__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__dir__', '__doc__', '__enter__', '__eq__', '__exit__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__len__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildReverseGlyphOrderDict', '_getGlyphNamesFromCmap', '_makeGlyphName', '_readTable', '_save', '_saveXML', '_tableCache', '_tableToXML', '_writeTable', 'close', 'ensureDecompiled', 'flavor', 'flavorData', 'get', 'getBestCmap', 'getGlyphID', 'getGlyphIDMany', 'getGlyphName', 'getGlyphNameMany', 'getGlyphNames', 'getGlyphNames2', 'getGlyphOrder', 'getGlyphSet', 'getReverseGlyphMap', 'getTableData', 'has_key', 'ignoreDecompileErrors', 'importXML', 'isLoaded', 'keys', 'lazy', 'quiet', 'reader', 'recalcBBoxes', 'recalcTimestamp', 'save', 'saveXML', 'setGlyphOrder', 'sfntVersion', 'tables', 'verbose']
 Traceback (most recent call last):
-  File "C:\Projects\DesignCSG\master\compiled.py", line 2, in <module>
-    from designLibrary import *
-ModuleNotFoundError: No module named 'designLibrary'
+  File "C:\Projects\DesignCSG\master\compiled.py", line 11, in <module>
+    commit()
+  File "C:\Projects\DesignCSG\master\DesignCSG.py", line 210, in commit
+    compiler.commit()
+  File "C:\Projects\DesignCSG\master\scenecompiler.py", line 508, in commit
+    export_variable = self.root.variable
+AttributeError: 'Component' object has no attribute 'variable'
