@@ -50,8 +50,8 @@ for _x,_y,_z in np.ndindex((3,3,3)):
 setExportConfig(
 
 	boundingBoxHalfDiameter=2.0,
-	minimumOctreeLevel=3,
-	maximumOctreeLevel=5,
+	minimumOctreeLevel=5,
+	maximumOctreeLevel=7,
 	gridLevel = 8,
 	complexSurfaceThreshold=np.pi/2.0*0.5,
 	gradientDescentSteps = 50,
