@@ -37,7 +37,7 @@ void setDesignPath(std::string dp) {
 
 std::string newFileTemplate = 
 "from DesignCSG import *\n"
-"from designLibrary import *\n"
+"from designlibrary import *\n"
 "\n"
 "\n"
 
