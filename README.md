@@ -1,6 +1,6 @@
 # DesignCSG
 
-*The #1 application for constructive solid geometry design*
+*The #1 Application for Constructive Solid Geometric Design*
 
 ## Features
 * Design 3D objects using signed distances fields and OpenCL.
@@ -8,19 +8,10 @@
 * Export designs to .stl and .ply files with varying levels of detail.
 
 ## Design Examples
-* 3D Hilbert Curve
-  
-![3D Hilbert Curve](FilesForREADME/Hilbert.png)
-* Abstract Geometry
-  
-![Abstract Geometry](FilesForREADME/Design1.png)
+
+![](FilesForREADME/Hilbert_cropped_padded.png) ![](FilesForREADME/Design1_cropped_padded.png)
 
 ## Export Examples
-
-![3D Hilbert Curve](FilesForREADME/HilbertExport.png)
-* Abstract Geometry
-  
-![Abstract Geometry](FilesForREADME/Design1Export.png)
 
 ## Software Requirements
 * Windows 10 or 11
@@ -28,12 +19,14 @@
 * OpenCL compatible graphics processor. NVidia Geforece GTX or RTX recommended. 
 * At least 8GB ram
 ## Usage
-* Download and run the installer from *todo*.
-* Open the program and read through the example code
-* Use the API documentation to modify the code to your liking
-* Save your design with `file -> save`
-* View your changes by selecting `file -> run`
-* When you are ready, export your design using `file -> export`. Medium resolution exports can be completed in less than half an hour
+* Clone the repo and run the program using `master/run.bat`.
+  * If you get a dll error, run `master/copydlls.bat`.
+* At any time, you can download the latest updates using `git pull`.
+* Open the example code with `file -> open -> Example.py`, and visualize your design using `file -> run`. Use the API reference to modify the code to your liking.
+* Save your design with `file -> save`.
+* View your changes by selecting `file -> run`.
+* When you are ready, export your design using `file -> export`. Most medium resolution exports can be completed in less than half an hour.
+* You can create a new design with `file -> new`, or open an existing one with `file -> open`.
 ## API Reference
 * Todo.
 ## License
