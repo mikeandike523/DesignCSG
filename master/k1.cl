@@ -26,7 +26,7 @@
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
-#define getAD(name,offset) (arbitrary_Data[name+offset])
+#define getAD(name,offset) (arbitrary_data[name+offset])
 
 
 float sdf_bank(double3 v, unsigned char shape_id);
