@@ -26,7 +26,7 @@
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
-#define getAD(name,offset) (arbitrary_Data[name+offset])
+#define getAD(name,offset) (arbitrary_data[name+offset])
 
 
 float sdf_bank(double3 v, unsigned char shape_id);
@@ -575,12 +575,22 @@ __kernel void  k1(
  
 }
         
-        #define AD_CCURVES 0
+        #define AD_DT1 0
+#define AD_DT2 4
 
 
         
 
          
+
+#define Vector3f(x,y,z) (float3)((float)(x),(float)(y),(float)(z))
+float box(float3 v){
+	
+	return T_max(fabs(v.x)-0.5,T_max(fabs(v.y)-0.5,fabs(v.z)-0.5));
+
+}
+
+
 
         
         float sd0( double3 v){
@@ -623,7 +633,9 @@ __kernel void  k1(
 
         float sd4( double3 v){
 
-            return T_max(fabs(v.x)-0.5,T_max(fabs(v.y)-0.5,fabs(v.z)-0.5));
+            
+	return box(Vector3f(v.x,v.y-getAD(AD_DT2,1),v.z));
+
 
         }
         
