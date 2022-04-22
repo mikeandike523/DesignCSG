@@ -478,7 +478,25 @@ void loadRoutine(MyFrame* ths) {
 	ths->text->SetValue(wxString(Utils::readFile(designPath.c_str()).c_str()));
 }
 
+
+
 void MyFrame::OnRun(wxCommandEvent& event) {
+
+	static float arbitrary_data_temp[ARBITRARY_DATA_POINTS];
+	if (std::filesystem::is_regular_file("arbitrary_data.hex")) {
+
+		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
+		size_t itemCount = 0;
+		float dataPoint = 0;
+		while (fread(&dataPoint, sizeof(float), 1, dataFile)) {
+			arbitrary_data_temp[itemCount++] = dataPoint;
+		}
+		fclose(dataFile);
+		this->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);
+
+
+	}
+
 
 	log(debugConsole, "Updating.", Mode::W);
 
