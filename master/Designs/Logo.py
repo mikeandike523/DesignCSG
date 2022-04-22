@@ -1,5 +1,6 @@
 from DesignCSG import *
 from designlibrary import *
+from fontTools.pens.ttGlyphPen import TTGlyphPen
 
 define_auxillary_function("""
 
@@ -102,6 +103,8 @@ font = TTFont('Designs/Roboto-Black.ttf')
 # ######
 
 cmap = font.getBestCmap()
+glyphSet = font.getGlyphSet()
+
 
 draw(scene_brush,Transform.initial(
 	position=vec3(0.0,0.0,0.0),
@@ -112,7 +115,6 @@ draw(scene_brush,Transform.initial(
 ))
 
 curves = []
-
 
 AXES_XYZ  = -1
 AXES_XY = 0
@@ -133,6 +135,19 @@ def addCurve(curve):
 
 
 #render ttf here
+
+def getFontData(chr):
+	pen = TTGlyphPen(glyphSet)
+	g = glyphSet[cmap[ord(chr)]]
+	g.draw(pen)
+	g=pen.glyph()
+	return g.getCoordinates(glyphSet._glyphs)
+	
+
+for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+	print(letter,getFontData(letter))
+
+
 addCurve(Curve(A=vec3(-1.0,0.0,0.0),B=vec3(0.0,1.0,0.0),C=vec3(1.0,0.0,0.0),thickness=0.05,axesTag=AXES_XYZ))
 addCurve(Curve(A=vec3(0.0,0.0,-1.0),B=vec3(0.0,1.0,0.0),C=vec3(0.0,0.0,1.0),thickness=0.05,axesTag=AXES_XYZ))
 addCurve(Curve(A=vec3(1.0,0.0,0.0),B=vec3(0.0,1.0,0.0),C=vec3(0.0,0.0,1.0),thickness=0.05,axesTag=AXES_XYZ))
