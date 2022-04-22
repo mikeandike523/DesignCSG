@@ -26,4 +26,6 @@ draw(box_brush,Transform.initial(
 	scale=vec3(1.0,1.0,1.0)
 ))
 
+compiler.addArbitraryData("cCurves",[1,2,3,4])
+
 commit()

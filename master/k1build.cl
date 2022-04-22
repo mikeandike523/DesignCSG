@@ -569,6 +569,9 @@ __kernel void  k1(
     
  
 }
+        
+        #define AD_CCURVES 0
+
 
         
 
