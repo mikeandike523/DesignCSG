@@ -275,8 +275,8 @@ __kernel void  k2(
 
         
         #define AD_LETTERBITS 0
-#define AD_NUMCURVES 19
-#define AD_CURVEDATA 20
+#define AD_NUMCURVES 265
+#define AD_CURVEDATA 266
 
 
         
@@ -289,7 +289,7 @@ __kernel void  k2(
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 16
+#define LETTER_RESOLUTION 64
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
@@ -480,17 +480,16 @@ for(int i=0;i<numCurves;i++){
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
 	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	//int val = getADBit(AD_LETTERBITS,bitPosition);
+	int val = getADBit(AD_LETTERBITS,bitPosition);
 
-	int val = (queryCol+queryRow) %2 ==0;
+	d=box(scaledVector3f(0.5,toVector3f(v)));
+	
 	if(val){
-		d = T_max(fabs(v.z)-0.1,box(scaledVector3f(0.5,toVector3f(v))));
+		d = 0.075;
 	}
-	else{
-		d= 0.01;
-	}
-	return d;
 
+
+	return d;
 
 
 
