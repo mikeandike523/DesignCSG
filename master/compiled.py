@@ -199,18 +199,14 @@ def getFontData(chr):
 	g.draw(pen)
 	g=pen.glyph()
 	return g.getCoordinates(glyphSet._glyphs)
-	
 
-letter = "A"
-fontData = getFontData("A")
-pts = fontData[0]
-endPts = fontData[1]
-flags = fontData[2]
-print(pts)
-print(endPts)
-print(flags)
+def getScalers(letter):
 
-def scaleTo(pts, minX, maxX, minY, maxY):
+	pts = getFontData(letter)[0]
+	minX = -1
+	maxX = 1
+	minY = -1
+	maxY = 1
 	xvals = []
 	yvals = []
 	for pt in pts:
@@ -224,53 +220,22 @@ def scaleTo(pts, minX, maxX, minY, maxY):
 	print(_minX,_maxX,_minY,_maxY)
 	rescaleX = lambda x: minX + (maxX-minX) * x / (_maxX-_minX)
 	rescaleY = lambda y: minY + (maxY-minY)* y/ (_maxY-_minY)
-	for i in range(len(xvals)):
-		xvals[i] = rescaleX(xvals[i])
-		yvals[i]=rescaleY(yvals[i])
-	return list(zip(xvals,yvals))
-
-print(scaleTo(pts,-1,1,-1,1))
-pts = scaleTo(pts,-1,1,-1,1)
+	return rescaleX, rescaleY
 
 
-contours = []
-contourFlags = []
-pointer = 0
-while pointer< len(pts) and len(endPts) > 0:
-	end = endPts.pop()
-	contours.append(pts[pointer:(end+1)])
-	contourFlags.append(flags[pointer:(end+1)])
-	pointer = end + 1
 
-for contour in contours:
-	if len(contour) < 3:
-		A=vec3(contour[0][0],contour[0][1],0)
-		C=vec3(contour[1][0],contour[1][1],0)
-		B=midpoint(A,C)
-
-		addCurve(Curve(A,B,C))
-
-	else:
-		for offs in range(len(contour)-2):
-			A=vec3(contour[offs+0][0],contour[offs+0][1],0)
-			B=vec3(contour[offs+1][0],contour[offs+1][1],0)
-			C=vec3(contour[offs+2][0],contour[offs+2][1],0)
-			addCurve(Curve(A,B,C))
-
-addArbitraryData("NUMCURVES",[float(len(curves))])
-curvedata = []
-for curve in curves:
-	curvedata.extend(list(curve.A))
-	curvedata.extend(list(curve.B))
-	curvedata.extend(list(curve.C))
-	curvedata.append(curve.thickness)
-	curvedata.append(curve.axesTag)
-addArbitraryData("CURVEDATA",curvedata)
-commit()
-
-
-#experiment with making a custom pen to intercept strokes
 class InterceptorPen(TTGlyphPen):
+
+	def getQuadraticSegments(self):
+		return self.quadraticSegments
+
+	def __init__(self,glyphSet,rescaleX,rescaleY):
+	
+		self.rescaleX = rescaleX
+		self.rescaleY = rescaleY
+		self.quadraticSegments = []
+		super().__init__(glyphSet)
+
 	def closePath(self):
 		print("Path Closed.")
 		super().closePath()
@@ -289,9 +254,26 @@ class InterceptorPen(TTGlyphPen):
 	def qCurveTo(self,*points):
 		print("Drew quadratic curve to: " +repr(points))
 		super().qCurveTo(*points)
-	
-pen = InterceptorPen(glyphSet)
-g = glyphSet[cmap[ord("e")]]
+
+
+letter = "e"
+pen = InterceptorPen(glyphSet,*getScalers(letter))
+g = glyphSet[cmap[ord(letter)]]
 g.draw(pen)
+
+for segment in pen.getQuadraticSegments():
+	addCurve(Curve(vec3(segment[0][0],segment[0][1],0.0),vec3(segment[1][0],segment[1][1],0.0),vec3(segment[2][0],segment[2][1],0.0)))
+
+
+addArbitraryData("NUMCURVES",[float(len(curves))])
+curvedata = []
+for curve in curves:
+	curvedata.extend(list(curve.A))
+	curvedata.extend(list(curve.B))
+	curvedata.extend(list(curve.C))
+	curvedata.append(curve.thickness)
+	curvedata.append(curve.axesTag)
+addArbitraryData("CURVEDATA",curvedata)
+commit()
 
 
