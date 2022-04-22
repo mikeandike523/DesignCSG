@@ -258,11 +258,33 @@ class InterceptorPen(TTGlyphPen):
 		self.quadraticSegments.append([A,B,C])
 		self.currentPoint = self.rescalePoint(pt)
 		super().lineTo(pt)
+
+	#due to using trueType font, I can assume curveTo will not be called
 	def curveTo(self,*pts):
 		print("Drew cubic curve to: " +repr(pts))
 		super().curveTo(*pts)
+
 	def qCurveTo(self,*pts):
+		if pts[-1] is None:
+			raise Exception("The glyph drawn by this pen contains the rare case for a qCurveTo segment has only an off-curve last point.")
 		print("Drew quadratic curve to: " +repr(pts))
+		L = 1 + len(pts)
+		if L < 3:
+			raise Exception("The glyph has a quadratic segment with only two points.")
+		full_pts = []
+		full_pts.append(self.currentPoint)
+		for I in range(len(pts)-2):
+			A = self.rescalePoint(pts[I])
+			B = self.rescalePoint(pts[I+1])
+			full_pts.append(A)
+			full_pts.append(tuple(midpoint(np.array(A),np.array(B))))
+		full_pts.append(self.rescalePoint(pts[-2]))
+		full_pts.append(self.rescalePoint(pts[-1]))
+		print(L,len(full_pts))
+		
+			
+
+		self.currentPoint = self.rescalePoint(pts[-1])
 		super().qCurveTo(*pts)
 
 
