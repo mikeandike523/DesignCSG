@@ -583,6 +583,12 @@ __kernel void  k1(
 
          
 
+
+#define AXES_XYZ -1
+#define AXES_XY 0
+#define AXES_YZ 1
+#define AXES_ZX 2
+
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 float3 scaledVector3f(float s,float3 v) {
@@ -601,13 +607,33 @@ float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
 
 }
 
-float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness, int N){
+float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
 
 	float d = MAX_DISTANCE;
 
 	for(int i=0;i < N;i++){
 		float t = (float)i/(float)N;
 		float3 p = quadraticBezierCurve(A,B,C,t);
+
+		switch(axesTag){
+			case AXES_XY:
+				p.z=0;
+				v.z = 0;
+			break;
+			case AXES_YZ:
+				p.x = 0;
+				v.x = 0;	
+			break;
+			case AXES_ZX:
+				p.y=0;
+				v.y=0;
+			break;
+			default:
+				//Do nothing.
+			break;
+		}
+
+
 		float dist = length(p-toVector3f(v));
 		if(dist<d){
 			d = dist;
@@ -672,12 +698,12 @@ float d = MAX_DISTANCE;
 
 for(int i=0;i<numCurves;i++){
 
-	int offs = i*10;
+	int offs = i*11;
 	d = T_min(d,quadraticBezierSDF(toVector3f(v),
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),250
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),250
 	));
 
 }
