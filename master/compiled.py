@@ -238,9 +238,14 @@ class InterceptorPen(TTGlyphPen):
 		self.quadraticSegments = []
 		self.currentPoint = self.rescalePoint(point(0,0))
 		super().__init__(glyphSet)
+		self.pathStart = self.currentPoint
 
 	def closePath(self):
 		print("Path Closed.")
+		A = self.currentPoint
+		C = self.pathStart
+		B = tuple(midpoint(np.array(A),np.array(C)))
+		self.quadraticSegments.append([A,B,C])
 		super().closePath()
 	def endPath(self):
 		print("Path ended but not closed.")
@@ -248,6 +253,7 @@ class InterceptorPen(TTGlyphPen):
 	def moveTo(self,pt):
 		print("Moved to point: "+repr(pt))
 		self.currentPoint = self.rescalePoint(pt)
+		self.pathStart = self.currentPoint
 		super().moveTo(pt)
 	def lineTo(self,pt):
 		print("Drew line to point: "+repr(pt))
