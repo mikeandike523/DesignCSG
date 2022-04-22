@@ -281,7 +281,14 @@ class InterceptorPen(TTGlyphPen):
 		full_pts.append(self.rescalePoint(pts[-2]))
 		full_pts.append(self.rescalePoint(pts[-1]))
 		print(L,len(full_pts))
-		
+		L = len(full_pts)
+			
+		start = 0
+		end = 2
+		while end  < L:
+			self.quadraticSegments.append([full_pts[start],full_pts[start+1],full_pts[start+2]])
+			start +=2
+			end +=2
 			
 
 		self.currentPoint = self.rescalePoint(pts[-1])
