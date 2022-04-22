@@ -26,6 +26,8 @@
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
+#define getAD(name,offset) (arbitrary_Data[name+offset])
+
 
 float sdf_bank(double3 v, unsigned char shape_id);
 double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
