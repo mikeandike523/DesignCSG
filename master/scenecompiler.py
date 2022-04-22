@@ -1,10 +1,14 @@
 import dataclasses
+from dataclasses import dataclass
 import enum
 from os import stat
 import numpy as np
 import os
+from typing import List
+import struct
 
 INITIAL_SCALE = 5.0
+ARBITRARY_DATA_POINTS=4096
 
 compiler =  None
 
@@ -373,6 +377,14 @@ class Component:
 
     
 
+class ArbitraryDataChunk:
+
+
+    def __init__(self,name,start,data):
+        self.name=name
+        self.start=start
+        self.data=data
+    
 
 
 
@@ -386,6 +398,8 @@ class _SceneCompiler:
 
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
+        self.adpCounter = 0
+        self.ad=[]
         self.brush_counter = Incrementor()
         self.material_counter = Incrementor()
         self.brushes = []
@@ -518,6 +532,24 @@ class _SceneCompiler:
         #print("\n".join([repr(cmd) for cmd in commands]))
 
         Utils.fwrite("buildprocedure.txt", "\n".join([str(cmd) for cmd in commands]))
+
+        dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
+
+        with open("AD_DEFINITIONS.txt","w") as fl:
+            fl.write("")
+
+        for chunk in self.ad:
+            name = chunk.name
+            start = chunk.start
+            data = chunk.data
+            with open("AD_DEFINITIONS.txt","w") as fl:
+                fl.write("#define AD_{} {}\n".format(name.upper(),start))
+            for i,dataPoint in enumerate(data):
+                dataBuffer[start+i] = np.array(dataPoint,dtype="<f4")
+
+        with open("arbitrary_data.hex","wb") as fl:
+            for item in dataBuffer:
+                fl.write(item.tobytes())
 
         print("Instance tree compiled successfully.")
         

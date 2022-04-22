@@ -487,9 +487,14 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 
 		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
 		size_t itemCount = 0;
-		float dataPoint = 0;
-		while (fread(&dataPoint, sizeof(float), 1, dataFile)) {
-			arbitrary_data_temp[itemCount++] = dataPoint;
+		uint8_t dataPoint[4];
+		while (fread(&dataPoint, 1, 4, dataFile)) {
+			if (cms::is_big_endian()) {
+				cms::reverseFourBytes(dataPoint);
+			}
+			float dataPointf = 0.0;
+			memcpy(&dataPointf, dataPoint, 4);
+			arbitrary_data_temp[itemCount++] = dataPointf;
 		}
 		fclose(dataFile);
 		this->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);
