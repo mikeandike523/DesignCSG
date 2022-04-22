@@ -15,7 +15,7 @@
 #define MAX_BUILD_STEPS 256
 #define IZOOM 10.0
 #define STACK_MEMORY_PER_PIXEL 64
-#define ARBITRARY_DATA_POINTS 4096
+#define ARBITRARY_DATA_POINTS 131072
 
 enum class LoadSceneResult{
 
