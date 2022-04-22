@@ -607,6 +607,59 @@ float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
 
 }
 
+float ipow(float f, int n){
+	float r = 1.0;
+	for(int i=0;i<n;i++){
+		r*=f;
+	}
+	return r;
+}
+
+float3 cubicBezierCurve(float3 A, float3 B, float3 C, float3 D, float t){
+
+	return scaledVector3f(ipow(1.0-t,3),A) + scaledVector3f(3*ipow(1.0-t,2)*t,B) + scaledVector3f(3*(1.0-t)*ipow(t,2),C) + scaledVector3f(ipow(t,3),D);
+
+}
+
+float cubicBezierSDF(float3 v, float3 A, float3 B, float3 C, float3 D, float thickness, int axesTag, int N){
+
+
+	float d = MAX_DISTANCE;
+
+	for(int i=0;i < N;i++){
+		float t = (float)i/(float)N;
+		float3 p = cubicBezierCurve(A,B,C,D,t);
+
+		switch(axesTag){
+			case AXES_XY:
+				p.z=0;
+				v.z = 0;
+			break;
+			case AXES_YZ:
+				p.x = 0;
+				v.x = 0;	
+			break;
+			case AXES_ZX:
+				p.y=0;
+				v.y=0;
+			break;
+			default:
+				//Do nothing.
+			break;
+		}
+
+
+		float dist = length(p-toVector3f(v));
+		if(dist<d){
+			d = dist;
+		}
+
+	}
+
+	return d-thickness;
+
+}
+
 float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
 
 	float d = MAX_DISTANCE;
@@ -698,12 +751,13 @@ float d = MAX_DISTANCE;
 
 for(int i=0;i<numCurves;i++){
 
-	int offs = i*11;
-	d = T_min(d,quadraticBezierSDF(toVector3f(v),
+	int offs = i*(12+2);
+	d = T_min(d,cubicBezierSDF(toVector3f(v),
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),250
+		Vector3f(getAD(AD_CURVEDATA,offs+9),getAD(AD_CURVEDATA,offs+10),getAD(AD_CURVEDATA,offs+11)),
+		getAD(AD_CURVEDATA,offs+12),(int)getAD(AD_CURVEDATA,offs+13),50
 	));
 
 }
