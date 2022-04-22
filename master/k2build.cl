@@ -290,6 +290,16 @@ __kernel void  k2(
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
+
+int getADBit(int name, int offs){
+	int foffs = offs/16;
+	int soffs = offs % 16;
+	float fval = getAD(name, foffs);
+	int shortval = (int)fval;
+	return (shortval  >> (15-soffs) ) & 0x1;
+}
+
+
 float3 scaledVector3f(float s,float3 v) {
 	return Vector3f(s*v.x,s*v.y,s*v.z);
 }

@@ -11,6 +11,16 @@ define_auxillary_function("""
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
+
+int getADBit(int name, int offs){
+	int foffs = offs/16;
+	int soffs = offs % 16;
+	float fval = getAD(name, foffs);
+	int shortval = (int)fval;
+	return (shortval  >> (15-soffs) ) & 0x1;
+}
+
+
 float3 scaledVector3f(float s,float3 v) {
 	return Vector3f(s*v.x,s*v.y,s*v.z);
 }
@@ -308,6 +318,24 @@ g.draw(pen)
 
 for segment in pen.getQuadraticSegments():
 	addCurve(Curve(vec3(segment[0][0],segment[0][1],0.0),vec3(segment[1][0],segment[1][1],0.0),vec3(segment[2][0],segment[2][1],0.0)))
+
+def packShort(bits):
+	place = 0
+	value = 0
+	for bit in reversed(bits):
+		value+=bit*(2**place)
+		place+=1
+	return packShort
+
+def addADBits(name,bits):
+	floatData = []
+	for bitNumber in range(0,len(bits),16):
+		bts = bits[bitNumber:(bitNumber+16)]
+		floatData.append(packShort(bts))
+	addArbitraryData(name,floatData)
+
+
+		
 
 
 addArbitraryData("NUMCURVES",[float(len(curves))])
