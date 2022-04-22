@@ -751,13 +751,12 @@ float d = MAX_DISTANCE;
 
 for(int i=0;i<numCurves;i++){
 
-	int offs = i*(12+2);
-	d = T_min(d,cubicBezierSDF(toVector3f(v),
+	int offs = i*(9+2);
+	d = T_min(d,quadraticBezierSDF(toVector3f(v),
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		Vector3f(getAD(AD_CURVEDATA,offs+9),getAD(AD_CURVEDATA,offs+10),getAD(AD_CURVEDATA,offs+11)),
-		getAD(AD_CURVEDATA,offs+12),(int)getAD(AD_CURVEDATA,offs+13),50
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),50
 	));
 
 }
