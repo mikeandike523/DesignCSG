@@ -7,3 +7,21 @@ array('B', [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 [937, 456, 372, -3, 531, 861, 1399, 1022, 540, 853, 696] [272, 272, 0, 0, 1456, 1456, 0, 0, 543, 543, 1048]
 -3 1399 0 1456
 Instance tree compiled successfully.
+Moved to point: (618, -20)
+Drew quadratic curve to: ((369, -20), (61, 277), (61, 515))
+Drew line to point: (61, 543)
+Drew quadratic curve to: ((61, 709), (184, 963), (420, 1102), (582, 1102))
+Drew quadratic curve to: ((810, 1102), (1074, 819), (1074, 566))
+Drew line to point: (1074, 435)
+Drew line to point: (404, 435)
+Drew quadratic curve to: ((422, 344), (544, 240), (641, 240))
+Drew quadratic curve to: ((801, 240), (891, 352))
+Drew line to point: (1045, 170)
+Drew quadratic curve to: ((982, 83), (751, -20), (618, -20))
+Path Closed.
+Moved to point: (580, 842)
+Drew quadratic curve to: ((432, 842), (404, 646))
+Drew line to point: (744, 646)
+Drew line to point: (744, 672)
+Drew quadratic curve to: ((746, 753), (660, 842), (580, 842))
+Path Closed.
