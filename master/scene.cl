@@ -1,19 +1,50 @@
 
         
-        #define AD_DT1 0
-#define AD_DT2 4
+        #define AD_NUMCURVES 0
+#define AD_CURVEDATA 1
 
 
         
 
          
 
-#define Vector3f(x,y,z) (float3)((float)(x),(float)(y),(float)(z))
+#define Vector3f(x,y,z) ((float3)(x,y,z))
+#define toVector3f(v) (Vector3f(v.x,v.y,v.z))
+float3 scaledVector3f(float s,float3 v) {
+	return Vector3f(s*v.x,s*v.y,s*v.z);
+}
 float box(float3 v){
 	
 	return T_max(fabs(v.x)-0.5,T_max(fabs(v.y)-0.5,fabs(v.z)-0.5));
 
 }
+
+
+float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
+		return scaledVector3f(1.0-t,scaledVector3f(1.0-t,A)+scaledVector3f(t,B)) + scaledVector3f(t,scaledVector3f(1.0-t,B)+scaledVector3f(t,C));
+
+
+}
+
+float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness, int N){
+
+	float d = MAX_DISTANCE;
+
+	for(int i=0;i < N;i++){
+		float t = (float)i/(float)N;
+		float3 p = quadraticBezierCurve(A,B,C,t);
+		float dist = length(p-toVector3f(v));
+		if(dist<d){
+			d = dist;
+		}
+
+	}
+
+	return d-thickness;
+
+}
+
+
 
 
 
@@ -59,7 +90,26 @@ float box(float3 v){
         float sd4( double3 v){
 
             
-	return box(Vector3f(v.x,v.y-getAD(AD_DT2,1),v.z));
+
+
+int numCurves = (int)getAD(AD_NUMCURVES,0);
+float d = MAX_DISTANCE;
+
+for(int i=0;i<numCurves;i++){
+
+	int offs = i*10;
+	d = T_min(d,quadraticBezierSDF(toVector3f(v),
+		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
+		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
+		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
+		getAD(AD_CURVEDATA,offs+9),250
+	));
+
+}
+
+return d;
+
+
 
 
         }
