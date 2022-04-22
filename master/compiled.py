@@ -1,6 +1,8 @@
 from DesignCSG import *
 from designlibrary import *
 from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.pens.pointInsidePen import PointInsidePen
+
 
 define_auxillary_function("""
 
@@ -211,7 +213,6 @@ def getFontData(chr):
 	return g.getCoordinates(glyphSet._glyphs)
 
 def getScalers(letter):
-
 	pts = getFontData(letter)[0]
 	minX = -1
 	maxX = 1
@@ -228,8 +229,29 @@ def getScalers(letter):
 	_minY = np.min(yvals)
 	_maxY = np.max(yvals)
 	print(_minX,_maxX,_minY,_maxY)
-	rescaleX = lambda x: minX + (maxX-minX) * x / (_maxX-_minX)
-	rescaleY = lambda y: minY + (maxY-minY)* y/ (_maxY-_minY)
+	rescaleX = lambda x: minX + (maxX-minX) * (x-_minX) / (_maxX-_minX)
+	rescaleY = lambda y: minY + (maxY-minY)* (y-_minY) / (_maxY-_minY)
+	return rescaleX, rescaleY
+
+def getInverseScalers(letter):
+	pts = getFontData(letter)[0]
+	_minX = -1
+	_maxX = 1
+	_minY = -1
+	_maxY = 1
+	xvals = []
+	yvals = []
+	for pt in pts:
+		xvals.append(pt[0])
+		yvals.append(pt[1])
+	print(xvals,yvals)
+	minX = np.min(xvals)
+	maxX = np.max(xvals)
+	minY = np.min(yvals)
+	maxY = np.max(yvals)
+	print(_minX,_maxX,_minY,_maxY)
+	rescaleX = lambda x: minX + (maxX-minX) * (x-_minX) / (_maxX-_minX)
+	rescaleY = lambda y: minY + (maxY-minY)* (y-_minY) / (_maxY-_minY)
 	return rescaleX, rescaleY
 
 def point(a,b):
@@ -333,6 +355,17 @@ def addADBits(name,bits):
 		bts = bits[bitNumber:(bitNumber+16)]
 		floatData.append(packShort(bts))
 	addArbitraryData(name,floatData)
+
+def testPoint(letter,point,):
+	rescaleX,rescaleY = getInverseScalers(letter)
+	testPoint = (rescaleX(point[0]),rescaleY(point[1]))
+	print(testPoint)
+	pen=PointInsidePen(glyphSet,testPoint)
+	g = glyphSet[cmap[ord(letter)]]
+	g.draw(pen)
+	return pen.getResult()
+
+print(testPoint("f",(0,0)))
 
 
 		
