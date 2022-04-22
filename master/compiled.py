@@ -133,6 +133,9 @@ class Curve:
 def addCurve(curve):
 	curves.append(curve)
 
+def midpoint(A,B):
+	return 0.5*(A+B)
+
 
 #render ttf here
 
@@ -144,6 +147,7 @@ def getFontData(chr):
 	return g.getCoordinates(glyphSet._glyphs)
 	
 
+"""
 for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
 	print(letter,getFontData(letter))
 
@@ -151,7 +155,61 @@ for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
 addCurve(Curve(A=vec3(-1.0,0.0,0.0),B=vec3(0.0,1.0,0.0),C=vec3(1.0,0.0,0.0),thickness=0.05,axesTag=AXES_XYZ))
 addCurve(Curve(A=vec3(0.0,0.0,-1.0),B=vec3(0.0,1.0,0.0),C=vec3(0.0,0.0,1.0),thickness=0.05,axesTag=AXES_XYZ))
 addCurve(Curve(A=vec3(1.0,0.0,0.0),B=vec3(0.0,1.0,0.0),C=vec3(0.0,0.0,1.0),thickness=0.05,axesTag=AXES_XYZ))
+"""
 
+letter = "A"
+fontData = getFontData("A")
+pts = fontData[0]
+endPts = fontData[1]
+flags = fontData[2]
+print(pts)
+print(endPts)
+print(flags)
+
+def scaleTo(pts, minX, maxX, minY, maxY):
+	xvals = []
+	yvals = []
+	for pt in pts:
+		xvals.append(pt[0])
+		yvals.append(pt[1])
+	print(xvals,yvals)
+	_minX = np.min(xvals)
+	_maxX = np.max(xvals)
+	_minY = np.min(yvals)
+	_maxY = np.max(yvals)
+	print(_minX,_maxX,_minY,_maxY)
+	rescaleX = lambda x: minX + (maxX-minX) * x / (_maxX-_minX)
+	rescaleY = lambda y: minY + (maxY-minY)* y/ (_maxY-_minY)
+	for i in range(len(xvals)):
+		xvals[i] = rescaleX(xvals[i])
+		yvals[i]=rescaleY(yvals[i])
+	return list(zip(xvals,yvals))
+
+print(scaleTo(pts,-1,1,-1,1))
+pts = scaleTo(pts,-1,1,-1,1)
+
+
+contours = []
+contourFlags = []
+pointer = 0
+while pointer< len(pts) and len(endPts) > 0:
+	end = endPts.pop()
+	contours.append(pts[pointer:(end+1)])
+	contourFlags.append(flags[pointer:(end+1)])
+	pointer = end + 1
+
+for contour in contours:
+	if len(contour) < 3:
+		A=vec3(contour[0][0],contour[0][1],0)
+		C=vec3(contour[1][0],contour[1][1],0)
+		B=midpoint(A,C)
+		addCurve(Curve(A,B,C))
+	else:
+		for offs in range(len(contour)-2):
+			A=vec3(contour[offs+0][0],contour[offs+0][1],0)
+			B=vec3(contour[offs+1][0],contour[offs+1][1],0)
+			C=vec3(contour[offs+2][0],contour[offs+2][1],0)
+			addCurve(Curve(A,B,C))
 
 addArbitraryData("NUMCURVES",[float(len(curves))])
 curvedata = []
