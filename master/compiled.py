@@ -130,13 +130,12 @@ float d = MAX_DISTANCE;
 
 for(int i=0;i<numCurves;i++){
 
-	int offs = i*(12+2);
-	d = T_min(d,cubicBezierSDF(toVector3f(v),
+	int offs = i*(9+2);
+	d = T_min(d,quadraticBezierSDF(toVector3f(v),
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		Vector3f(getAD(AD_CURVEDATA,offs+9),getAD(AD_CURVEDATA,offs+10),getAD(AD_CURVEDATA,offs+11)),
-		getAD(AD_CURVEDATA,offs+12),(int)getAD(AD_CURVEDATA,offs+13),50
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),50
 	));
 
 }
@@ -177,11 +176,11 @@ AXES_ZX = 2
 
 class Curve:
 
-	def __init__(self,A,B,C,D,thickness = 0.05,axesTag=AXES_XYZ):
+	def __init__(self,A,B,C,thickness = 0.05,axesTag=AXES_XYZ):
 		self.A = A
 		self.B = B
 		self.C = C
-		self.D = D
+
 		self.thickness = thickness
 		self.axesTag =axesTag
 		
@@ -246,23 +245,17 @@ while pointer< len(pts) and len(endPts) > 0:
 for contour in contours:
 	if len(contour) < 3:
 		A=vec3(contour[0][0],contour[0][1],0)
-		D=vec3(contour[1][0],contour[1][1],0)
-		B=midpoint(A,D)
-		C=midpoint(A,D)
-		addCurve(Curve(A,B,C,D))
-	elif len(contour) < 4:
-		A=vec3(contour[0][0],contour[0][1],0)
-		B=vec3(contour[1][0],contour[1][1],0)
-		D=vec3(contour[2][0],contour[2][1],0)
-		C=B
-		addCurve(Curve(A,B,C,D))
+		C=vec3(contour[1][0],contour[1][1],0)
+		B=midpoint(A,C)
+
+		addCurve(Curve(A,B,C))
+
 	else:
-		for offs in range(len(contour)-3):
+		for offs in range(len(contour)-2):
 			A=vec3(contour[offs+0][0],contour[offs+0][1],0)
 			B=vec3(contour[offs+1][0],contour[offs+1][1],0)
 			C=vec3(contour[offs+2][0],contour[offs+2][1],0)
-			D=vec3(contour[offs+3][0],contour[offs+3][1],0)
-			addCurve(Curve(A,B,C,D))
+			addCurve(Curve(A,B,C))
 
 addArbitraryData("NUMCURVES",[float(len(curves))])
 curvedata = []
@@ -270,7 +263,6 @@ for curve in curves:
 	curvedata.extend(list(curve.A))
 	curvedata.extend(list(curve.B))
 	curvedata.extend(list(curve.C))
-	curvedata.extend(list(curve.D))
 	curvedata.append(curve.thickness)
 	curvedata.append(curve.axesTag)
 addArbitraryData("CURVEDATA",curvedata)
