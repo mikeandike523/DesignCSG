@@ -8,7 +8,7 @@ from typing import List
 import struct
 
 INITIAL_SCALE = 5.0
-ARBITRARY_DATA_POINTS=4096
+ARBITRARY_DATA_POINTS=131072
 
 compiler =  None
 
