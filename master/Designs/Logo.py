@@ -222,7 +222,8 @@ def getScalers(letter):
 	rescaleY = lambda y: minY + (maxY-minY)* y/ (_maxY-_minY)
 	return rescaleX, rescaleY
 
-
+def point(a,b):
+	return (a,b)
 
 class InterceptorPen(TTGlyphPen):
 
@@ -233,7 +234,9 @@ class InterceptorPen(TTGlyphPen):
 	
 		self.rescaleX = rescaleX
 		self.rescaleY = rescaleY
+		self.rescalePoint = lambda p: (rescaleX(p[0]),rescaleY(p[1]))
 		self.quadraticSegments = []
+		self.currentPoint = self.rescalePoint(point(0,0))
 		super().__init__(glyphSet)
 
 	def closePath(self):
@@ -242,21 +245,31 @@ class InterceptorPen(TTGlyphPen):
 	def endPath(self):
 		print("Path ended but not closed.")
 		super().endPath()
-	def moveTo(self,point):
-		print("Moved to point: "+repr(point))
-		super().moveTo(point)
-	def lineTo(self,point):
-		print("Drew line to point: "+repr(point))
-		super().lineTo(point)
-	def curveTo(self,*points):
-		print("Drew cubic curve to: " +repr(points))
-		super().curveTo(*points)
-	def qCurveTo(self,*points):
-		print("Drew quadratic curve to: " +repr(points))
-		super().qCurveTo(*points)
+	def moveTo(self,pt):
+		print("Moved to point: "+repr(pt))
+		self.currentPoint = self.rescalePoint(pt)
+		super().moveTo(pt)
+	def lineTo(self,pt):
+		print("Drew line to point: "+repr(pt))
+		A = self.currentPoint
+		C = self.rescalePoint(pt)
+		B = tuple(midpoint(np.array(A),np.array(C)))
+		print(A,B,C)
+		self.quadraticSegments.append([A,B,C])
+		self.currentPoint = self.rescalePoint(pt)
+		super().lineTo(pt)
+
+	#due to using trueType font, I can assume curveTo will not be called
+	def curveTo(self,*pts):
+		print("Drew cubic curve to: " +repr(pts))
+		super().curveTo(*pts)
+
+	def qCurveTo(self,*pts):
+		print("Drew quadratic curve to: " +repr(pts))
+		super().qCurveTo(*pts)
 
 
-letter = "e"
+letter = "f"
 pen = InterceptorPen(glyphSet,*getScalers(letter))
 g = glyphSet[cmap[ord(letter)]]
 g.draw(pen)
