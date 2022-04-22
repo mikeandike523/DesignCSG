@@ -1,4 +1,7 @@
 
+        
+        #define AD_CCURVES 0
+
 
         
 

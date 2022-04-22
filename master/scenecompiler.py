@@ -398,7 +398,7 @@ class _SceneCompiler:
 
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
-        self.adpCounter = 0
+        self.adCounter = 0
         self.ad=[]
         self.brush_counter = Incrementor()
         self.material_counter = Incrementor()
@@ -444,8 +444,17 @@ class _SceneCompiler:
 
     def commit(self):
 
+
+        ad_definitions = ""
+        for chunk in self.ad:
+            name=chunk.name
+            start=chunk.start
+            ad_definitions+=("#define AD_{} {}\n".format(name.upper(),start))
+
         #compile scene.cl
         scene_cl="""
+        
+        {}
 
         {}
 
@@ -482,6 +491,7 @@ class _SceneCompiler:
         
         
         """.format(
+            ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
             "\n".join([str(b) for b in self.brushes]),
@@ -535,15 +545,12 @@ class _SceneCompiler:
 
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
 
-        with open("AD_DEFINITIONS.txt","w") as fl:
-            fl.write("")
+    
 
         for chunk in self.ad:
             name = chunk.name
             start = chunk.start
             data = chunk.data
-            with open("AD_DEFINITIONS.txt","w") as fl:
-                fl.write("#define AD_{} {}\n".format(name.upper(),start))
             for i,dataPoint in enumerate(data):
                 dataBuffer[start+i] = np.array(dataPoint,dtype="<f4")
 
@@ -552,6 +559,12 @@ class _SceneCompiler:
                 fl.write(item.tobytes())
 
         print("Instance tree compiled successfully.")
+
+    def addArbitraryData(self,name,data):
+        start = self.adCounter
+        self.adCounter+=len(data)
+        self.ad.append(ArbitraryDataChunk(name,start,data))
+        
         
 compiler = _SceneCompiler()
 def SceneCompiler():

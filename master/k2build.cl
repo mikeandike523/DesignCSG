@@ -273,6 +273,9 @@ __kernel void  k2(
 }
 
 
+        
+        #define AD_CCURVES 0
+
 
         
 
