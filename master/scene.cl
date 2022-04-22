@@ -1,8 +1,8 @@
 
         
         #define AD_LETTERBITS 0
-#define AD_NUMCURVES 265
-#define AD_CURVEDATA 266
+#define AD_NUMCURVES 19
+#define AD_CURVEDATA 20
 
 
         
@@ -15,7 +15,7 @@
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 64
+#define LETTER_RESOLUTION 16
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
@@ -187,6 +187,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 int numCurves = (int)getAD(AD_NUMCURVES,0);
 float d = MAX_DISTANCE;
 
+/*
 for(int i=0;i<numCurves;i++){
 
 	int offs = i*(9+2);
@@ -197,9 +198,24 @@ for(int i=0;i<numCurves;i++){
 		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),50
 	));
 
-}
 
-return d;
+}*/
+
+
+
+	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
+	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
+	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
+	//int val = getADBit(AD_LETTERBITS,bitPosition);
+
+	int val = (queryCol+queryRow) %2 ==0;
+	if(val){
+		d = T_max(fabs(v.z)-0.1,box(scaledVector3f(0.5,toVector3f(v))));
+	}
+	else{
+		d= 0.01;
+	}
+	return d;
 
 
 
