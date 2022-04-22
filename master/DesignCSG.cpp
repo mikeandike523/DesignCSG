@@ -480,7 +480,7 @@ void loadRoutine(MyFrame* ths) {
 
 
 
-void MyFrame::OnRun(wxCommandEvent& event) {
+void updateArbitraryData(MyFrame * ctx) {
 
 	static float arbitrary_data_temp[ARBITRARY_DATA_POINTS];
 	if (std::filesystem::is_regular_file("arbitrary_data.hex")) {
@@ -497,10 +497,16 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 			arbitrary_data_temp[itemCount++] = dataPointf;
 		}
 		fclose(dataFile);
-		this->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);
+		ctx->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);
 
 
 	}
+
+}
+
+void MyFrame::OnRun(wxCommandEvent& event) {
+
+
 
 
 	log(debugConsole, "Updating.", Mode::W);
@@ -532,6 +538,8 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 
 	log(debugConsole, Utils::readFile("log.txt"), Mode::A);
 	hasModel = 1;
+
+	updateArbitraryData(this);
 
 }
 
