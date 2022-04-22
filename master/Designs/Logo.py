@@ -3,6 +3,7 @@ from designlibrary import *
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.pens.pointInsidePen import PointInsidePen
 
+LETTER_RESOLUTION = 64
 
 define_auxillary_function("""
 
@@ -10,6 +11,8 @@ define_auxillary_function("""
 #define AXES_XY 0
 #define AXES_YZ 1
 #define AXES_ZX 2
+
+#define LETTER_RESOLUTION <{LETTER_RESOLUTION}>
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
@@ -132,7 +135,9 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 
 
-""")
+""".replace("<{LETTER_RESOLUTION}>",str(LETTER_RESOLUTION))
+
+)
 
 scene_brush = define_brush(body="""
 
@@ -223,12 +228,10 @@ def getScalers(letter):
 	for pt in pts:
 		xvals.append(pt[0])
 		yvals.append(pt[1])
-	print(xvals,yvals)
 	_minX = np.min(xvals)
 	_maxX = np.max(xvals)
 	_minY = np.min(yvals)
 	_maxY = np.max(yvals)
-	print(_minX,_maxX,_minY,_maxY)
 	rescaleX = lambda x: minX + (maxX-minX) * (x-_minX) / (_maxX-_minX)
 	rescaleY = lambda y: minY + (maxY-minY)* (y-_minY) / (_maxY-_minY)
 	return rescaleX, rescaleY
@@ -244,12 +247,10 @@ def getInverseScalers(letter):
 	for pt in pts:
 		xvals.append(pt[0])
 		yvals.append(pt[1])
-	print(xvals,yvals)
 	minX = np.min(xvals)
 	maxX = np.max(xvals)
 	minY = np.min(yvals)
 	maxY = np.max(yvals)
-	print(_minX,_maxX,_minY,_maxY)
 	rescaleX = lambda x: minX + (maxX-minX) * (x-_minX) / (_maxX-_minX)
 	rescaleY = lambda y: minY + (maxY-minY)* (y-_minY) / (_maxY-_minY)
 	return rescaleX, rescaleY
@@ -347,7 +348,7 @@ def packShort(bits):
 	for bit in reversed(bits):
 		value+=bit*(2**place)
 		place+=1
-	return packShort
+	return value
 
 def addADBits(name,bits):
 	floatData = []
@@ -359,16 +360,22 @@ def addADBits(name,bits):
 def testPoint(letter,point,):
 	rescaleX,rescaleY = getInverseScalers(letter)
 	testPoint = (rescaleX(point[0]),rescaleY(point[1]))
-	print(testPoint)
 	pen=PointInsidePen(glyphSet,testPoint)
 	g = glyphSet[cmap[ord(letter)]]
 	g.draw(pen)
 	return pen.getResult()
 
-print(testPoint("f",(0,0)))
+letterbits = []
+for row in range (LETTER_RESOLUTION + 1):
+	for col in range(LETTER_RESOLUTION + 1):
+		y = 1 - 2 * row/LETTER_RESOLUTION
+		x =  -1 + 2* col/LETTER_RESOLUTION
+		inside = 1 if testPoint(letter,(x,y)) else 0
+		letterbits.append(inside)
+		print(inside,end="")
+	print("\n",end="")
 
-
-		
+addADBits("LETTERBITS",letterbits)
 
 
 addArbitraryData("NUMCURVES",[float(len(curves))])

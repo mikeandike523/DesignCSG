@@ -575,8 +575,9 @@ __kernel void  k1(
  
 }
         
-        #define AD_NUMCURVES 0
-#define AD_CURVEDATA 1
+        #define AD_LETTERBITS 0
+#define AD_NUMCURVES 265
+#define AD_CURVEDATA 266
 
 
         
@@ -588,6 +589,8 @@ __kernel void  k1(
 #define AXES_XY 0
 #define AXES_YZ 1
 #define AXES_ZX 2
+
+#define LETTER_RESOLUTION 64
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
