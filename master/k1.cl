@@ -486,7 +486,8 @@ __kernel void  k1(
     __global int * num_objects_arr,
     __global float * screen_stack_memory,
     __global int * build_procedure_data,
-    __global int * num_build_steps_arr
+    __global int * num_build_steps_arr,
+    __global float * arbitrary_data
 ){
 
      int num_objects = num_objects_arr[0];

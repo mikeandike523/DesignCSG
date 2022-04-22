@@ -12,6 +12,20 @@
 
 #define CLIP8(x) ((x>255) ? 255 : ((x < 0 )? 0: x))
 
+void BasicDrawPane::setArbitraryData(float * data, size_t items) {
+	memcpy(arbitrary_data,data, sizeof(float) * items);
+	clEnqueueWriteBuffer(queue,
+		arbitrary_data_buffer,
+		CL_TRUE,
+		0,
+		ARBITRARY_DATA_POINTS * sizeof(float),
+		arbitrary_data,
+		0,
+		NULL,
+		NULL);
+
+}
+
 void BasicDrawPane::idled(wxIdleEvent& event)
 {
 	//Awful hack --> Purpose is to allow draw before scene is initialized, but this is incredibly hacky
@@ -46,6 +60,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		object_forward_bank = (float*)malloc(MAX_OBJECTS * 3 * sizeof(float));
 		pixel_data = (BYTE*)malloc(3 * 640 * 480);
 		build_procedure_data = (int*)malloc(4 * sizeof(int) * MAX_BUILD_STEPS);
+		arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
 
 		pixdataout_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE |
 			CL_MEM_COPY_HOST_PTR, 3 * 640 * 480 * sizeof(uint8_t), pixel_data, &err);
@@ -95,6 +110,8 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		num_build_steps_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
 			CL_MEM_COPY_HOST_PTR, sizeof(int), &num_build_steps, &err);
+
+		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, &arbitrary_data, &err);
 
 
 
@@ -412,6 +429,7 @@ LoadSceneResult BasicDrawPane::loadScene()
 	err |= clSetKernelArg(kernel, 12, sizeof(cl_mem), &screen_stack_memory_buffer);
 	err |= clSetKernelArg(kernel, 13, sizeof(cl_mem), &build_procedure_data_buffer);
 	err |= clSetKernelArg(kernel, 14, sizeof(cl_mem), &num_build_steps_buffer);
+	err |= clSetKernelArg(kernel, 15, sizeof(cl_mem), &arbitrary_data_buffer);
 
 	if (err == CL_SUCCESS)
 		pvalid = 1;
