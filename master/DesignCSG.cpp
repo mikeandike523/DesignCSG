@@ -504,6 +504,30 @@ void updateArbitraryData(MyFrame * ctx) {
 
 }
 
+void updateExportArbitraryData() {
+
+	static float arbitrary_data_temp[ARBITRARY_DATA_POINTS];
+	if (std::filesystem::is_regular_file("arbitrary_data.hex")) {
+
+		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
+		size_t itemCount = 0;
+		uint8_t dataPoint[4];
+		while (fread(&dataPoint, 1, 4, dataFile)) {
+			if (cms::is_big_endian()) {
+				cms::reverseFourBytes(dataPoint);
+			}
+			float dataPointf = 0.0;
+			memcpy(&dataPointf, dataPoint, 4);
+			arbitrary_data_temp[itemCount++] = dataPointf;
+		}
+		fclose(dataFile);
+		global_evaluator->setArbitraryData(arbitrary_data_temp, itemCount);
+
+
+	}
+
+}
+
 void MyFrame::OnRun(wxCommandEvent& event) {
 
 
@@ -636,6 +660,8 @@ void MyFrame::OnExportInner() {
 			log(debugConsole,"Error building export kernel:\n"+buildStatus.second,Mode::W);
 			return;
 		}
+
+		updateExportArbitraryData();
 
 		exportProcessState = ExportProcessState::ESTIMATING_BOUNDING_BOX;
 		
