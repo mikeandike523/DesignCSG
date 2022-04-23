@@ -280,8 +280,14 @@ __kernel void  k2(
 
         
 #define AD_LETTER_OFFS_C 0
-#define AD_NUMCURVES_C 265
-#define AD_CURVEDATA_C 266
+#define AD_NUMCURVES_C 1041
+#define AD_CURVEDATA_C 1042
+#define AD_LETTER_OFFS_S 1284
+#define AD_NUMCURVES_S 2325
+#define AD_CURVEDATA_S 2326
+#define AD_LETTER_OFFS_G 2656
+#define AD_NUMCURVES_G 3697
+#define AD_CURVEDATA_G 3698
 
 
         
@@ -296,13 +302,13 @@ __global int LETTER_AD_OFFS = -1;
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 64
+#define LETTER_RESOLUTION 128
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
 #define ZERO_WINDING (M_PI/64.0f)
-#define SUBSEGMENTS 64
+#define SUBSEGMENTS 128
 
 float arg(float x, float y){
 	float angle = atan2(y,x);
@@ -375,7 +381,12 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
 	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(LETTER_AD_OFFS,bitPosition);
+	
+	int val = 0 ;
+	if(queryCol>=0&&queryCol<=LETTER_RESOLUTION&&queryRow>=0&&queryRow<=LETTER_RESOLUTION)
+	{
+		val=getADBit(LETTER_AD_OFFS,bitPosition);
+	}
 	if(val){
 		return -d;
 	}
@@ -455,7 +466,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
+	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
 
 	
 
@@ -464,7 +475,64 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
         float sd5( double3 v){
 
-             return length(v) - 0.5;
+            
+
+	LETTER_AD_OFFS = AD_LETTER_OFFS_S;
+
+	v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
+
+	int numCurves = (int)getAD(AD_NUMCURVES_S,0);
+	float d = MAX_DISTANCE;
+
+
+	for(int i=0;i<numCurves;i++){
+
+		int offs = i*(9+2);
+		d = T_min(d,quadraticBezierSDF(toVector3f(v),
+			Vector3f(getAD(AD_CURVEDATA_S,offs+0),getAD(AD_CURVEDATA_S,offs+1),getAD(AD_CURVEDATA_S,offs+2)),
+			Vector3f(getAD(AD_CURVEDATA_S,offs+3),getAD(AD_CURVEDATA_S,offs+4),getAD(AD_CURVEDATA_S,offs+5)),
+			Vector3f(getAD(AD_CURVEDATA_S,offs+6),getAD(AD_CURVEDATA_S,offs+7),getAD(AD_CURVEDATA_S,offs+8)),
+			getAD(AD_CURVEDATA_S,offs+9),(int)getAD(AD_CURVEDATA_S,offs+10),SUBSEGMENTS
+		));
+
+
+	}
+
+	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+
+	
+
+        }
+        
+
+        float sd6( double3 v){
+
+            
+
+	LETTER_AD_OFFS = AD_LETTER_OFFS_G;
+
+	v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
+
+	int numCurves = (int)getAD(AD_NUMCURVES_G,0);
+	float d = MAX_DISTANCE;
+
+
+	for(int i=0;i<numCurves;i++){
+
+		int offs = i*(9+2);
+		d = T_min(d,quadraticBezierSDF(toVector3f(v),
+			Vector3f(getAD(AD_CURVEDATA_G,offs+0),getAD(AD_CURVEDATA_G,offs+1),getAD(AD_CURVEDATA_G,offs+2)),
+			Vector3f(getAD(AD_CURVEDATA_G,offs+3),getAD(AD_CURVEDATA_G,offs+4),getAD(AD_CURVEDATA_G,offs+5)),
+			Vector3f(getAD(AD_CURVEDATA_G,offs+6),getAD(AD_CURVEDATA_G,offs+7),getAD(AD_CURVEDATA_G,offs+8)),
+			getAD(AD_CURVEDATA_G,offs+9),(int)getAD(AD_CURVEDATA_G,offs+10),SUBSEGMENTS
+		));
+
+
+	}
+
+	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+
+	
 
         }
         
@@ -514,6 +582,9 @@ case 4: return sd4(v); break;
 
 
 case 5: return sd5(v); break;
+
+
+case 6: return sd6(v); break;
 
 
             }
