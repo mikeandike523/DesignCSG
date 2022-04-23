@@ -377,9 +377,7 @@ theLetterC = getLetterComponent("C",transform = Transform.axes(EKS,WHY,ZEE))
 theLetterS = getLetterComponent("S", transform = Transform.axes(ZEE,WHY,EKS))
 theLetterG = getLetterComponent("G",transform = Transform.axes(ZEE,-EKS,WHY))
 
-drawUnion(theLetterC,theLetterS,theLetterG)
-#drawComponent(theLetterG)
-
+drawIntersection(theLetterC,theLetterS,theLetterG)
 
 commit()
 

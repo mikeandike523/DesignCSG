@@ -390,7 +390,8 @@ class _IntersectionComponent(Component):
     def get_commands(self,allocator: Allocator):
         return super().get_commands(allocator,"MAX")
     def __init__(self,compiler,**kwargs):
-        super().__init__(brush=compiler.void_brush())
+        del kwargs["brush"]
+        super().__init__(brush=compiler.void_brush(),**kwargs)
     
 
 class ArbitraryDataChunk:
