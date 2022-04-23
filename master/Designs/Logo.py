@@ -181,7 +181,7 @@ class InterceptorPen(TTGlyphPen):
 		self.currentPoint = self.rescalePoint(pts[-1])
 		super().qCurveTo(*pts)
 
-LETTER_RESOLUTION = 64
+LETTER_RESOLUTION = 128
 
 define_auxillary_function("""
 
@@ -198,7 +198,7 @@ __global int LETTER_AD_OFFS = -1;
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
 #define ZERO_WINDING (M_PI/64.0f)
-#define SUBSEGMENTS 64
+#define SUBSEGMENTS 128
 
 float arg(float x, float y){
 	float angle = atan2(y,x);
@@ -271,7 +271,12 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
 	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(LETTER_AD_OFFS,bitPosition);
+	
+	int val = 0 ;
+	if(queryCol>=0&&queryCol<=LETTER_RESOLUTION&&queryRow>=0&&queryRow<=LETTER_RESOLUTION)
+	{
+		val=getADBit(LETTER_AD_OFFS,bitPosition);
+	}
 	if(val){
 		return -d;
 	}
@@ -289,7 +294,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 )
 
-def getLetterComponent(letter):
+def getLetterComponent(letter,transform=Transform.identity()):
 
 	letter_brush = define_brush(body="""
 
@@ -314,7 +319,7 @@ def getLetterComponent(letter):
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
+	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
 
 	""".replace("<{LETTER}>",letter))
 
@@ -360,11 +365,20 @@ def getLetterComponent(letter):
 		curvedata.append(curve.thickness)
 		curvedata.append(curve.axesTag)
 	addArbitraryData("CURVEDATA_"+letter,curvedata)
-	return Component(brush=letter_brush,transform=Transform.identity())
+	return Component(brush=letter_brush,transform=transform)
 
-theLetterC = getLetterComponent("C")
-drawComponent(theLetterC)
-drawComponent(Component(brush=define_brush(body=""" return length(v) - 0.5;""")))
+
+EKS = vec3(1,0,0)
+WHY = vec3(0,1,0)
+ZEE = vec3(0,0,1)
+ 
+theLetterC = getLetterComponent("C",transform = Transform.axes(EKS,WHY,ZEE))
+theLetterS = getLetterComponent("S",transform = Transform.axes(ZEE,WHY,EKS))
+theLetterG = getLetterComponent("G",transform = Transform.axes(ZEE,-EKS,WHY))
+
+#drawComponent(theLetterC)
+#drawComponent(theLetterS)
+drawComponent(theLetterG)
 
 commit()
 
