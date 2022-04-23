@@ -23,7 +23,7 @@ Evaluator::Evaluator(cl_device_id _device, cl_context _context, cl_command_queue
 	eval_types_bank = (int*)malloc(sizeof(int) * 1);
 	arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
 
-	arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, &arbitrary_data, &err);
+	arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
 
 	  
