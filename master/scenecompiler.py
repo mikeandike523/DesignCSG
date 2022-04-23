@@ -46,6 +46,16 @@ class Transform:
     #matrices are row major in Numpy
 
     @staticmethod
+    def homogenize(v):
+        return np.array([v[0],v[1],v[2],1],dtype=float)
+
+    @staticmethod
+    def axes(v1,v2,v3):
+        return np.array([
+          Transform.homogenize(v1),Transform.homogenize(v2),Transform.homogenize(v3),[0,0,0,1] 
+        ],dtype=float)
+
+    @staticmethod
     def translation(offset):
         return np.array([
         
@@ -127,6 +137,10 @@ class Transform:
     @staticmethod
     def normalized(v):
         return v/np.linalg.norm(v)
+
+    @staticmethod
+    def identity():
+        return Transform.axes([1,0,0],[0,1,0],[0,0,1])
 
 class ArgumentType(enum.Enum):
     IMMEDIATE = enum.auto()
@@ -243,6 +257,7 @@ class Material:
         }}
         """.format(self.bank_index,self.body)
 
+
 class Component:
     """A class for GameObjects and Prefabs
     Any object can be treated as a prefab, and GameObjects are objects added to the compiler root
@@ -335,7 +350,7 @@ class Component:
             components.extend(child.get_unrolled_components())
         return components
 
-    def get_commands(self,allocator: Allocator):
+    def get_commands(self,allocator: Allocator,joinMode="MIN"):
         """Function to compile build-instructions recursively
         
         Parent's own shape is always additive to its children
@@ -359,22 +374,22 @@ class Component:
                         commands.append(Command("NEGATE",allocator.R0,Argument.null(),allocator.R0)) 
                         commands.append(Command("MAX",self.variable,allocator.R0,self.variable))
                     else:
-                        commands.append(Command("MIN",self.variable,allocator.R0,self.variable))
+                        commands.append(Command(joinMode,self.variable,allocator.R0,self.variable))
                 else:
                     commands.extend(child.get_commands(allocator))
                     if child.subtractive:
                         commands.append(Command("NEGATE",child.variable,Argument.null(),allocator.R0)) 
                         commands.append(Command("MAX",self.variable,allocator.R0,self.variable))
                     else:
-                        commands.append(Command("MIN",self.variable,child.variable,self.variable))
+                        commands.append(Command(joinMode,self.variable,child.variable,self.variable))
                         
 
         return commands
 
-
-
-    
-
+class IntersectionComponent(Component):
+    def get_commands(self,allocator: Allocator):
+        return super().get_commands(allocator,"MAX")
+        
     
 
 class ArbitraryDataChunk:

@@ -28,15 +28,16 @@ commit = compiler.commit
 define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define
 Transform = scenecompiler.Transform
-Component = scenecompiler.Component
 PI=np.pi
 
 def draw(brush, tf):
-    compiler.root.add_child(Component(brush=brush, material=compiler.default_material(),transform=tf))
+    compiler.root.add_child(scenecompiler.Component(brush=brush, material=compiler.default_material(),transform=tf))
 
 def erase(brush, tf):
-    compiler.root.add_child(Component(brush=brush, material=compiler.default_material(),transform=tf,subtractive=True))
+    compiler.root.add_child(scenecompiler.Component(brush=brush, material=compiler.default_material(),transform=tf,subtractive=True))
 
+drawBrush=draw
+eraseBrush=erase
 
 def draw_capsule(A,B,T=1):
     M=(A+B)/2
@@ -172,6 +173,27 @@ def draw_box(origin,diameter):
         )
     ))
 
+
+def drawComponent(component,transform):
+    self.root.add_child(component.fabricate(transform=transform))
+def eraseComponent(component,transform):
+    self.root.add_child(component.fabricate(transform=transform,subtractive=True))
+def drawUnion(*components,transform):
+    root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
+    for component in components:
+        root.add_child(component)
+def eraseUnion(*components,transform):
+    root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
+    for component in components:
+        root.add_child(component)
+def drawIntersection(*components,transform):
+    root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
+    for component in components:
+        root.add_child(component)
+def eraseIntersection(*components,transform):
+    root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
+    for component in components:
+        root.add_child(component)
 
 def setExportConfig(boundingBoxHalfDiameter,
 minimumOctreeLevel,
