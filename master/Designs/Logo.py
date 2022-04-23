@@ -113,7 +113,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 scene_brush = define_brush(body="""
 
-LETTER_AD_OFFS = AD_LETTER_OFFS_f;
+LETTER_AD_OFFS = AD_LETTER_OFFS_F;
 
 v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
@@ -351,7 +351,7 @@ for row in range (LETTER_RESOLUTION + 1):
 		print(inside,end="")
 	print("\n",end="")
 
-addADBits("LETTER_OFFS_f",letterbits)
+addADBits("LETTER_OFFS_F",letterbits)
 
 
 addArbitraryData("NUMCURVES",[float(len(curves))])
