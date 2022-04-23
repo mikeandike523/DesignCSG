@@ -279,7 +279,7 @@ __kernel void  k2(
 
 
         
-        #define AD_LETTER_OFFS_F 0
+#define AD_LETTER_OFFS_F 0
 #define AD_NUMCURVES 265
 #define AD_CURVEDATA 266
 
@@ -434,7 +434,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
             
 
-LETTER_AD_OFFS = AD_LETTER_OFFS_f;
+LETTER_AD_OFFS = AD_LETTER_OFFS_F;
 
 v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
