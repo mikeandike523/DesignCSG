@@ -26,7 +26,7 @@ Evaluator::Evaluator(cl_device_id _device, cl_context _context, cl_command_queue
 	arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, &arbitrary_data, &err);
 
 
-
+	  
 
 	eval_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY |
 		CL_MEM_COPY_HOST_PTR, 3 * sizeof(float) * MAX_EVAL_POINTS, eval_bank, &err);
