@@ -15,6 +15,7 @@
 #define MAX_BUILD_STEPS 256
 #define IZOOM 10.0
 #define STACK_MEMORY_PER_PIXEL 64
+#define ARBITRARY_DATA_POINTS 131072
 
 enum class LoadSceneResult{
 
@@ -40,6 +41,7 @@ public:
 	void keyReleased(wxKeyEvent& event);
 	void idled(wxIdleEvent& event);
 	LoadSceneResult loadScene();
+	void setArbitraryData(float* data, size_t items);
 
 
 
@@ -59,6 +61,7 @@ public:
 	float* object_forward_bank;
 	uint8_t* pixel_data;
 	int* build_procedure_data;
+	float* arbitrary_data;
 	int num_objects = 0;
 	int num_build_steps = 0;
 	float campos[3] = { 0.0,0.0,-IZOOM };
@@ -85,6 +88,10 @@ public:
 	cl_mem screen_stack_memory_buffer;
 	cl_mem build_procedure_data_buffer;
 	cl_mem num_build_steps_buffer;
+
+
+	cl_mem arbitrary_data_buffer;
+
 	const size_t global_size[2] = { 640,480 };
 	const size_t local_size[2] = { 8,8 };
 

@@ -19,6 +19,8 @@
 #define EVAL_TYPE_SDF 0
 #define EVAL_TYPE_NORMAL 1
 
+#define getAD(name,offset) (arbitrary_data[name+offset])
+
 
 #define standard_arg_list shape_id_bank,object_position_bank,object_right_bank,object_up_bank,object_forward_bank,num_objects,build_procedure_data,num_build_steps
 
@@ -36,6 +38,7 @@ double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id
 __global double3 rgt_g;
 __global double3 upp_g;
 __global double3 fwd_g;
+__global float * arbitrary_data;
 
 
 
@@ -238,10 +241,12 @@ __kernel void  k2(
     __global const float * object_forward_bank,
     __global const int * num_objects_arr,
     __global const int * build_procedure_data,
-    __global const int * num_build_steps_arr
+    __global const int * num_build_steps_arr,
+    __global float * _arbitrary_data
 
 ){
 
+   arbitrary_data = _arbitrary_data;
 
     rgt_g = (double3)(0.0,0.0,0.0);
     upp_g = (double3)(0.0,0.0,0.0);

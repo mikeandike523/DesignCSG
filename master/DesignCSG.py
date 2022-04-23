@@ -23,6 +23,8 @@ box_brush = compiler.define_brush(body="""
 
 define_brush = compiler.define_brush
 define_material = compiler.define_material
+addArbitraryData = compiler.addArbitraryData
+commit = compiler.commit
 define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define
 Transform = scenecompiler.Transform
@@ -204,7 +206,3 @@ maxPoolSize = 0
 
         outstr.strip("\n")
         fl.write(outstr)
-
-
-def commit():
-    compiler.commit()

@@ -14,6 +14,7 @@
 //will use later in order to allocate buffers in Evaluator class constructor
 //global size is good enough , don't need to pass a num_eval_points argument
 #define MAX_EVAL_POINTS (256*256*256)
+#define ARBITRARY_DATA_POINTS 131072
 
 
 class Evaluator
@@ -45,9 +46,12 @@ public:
 	cl_mem eval_points_buffer;
 	cl_mem eval_types_buffer;
 	cl_mem eval_buffer;
+	cl_mem arbitrary_data_buffer;
+	float* arbitrary_data;
 
 	std::vector<float> eval_sdf_at_points(std::vector<v3f_t>& points);
 	std::vector<v3f_t> eval_normal_at_points(std::vector<v3f_t>& points);
+	void setArbitraryData(float* data, size_t items);
 
 
 };
