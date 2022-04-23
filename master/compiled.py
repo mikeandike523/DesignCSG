@@ -35,6 +35,13 @@ float box(float3 v){
 
 }
 
+float box3(float3 v, float3 c, float3 r){
+	
+	return T_max(fabs(v.x-c.x)-r.x,T_max(fabs(v.y-c.y)-r.y,fabs(v.z-c.z)-r.z));
+
+}
+
+
 
 float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
 		return scaledVector3f(1.0-t,scaledVector3f(1.0-t,A)+scaledVector3f(t,B)) + scaledVector3f(t,scaledVector3f(1.0-t,B)+scaledVector3f(t,C));
@@ -159,17 +166,23 @@ for(int i=0;i<numCurves;i++){
 
 }*/
 
+	float r = 1.0/(LETTER_RESOLUTION+1);
 
+	for(int row = 0; row<LETTER_RESOLUTION;row++)
+	for(int col = 0; col<LETTER_RESOLUTION;col++)
+	{
+		float spx = -1.0+2.0*(float)col/(LETTER_RESOLUTION);
+		float spy =  1.0-2.0*(float)row/(LETTER_RESOLUTION);
+		spx+=r;
+		spy-=r;
 
-	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
-	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
-	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(AD_LETTERBITS,bitPosition);
+		int bitPosition = row*(LETTER_RESOLUTION+1) + col;
+		int val = getADBit(AD_LETTERBITS,bitPosition);
 
-	d=box(scaledVector3f(0.5,toVector3f(v)));
-	
-	if(val){
-		d = 0.075;
+		if(val){
+			float3 center = Vector3f(spx,spy,0.0);
+			d=T_min(d,box3(toVector3f(v),center,Vector3f(r,r,1.0)));
+		}
 	}
 
 
