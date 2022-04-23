@@ -152,7 +152,7 @@ scene_brush = define_brush(body="""
 int numCurves = (int)getAD(AD_NUMCURVES,0);
 float d = MAX_DISTANCE;
 
-/*
+
 for(int i=0;i<numCurves;i++){
 
 	int offs = i*(9+2);
@@ -164,8 +164,11 @@ for(int i=0;i<numCurves;i++){
 	));
 
 
-}*/
+}
 
+return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
+
+/*
 	float r = 1.0/(LETTER_RESOLUTION+1);
 
 	for(int row = 0; row<LETTER_RESOLUTION;row++)
@@ -187,6 +190,7 @@ for(int i=0;i<numCurves;i++){
 
 
 	return d;
+*/
 
 """)
 
@@ -221,7 +225,7 @@ AXES_ZX = 2
 
 class Curve:
 
-	def __init__(self,A,B,C,thickness = 0.05,axesTag=AXES_XYZ):
+	def __init__(self,A,B,C,thickness = 0.05,axesTag=AXES_XY):
 		self.A = A
 		self.B = B
 		self.C = C
