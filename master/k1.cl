@@ -26,6 +26,8 @@
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
+#define getAD(name,offset) (arbitrary_data[name+offset])
+
 
 float sdf_bank(double3 v, unsigned char shape_id);
 double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
@@ -33,6 +35,7 @@ double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id
 __global double3 rgt_g;
 __global double3 upp_g;
 __global double3 fwd_g;
+__global float * arbitrary_data;
 
 
 float axes_cylinderSDF(float r, float h, float halfLength, float radius){
@@ -486,8 +489,11 @@ __kernel void  k1(
     __global int * num_objects_arr,
     __global float * screen_stack_memory,
     __global int * build_procedure_data,
-    __global int * num_build_steps_arr
+    __global int * num_build_steps_arr,
+    __global float * _arbitrary_data
 ){
+
+    arbitrary_data = _arbitrary_data;
 
      int num_objects = num_objects_arr[0];
      int num_build_steps = num_build_steps_arr[0];
