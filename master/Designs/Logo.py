@@ -2,6 +2,22 @@ from DesignCSG import *
 from designlibrary import *
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.pens.pointInsidePen import PointInsidePen
+# ######
+#Courtesy of everestial007 on StackOverflow
+#https://stackoverflow.com/a/42815781/5166365
+from fontTools.ttLib import TTFont
+font = TTFont('Designs/Roboto-Black.ttf')
+# ######
+cmap = font.getBestCmap()
+glyphSet = font.getGlyphSet()
+
+def vec3(x,y,z):
+	return np.array([x,y,z])
+
+AXES_XYZ  = -1
+AXES_XY = 0
+AXES_YZ = 1
+AXES_ZX = 2
 
 LETTER_RESOLUTION = 64
 
@@ -111,61 +127,47 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 )
 
-scene_brush = define_brush(body="""
+def getLetterComponent(letter):
 
-LETTER_AD_OFFS = AD_LETTER_OFFS_F;
+	letter_brush = define_brush(body="""
 
-v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
+	LETTER_AD_OFFS = AD_LETTER_OFFS_<{LETTER}>;
 
-int numCurves = (int)getAD(AD_NUMCURVES,0);
-float d = MAX_DISTANCE;
+	v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
-
-for(int i=0;i<numCurves;i++){
-
-	int offs = i*(9+2);
-	d = T_min(d,quadraticBezierSDF(toVector3f(v),
-		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
-		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
-		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),SUBSEGMENTS
-	));
+	int numCurves = (int)getAD(AD_NUMCURVES_<{LETTER}>,0);
+	float d = MAX_DISTANCE;
 
 
-}
+	for(int i=0;i<numCurves;i++){
 
-return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
-
-""")
-
-def vec3(x,y,z):
-	return np.array([x,y,z])
-
-# ######
-#Courtesy of everestial007 on StackOverflow
-#https://stackoverflow.com/a/42815781/5166365
-from fontTools.ttLib import TTFont
-font = TTFont('Designs/Roboto-Black.ttf')
-# ######
-
-cmap = font.getBestCmap()
-glyphSet = font.getGlyphSet()
+		int offs = i*(9+2);
+		d = T_min(d,quadraticBezierSDF(toVector3f(v),
+			Vector3f(getAD(AD_CURVEDATA_<{LETTER}>,offs+0),getAD(AD_CURVEDATA_<{LETTER}>,offs+1),getAD(AD_CURVEDATA_<{LETTER}>,offs+2)),
+			Vector3f(getAD(AD_CURVEDATA_<{LETTER}>,offs+3),getAD(AD_CURVEDATA_<{LETTER}>,offs+4),getAD(AD_CURVEDATA_<{LETTER}>,offs+5)),
+			Vector3f(getAD(AD_CURVEDATA_<{LETTER}>,offs+6),getAD(AD_CURVEDATA_<{LETTER}>,offs+7),getAD(AD_CURVEDATA_<{LETTER}>,offs+8)),
+			getAD(AD_CURVEDATA_<{LETTER}>,offs+9),(int)getAD(AD_CURVEDATA_<{LETTER}>,offs+10),SUBSEGMENTS
+		));
 
 
-draw(scene_brush,Transform.initial(
-	position=vec3(0.0,0.0,0.0),
-	yaw=0,
-	pitch=0,
-	roll=0,
-	scale=vec3(1.0,1.0,1.0)
-))
+	}
+
+	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
+
+	""".replace("<{LETTER}>",letter))
+
+
+
+
+
+
+
+
+
+
+
 
 curves = []
-
-AXES_XYZ  = -1
-AXES_XY = 0
-AXES_YZ = 1
-AXES_ZX = 2
 
 class Curve:
 
