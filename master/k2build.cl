@@ -297,8 +297,6 @@ __kernel void  k2(
 #define ZERO_WINDING (M_PI/64.0f)
 #define SUBSEGMENTS 64
 
-float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t);
-
 float arg(float x, float y){
 	float angle = atan2(y,x);
 	if(angle<0.0){
@@ -306,53 +304,6 @@ float arg(float x, float y){
 	}
 	return angle;
 }
-
-
-float quadraticBezierTotalWinding(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
-
-	float w = 0.0;
-
-	for(int i=0;i < N;i++){
-
-		float t = (float)i/(float)N;
-		float3 p = quadraticBezierCurve(A,B,C,t);
-		//assume axesTag = AXES_XY
-		p.z=0;
-		v.z = 0;
-
-		float deltaX = p.x-v.x;
-		float deltaY = p.y-v.y;
-		w+=arg(deltaX,deltaY);
-	}
-
-	
-	return w;
-
-}
-
-int zeroWindingCondition(float x, float y){
-
-	double3 v = (double3)(x,y,0.0);
-	float winding = 0.0;
-
-	int numCurves = (int)getAD(AD_NUMCURVES,0);
-	for(int i=0;i<numCurves;i++){
-
-	int offs = i*(9+2);
-	winding+=quadraticBezierTotalWinding(toVector3f(v),
-		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
-		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
-		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),SUBSEGMENTS);
-
-	}
-
-
-	
-	return fabs(winding) < ZERO_WINDING ? 1 : 0;
-}
-
-
 
 int getADBit(int name, int offs){
 	int foffs = offs/16;
@@ -414,19 +365,18 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	//int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
-	//int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
-	//int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	//int val = getADBit(AD_LETTERBITS,bitPosition);
-//	if(val)
-	//d*=-1.0;
+	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
+	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
+	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
+	int val = getADBit(AD_LETTERBITS,bitPosition);
+	if(val){
+		return -d;
+	}
 
-	int val = zeroWindingCondition(v.x,v.y);
-	if(val)
-	d*=-1.0;
 
 	
-	return d;
+	
+	return d-thickness;
 
 }
 
