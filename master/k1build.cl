@@ -576,8 +576,8 @@ __kernel void  k1(
 }
         
         #define AD_LETTERBITS 0
-#define AD_NUMCURVES 4129
-#define AD_CURVEDATA 4130
+#define AD_NUMCURVES 265
+#define AD_CURVEDATA 266
 
 
         
@@ -590,10 +590,70 @@ __kernel void  k1(
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 256
+#define LETTER_RESOLUTION 64
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
+
+#define ZERO_WINDING (M_PI/64.0f)
+#define SUBSEGMENTS 64
+
+float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t);
+
+float arg(float x, float y){
+	float angle = atan2(y,x);
+	if(angle<0.0){
+		return 2.0*M_PI+angle;
+	}
+	return angle;
+}
+
+
+float quadraticBezierTotalWinding(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
+
+	float w = 0.0;
+
+	for(int i=0;i < N;i++){
+
+		float t = (float)i/(float)N;
+		float3 p = quadraticBezierCurve(A,B,C,t);
+		//assume axesTag = AXES_XY
+		p.z=0;
+		v.z = 0;
+
+		float deltaX = p.x-v.x;
+		float deltaY = p.y-v.y;
+		w+=arg(deltaX,deltaY);
+	}
+
+	
+	return w;
+
+}
+
+int zeroWindingCondition(float x, float y){
+
+	double3 v = (double3)(x,y,0.0);
+	float winding = 0.0;
+
+	int numCurves = (int)getAD(AD_NUMCURVES,0);
+	for(int i=0;i<numCurves;i++){
+
+	int offs = i*(9+2);
+	winding+=quadraticBezierTotalWinding(toVector3f(v),
+		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
+		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
+		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),SUBSEGMENTS);
+
+	}
+
+
+	
+	return fabs(winding) < ZERO_WINDING ? 1 : 0;
+}
+
+
 
 int getADBit(int name, int offs){
 	int foffs = offs/16;
@@ -640,26 +700,12 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 	float d = MAX_DISTANCE;
 
 	for(int i=0;i < N;i++){
+
 		float t = (float)i/(float)N;
 		float3 p = quadraticBezierCurve(A,B,C,t);
-
-		switch(axesTag){
-			case AXES_XY:
-				p.z=0;
-				v.z = 0;
-			break;
-			case AXES_YZ:
-				p.x = 0;
-				v.x = 0;	
-			break;
-			case AXES_ZX:
-				p.y=0;
-				v.y=0;
-			break;
-			default:
-				//Do nothing.
-			break;
-		}
+		//assume axesTag = AXES_XY
+		p.z=0;
+		v.z = 0;
 
 		float dist = length(p-toVector3f(v));
 
@@ -668,9 +714,6 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 		}
 
 	}
-
-	if(axesTag!=AXES_XY)
-		return d-thickness;
 
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
@@ -744,7 +787,7 @@ for(int i=0;i<numCurves;i++){
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),256
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),SUBSEGMENTS
 	));
 
 
