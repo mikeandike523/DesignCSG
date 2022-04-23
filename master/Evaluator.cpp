@@ -21,6 +21,11 @@ Evaluator::Evaluator(cl_device_id _device, cl_context _context, cl_command_queue
 	eval_bank = (float*)malloc(3 * sizeof(float) * MAX_EVAL_POINTS);
 	eval_points_bank = (float*)malloc(sizeof(float) * MAX_EVAL_POINTS * 3);
 	eval_types_bank = (int*)malloc(sizeof(int) * 1);
+	arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
+
+	arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, &arbitrary_data, &err);
+
+
 
 
 	eval_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY |
@@ -98,6 +103,8 @@ std::pair<int,std::string> Evaluator::build(cl_mem shape_id_bank_buffer, cl_mem 
 	err |= clSetKernelArg(kernel, 8, sizeof(cl_mem), &num_objects_arr_buffer);
 	err |= clSetKernelArg(kernel, 9, sizeof(cl_mem), &build_procedure_data_buffer);
 	err |= clSetKernelArg(kernel, 10, sizeof(cl_mem), &num_build_steps_arr_buffer);
+	err |= clSetKernelArg(kernel, 11, sizeof(cl_mem), &arbitrary_data_buffer);
+
 
 
 	return std::make_pair(0, std::string("Success!"));
@@ -201,4 +208,18 @@ std::vector<v3f_t> Evaluator::eval_normal_at_points(std::vector<v3f_t>& points)
 	}
 
 	return evaluations;
+}
+
+void Evaluator::setArbitraryData(float* data, size_t items) {
+	memcpy(arbitrary_data, data, sizeof(float) * items);
+	clEnqueueWriteBuffer(queue,
+		arbitrary_data_buffer,
+		CL_TRUE,
+		0,
+		ARBITRARY_DATA_POINTS * sizeof(float),
+		arbitrary_data,
+		0,
+		NULL,
+		NULL);
+
 }
