@@ -279,7 +279,7 @@ __kernel void  k2(
 
 
         
-        #define AD_LETTERBITS 0
+        #define AD_LETTER_OFFS_F 0
 #define AD_NUMCURVES 265
 #define AD_CURVEDATA 266
 
@@ -288,6 +288,8 @@ __kernel void  k2(
 
          
 
+
+__global int LETTER_AD_OFFS = -1;
 
 #define AXES_XYZ -1
 #define AXES_XY 0
@@ -373,7 +375,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
 	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(AD_LETTERBITS,bitPosition);
+	int val = getADBit(LETTER_AD_OFFS,bitPosition);
 	if(val){
 		return -d;
 	}
@@ -431,6 +433,8 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         float sd4( double3 v){
 
             
+
+LETTER_AD_OFFS = AD_LETTER_OFFS_f;
 
 v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
