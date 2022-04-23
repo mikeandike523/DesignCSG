@@ -1,0 +1,1 @@
+Access violation error seems to occur with clCreateBuffer command for arbitrary_data in Evaluator.cpp. Has the memory limit for OpenCL been exceeded?
