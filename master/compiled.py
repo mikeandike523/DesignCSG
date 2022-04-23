@@ -351,7 +351,7 @@ def getLetterComponent(letter):
 	addADBits("LETTER_OFFS_"+letter,letterbits)
 
 
-	addArbitraryData("NUMCURVES"+letter,[float(len(curves))])
+	addArbitraryData("NUMCURVES_"+letter,[float(len(curves))])
 	curvedata = []
 	for curve in curves:
 		curvedata.extend(list(curve.A))
@@ -359,7 +359,7 @@ def getLetterComponent(letter):
 		curvedata.extend(list(curve.C))
 		curvedata.append(curve.thickness)
 		curvedata.append(curve.axesTag)
-	addArbitraryData("CURVEDATA"+letter,curvedata)
+	addArbitraryData("CURVEDATA_"+letter,curvedata)
 	return Component(brush=letter_brush,transform=Transform.identity())
 
 theLetterC = getLetterComponent("C")

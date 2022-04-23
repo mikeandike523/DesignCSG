@@ -87,7 +87,4 @@ Path Closed.
 00000000000000000001111111111111111111111111111000000000000000000
 00000000000000000000000111111111111111111110000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000
-Traceback (most recent call last):
-  File "C:\Projects\DesignCSG\master\compiled.py", line 366, in <module>
-    drawComponent(theLetterC)
-TypeError: drawComponent() missing 1 required positional argument: 'transform'
+Instance tree compiled successfully.
