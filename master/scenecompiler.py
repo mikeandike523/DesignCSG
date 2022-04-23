@@ -53,7 +53,7 @@ class Transform:
     def axes(v1,v2,v3):
         return np.array([
           Transform.homogenize(v1),Transform.homogenize(v2),Transform.homogenize(v3),[0,0,0,1] 
-        ],dtype=float)
+        ],dtype=float).T
 
     @staticmethod
     def translation(offset):
@@ -386,10 +386,11 @@ class Component:
 
         return commands
 
-class IntersectionComponent(Component):
+class _IntersectionComponent(Component):
     def get_commands(self,allocator: Allocator):
         return super().get_commands(allocator,"MAX")
-        
+    def __init__(self,compiler,**kwargs):
+        super().__init__(brush=compiler.void_brush())
     
 
 class ArbitraryDataChunk:
@@ -420,6 +421,7 @@ class _SceneCompiler:
         self.brushes = []
         self.materials = []
         self.empty_brush=self.define_brush(body="return MAX_DISTANCE;")
+        self.space_brush = self.define_brush(body = "return 0.0;")
         self.abs_normals=self.define_material(body = "return fabs(n);")
         self.basic_lighting = self.define_material(body = """
         
@@ -453,6 +455,9 @@ class _SceneCompiler:
 
     def null_brush(self):
         return self.empty_brush
+
+    def void_brush(self):
+        return self.space_brush
 
     def default_material(self):
         return self.basic_lighting
@@ -584,3 +589,5 @@ class _SceneCompiler:
 compiler = _SceneCompiler()
 def SceneCompiler():
     return compiler
+def IntersectionComponent(**kwargs):
+    return _IntersectionComponent(compiler,**kwargs)

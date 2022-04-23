@@ -576,14 +576,14 @@ __kernel void  k1(
 }
         
 #define AD_LETTER_OFFS_C 0
-#define AD_NUMCURVES_C 1041
-#define AD_CURVEDATA_C 1042
-#define AD_LETTER_OFFS_S 1284
-#define AD_NUMCURVES_S 2325
-#define AD_CURVEDATA_S 2326
-#define AD_LETTER_OFFS_G 2656
-#define AD_NUMCURVES_G 3697
-#define AD_CURVEDATA_G 3698
+#define AD_NUMCURVES_C 265
+#define AD_CURVEDATA_C 266
+#define AD_LETTER_OFFS_S 618
+#define AD_NUMCURVES_S 883
+#define AD_CURVEDATA_S 884
+#define AD_LETTER_OFFS_G 1456
+#define AD_NUMCURVES_G 1721
+#define AD_CURVEDATA_G 1722
 
 
         
@@ -598,13 +598,13 @@ __global int LETTER_AD_OFFS = -1;
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 128
+#define LETTER_RESOLUTION 64
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
 #define ZERO_WINDING (M_PI/64.0f)
-#define SUBSEGMENTS 128
+#define SUBSEGMENTS 64
 
 float arg(float x, float y){
 	float angle = atan2(y,x);
@@ -708,12 +708,19 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
         float sd1( double3 v){
 
-            return length(v)-0.5;
+            return 0.0;
 
         }
         
 
         float sd2( double3 v){
+
+            return length(v)-0.5;
+
+        }
+        
+
+        float sd3( double3 v){
 
             
 
@@ -727,7 +734,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
-        float sd3( double3 v){
+        float sd4( double3 v){
 
             
     v=fabs(v);
@@ -737,7 +744,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
-        float sd4( double3 v){
+        float sd5( double3 v){
 
             
 
@@ -769,7 +776,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
-        float sd5( double3 v){
+        float sd6( double3 v){
 
             
 
@@ -801,7 +808,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
-        float sd6( double3 v){
+        float sd7( double3 v){
 
             
 
@@ -881,6 +888,9 @@ case 5: return sd5(v); break;
 
 
 case 6: return sd6(v); break;
+
+
+case 7: return sd7(v); break;
 
 
             }

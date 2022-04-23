@@ -7,7 +7,7 @@ from fontTools.pens.pointInsidePen import PointInsidePen
 #Courtesy of everestial007 on StackOverflow
 #https://stackoverflow.com/a/42815781/5166365
 from fontTools.ttLib import TTFont
-font = TTFont('Designs/Roboto-Black.ttf')
+font = TTFont('Designs/CourierPrime-Bold.ttf')
 # ######
 
 cmap = font.getBestCmap()
@@ -181,7 +181,7 @@ class InterceptorPen(TTGlyphPen):
 		self.currentPoint = self.rescalePoint(pts[-1])
 		super().qCurveTo(*pts)
 
-LETTER_RESOLUTION = 128
+LETTER_RESOLUTION = 64
 
 define_auxillary_function("""
 
@@ -198,7 +198,7 @@ __global int LETTER_AD_OFFS = -1;
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
 #define ZERO_WINDING (M_PI/64.0f)
-#define SUBSEGMENTS 128
+#define SUBSEGMENTS 64
 
 float arg(float x, float y){
 	float angle = atan2(y,x);
@@ -349,6 +349,7 @@ def getLetterComponent(letter,transform=Transform.identity()):
 			y = 1 - 2 * row/LETTER_RESOLUTION
 			x =  -1 + 2* col/LETTER_RESOLUTION
 			inside = 1 if testPoint(letter,(x,y)) else 0
+			if row == 0 or row == LETTER_RESOLUTION or col == 0 or col == LETTER_RESOLUTION: inside = 0
 			letterbits.append(inside)
 			print(inside,end="")
 		print("\n",end="")
@@ -373,12 +374,12 @@ WHY = vec3(0,1,0)
 ZEE = vec3(0,0,1)
  
 theLetterC = getLetterComponent("C",transform = Transform.axes(EKS,WHY,ZEE))
-theLetterS = getLetterComponent("S",transform = Transform.axes(ZEE,WHY,EKS))
+theLetterS = getLetterComponent("S", transform = Transform.axes(ZEE,WHY,EKS))
 theLetterG = getLetterComponent("G",transform = Transform.axes(ZEE,-EKS,WHY))
 
-#drawComponent(theLetterC)
-#drawComponent(theLetterS)
-drawComponent(theLetterG)
+drawUnion(theLetterC,theLetterS,theLetterG)
+#drawComponent(theLetterG)
+
 
 commit()
 
