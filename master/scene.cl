@@ -194,7 +194,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 int numCurves = (int)getAD(AD_NUMCURVES,0);
 float d = MAX_DISTANCE;
 
-/*
+
 for(int i=0;i<numCurves;i++){
 
 	int offs = i*(9+2);
@@ -206,8 +206,11 @@ for(int i=0;i<numCurves;i++){
 	));
 
 
-}*/
+}
 
+return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
+
+/*
 	float r = 1.0/(LETTER_RESOLUTION+1);
 
 	for(int row = 0; row<LETTER_RESOLUTION;row++)
@@ -229,6 +232,7 @@ for(int i=0;i<numCurves;i++){
 
 
 	return d;
+*/
 
 
 
