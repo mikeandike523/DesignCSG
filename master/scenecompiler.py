@@ -464,7 +464,7 @@ class _SceneCompiler:
         for chunk in self.ad:
             name=chunk.name
             start=chunk.start
-            ad_definitions+=("#define AD_{} {}\n".format(name.upper(),start))
+            ad_definitions+=("#define AD_{} {}\n".format(name,start))
 
         #compile scene.cl
         scene_cl="""
