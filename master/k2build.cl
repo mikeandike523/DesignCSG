@@ -414,10 +414,14 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
-	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
-	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(AD_LETTERBITS,bitPosition);
+	//int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
+	//int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
+	//int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
+	//int val = getADBit(AD_LETTERBITS,bitPosition);
+//	if(val)
+	//d*=-1.0;
+
+	int val = zeroWindingCondition(v.x,v.y);
 	if(val)
 	d*=-1.0;
 
