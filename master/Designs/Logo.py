@@ -364,6 +364,7 @@ def getLetterComponent(letter):
 
 theLetterC = getLetterComponent("C")
 drawComponent(theLetterC)
+drawComponent(Component(brush=define_brush(body=""" return length(v) - 0.5;""")))
 
 commit()
 

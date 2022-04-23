@@ -462,6 +462,13 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
+        float sd5( double3 v){
+
+             return length(v) - 0.5;
+
+        }
+        
+
         
         double3 shader0 (double3 gv, double3 lv, double3 n){
 
@@ -504,6 +511,9 @@ case 3: return sd3(v); break;
 
 
 case 4: return sd4(v); break;
+
+
+case 5: return sd5(v); break;
 
 
             }

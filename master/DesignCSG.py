@@ -39,7 +39,7 @@ def erase(brush, tf):
 drawBrush=draw
 eraseBrush=erase
 
-def Component(brush,transform):
+def Component(brush,transform=Transform.identity()):
     return scenecompiler.Component(brush=brush,material=compiler.default_material(),transform=transform)
 
 def draw_capsule(A,B,T=1):

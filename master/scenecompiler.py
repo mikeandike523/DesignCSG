@@ -47,7 +47,7 @@ class Transform:
 
     @staticmethod
     def homogenize(v):
-        return np.array([v[0],v[1],v[2],1],dtype=float)
+        return np.array([v[0],v[1],v[2],0],dtype=float)
 
     @staticmethod
     def axes(v1,v2,v3):
