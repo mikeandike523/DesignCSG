@@ -178,25 +178,29 @@ def draw_box(origin,diameter):
 
 
 def drawComponent(component,transform=Transform.identity()):
-    self.root.add_child(component.fabricate(transform=transform))
+    compiler.root.add_child(component.fabricate(transform=transform))
 def eraseComponent(component,transform=Transform.identity()):
-    self.root.add_child(component.fabricate(transform=transform,subtractive=True))
+    compiler.root.add_child(component.fabricate(transform=transform,subtractive=True))
 def drawUnion(*components,transform=Transform.identity()):
     root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
     for component in components:
         root.add_child(component)
+    compiler.root.add_child(root)
 def eraseUnion(*components,transform=Transform.identity()):
     root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
     for component in components:
         root.add_child(component)
+    compiler.root.add_child(root)
 def drawIntersection(*components,transform=Transform.identity()):
     root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
     for component in components:
         root.add_child(component)
+    compiler.root.add_child(root)
 def eraseIntersection(*components,transform=Transform.identity()):
     root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
     for component in components:
         root.add_child(component)
+    compiler.root.add_child(root)
 
 def setExportConfig(boundingBoxHalfDiameter,
 minimumOctreeLevel,
