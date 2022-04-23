@@ -576,8 +576,8 @@ __kernel void  k1(
 }
         
         #define AD_LETTERBITS 0
-#define AD_NUMCURVES 265
-#define AD_CURVEDATA 266
+#define AD_NUMCURVES 4129
+#define AD_CURVEDATA 4130
 
 
         
@@ -590,7 +590,7 @@ __kernel void  k1(
 #define AXES_YZ 1
 #define AXES_ZX 2
 
-#define LETTER_RESOLUTION 64
+#define LETTER_RESOLUTION 256
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
@@ -635,51 +635,6 @@ float ipow(float f, int n){
 	return r;
 }
 
-float3 cubicBezierCurve(float3 A, float3 B, float3 C, float3 D, float t){
-
-	return scaledVector3f(ipow(1.0-t,3),A) + scaledVector3f(3*ipow(1.0-t,2)*t,B) + scaledVector3f(3*(1.0-t)*ipow(t,2),C) + scaledVector3f(ipow(t,3),D);
-
-}
-
-float cubicBezierSDF(float3 v, float3 A, float3 B, float3 C, float3 D, float thickness, int axesTag, int N){
-
-
-	float d = MAX_DISTANCE;
-
-	for(int i=0;i < N;i++){
-		float t = (float)i/(float)N;
-		float3 p = cubicBezierCurve(A,B,C,D,t);
-
-		switch(axesTag){
-			case AXES_XY:
-				p.z=0;
-				v.z = 0;
-			break;
-			case AXES_YZ:
-				p.x = 0;
-				v.x = 0;	
-			break;
-			case AXES_ZX:
-				p.y=0;
-				v.y=0;
-			break;
-			default:
-				//Do nothing.
-			break;
-		}
-
-
-		float dist = length(p-toVector3f(v));
-		if(dist<d){
-			d = dist;
-		}
-
-	}
-
-	return d-thickness;
-
-}
-
 float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
 
 	float d = MAX_DISTANCE;
@@ -706,15 +661,26 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 			break;
 		}
 
-
 		float dist = length(p-toVector3f(v));
+
 		if(dist<d){
-			d = dist;
+				d = dist;
 		}
 
 	}
 
-	return d-thickness;
+	if(axesTag!=AXES_XY)
+		return d-thickness;
+
+	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
+	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
+	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
+	int val = getADBit(AD_LETTERBITS,bitPosition);
+	if(val)
+	d*=-1.0;
+
+	
+	return d;
 
 }
 
@@ -777,37 +743,13 @@ for(int i=0;i<numCurves;i++){
 		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
 		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
 		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),50
+		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),256
 	));
 
 
 }
 
 return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
-
-/*
-	float r = 1.0/(LETTER_RESOLUTION+1);
-
-	for(int row = 0; row<LETTER_RESOLUTION;row++)
-	for(int col = 0; col<LETTER_RESOLUTION;col++)
-	{
-		float spx = -1.0+2.0*(float)col/(LETTER_RESOLUTION);
-		float spy =  1.0-2.0*(float)row/(LETTER_RESOLUTION);
-		spx+=r;
-		spy-=r;
-
-		int bitPosition = row*(LETTER_RESOLUTION+1) + col;
-		int val = getADBit(AD_LETTERBITS,bitPosition);
-
-		if(val){
-			float3 center = Vector3f(spx,spy,0.0);
-			d=T_min(d,box3(toVector3f(v),center,Vector3f(r,r,1.0)));
-		}
-	}
-
-
-	return d;
-*/
 
 
 
