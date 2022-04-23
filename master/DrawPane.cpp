@@ -111,7 +111,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		num_build_steps_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
 			CL_MEM_COPY_HOST_PTR, sizeof(int), &num_build_steps, &err);
 
-		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, &arbitrary_data, &err);
+		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
 
 
