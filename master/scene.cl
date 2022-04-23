@@ -156,6 +156,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
             
 
+v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
 int numCurves = (int)getAD(AD_NUMCURVES,0);
 float d = MAX_DISTANCE;
