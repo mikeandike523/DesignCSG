@@ -279,9 +279,6 @@ __kernel void  k2(
 
 
         
-#define AD_LETTER_OFFS_F 0
-#define AD_NUMCURVES 265
-#define AD_CURVEDATA 266
 
 
         
@@ -430,38 +427,6 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
         }
         
 
-        float sd4( double3 v){
-
-            
-
-LETTER_AD_OFFS = AD_LETTER_OFFS_F;
-
-v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
-
-int numCurves = (int)getAD(AD_NUMCURVES,0);
-float d = MAX_DISTANCE;
-
-
-for(int i=0;i<numCurves;i++){
-
-	int offs = i*(9+2);
-	d = T_min(d,quadraticBezierSDF(toVector3f(v),
-		Vector3f(getAD(AD_CURVEDATA,offs+0),getAD(AD_CURVEDATA,offs+1),getAD(AD_CURVEDATA,offs+2)),
-		Vector3f(getAD(AD_CURVEDATA,offs+3),getAD(AD_CURVEDATA,offs+4),getAD(AD_CURVEDATA,offs+5)),
-		Vector3f(getAD(AD_CURVEDATA,offs+6),getAD(AD_CURVEDATA,offs+7),getAD(AD_CURVEDATA,offs+8)),
-		getAD(AD_CURVEDATA,offs+9),(int)getAD(AD_CURVEDATA,offs+10),SUBSEGMENTS
-	));
-
-
-}
-
-return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.0,1.0,1.0)));
-
-
-
-        }
-        
-
         
         double3 shader0 (double3 gv, double3 lv, double3 n){
 
@@ -501,9 +466,6 @@ case 2: return sd2(v); break;
 
 
 case 3: return sd3(v); break;
-
-
-case 4: return sd4(v); break;
 
 
             }

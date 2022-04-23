@@ -177,23 +177,23 @@ def draw_box(origin,diameter):
     ))
 
 
-def drawComponent(component,transform):
+def drawComponent(component,transform=Transform.identity()):
     self.root.add_child(component.fabricate(transform=transform))
-def eraseComponent(component,transform):
+def eraseComponent(component,transform=Transform.identity()):
     self.root.add_child(component.fabricate(transform=transform,subtractive=True))
-def drawUnion(*components,transform):
+def drawUnion(*components,transform=Transform.identity()):
     root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
     for component in components:
         root.add_child(component)
-def eraseUnion(*components,transform):
+def eraseUnion(*components,transform=Transform.identity()):
     root = scenecompiler.Component(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
     for component in components:
         root.add_child(component)
-def drawIntersection(*components,transform):
+def drawIntersection(*components,transform=Transform.identity()):
     root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform)
     for component in components:
         root.add_child(component)
-def eraseIntersection(*components,transform):
+def eraseIntersection(*components,transform=Transform.identity()):
     root = scenecompiler.IntersectionComponent(brush=compiler.null_brush(),material=compiler.default_material(),transform=transform,subtractive=True)
     for component in components:
         root.add_child(component)

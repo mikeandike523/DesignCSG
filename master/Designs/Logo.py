@@ -338,28 +338,33 @@ def getLetterComponent(letter):
 
 
 
-letterbits = []
-for row in range (LETTER_RESOLUTION + 1):
-	for col in range(LETTER_RESOLUTION + 1):
-		y = 1 - 2 * row/LETTER_RESOLUTION
-		x =  -1 + 2* col/LETTER_RESOLUTION
-		inside = 1 if testPoint(letter,(x,y)) else 0
-		letterbits.append(inside)
-		print(inside,end="")
-	print("\n",end="")
+	letterbits = []
+	for row in range (LETTER_RESOLUTION + 1):
+		for col in range(LETTER_RESOLUTION + 1):
+			y = 1 - 2 * row/LETTER_RESOLUTION
+			x =  -1 + 2* col/LETTER_RESOLUTION
+			inside = 1 if testPoint(letter,(x,y)) else 0
+			letterbits.append(inside)
+			print(inside,end="")
+		print("\n",end="")
 
-addADBits("LETTER_OFFS_F",letterbits)
+	addADBits("LETTER_OFFS_"+letter,letterbits)
 
 
-addArbitraryData("NUMCURVES",[float(len(curves))])
-curvedata = []
-for curve in curves:
-	curvedata.extend(list(curve.A))
-	curvedata.extend(list(curve.B))
-	curvedata.extend(list(curve.C))
-	curvedata.append(curve.thickness)
-	curvedata.append(curve.axesTag)
-addArbitraryData("CURVEDATA",curvedata)
+	addArbitraryData("NUMCURVES"+letter,[float(len(curves))])
+	curvedata = []
+	for curve in curves:
+		curvedata.extend(list(curve.A))
+		curvedata.extend(list(curve.B))
+		curvedata.extend(list(curve.C))
+		curvedata.append(curve.thickness)
+		curvedata.append(curve.axesTag)
+	addArbitraryData("CURVEDATA"+letter,curvedata)
+	return Component(brush=letter_brush,transform=Transform.identity())
+
+theLetterC = getLetterComponent("C")
+drawComponent(theLetterC)
+
 commit()
 
 
