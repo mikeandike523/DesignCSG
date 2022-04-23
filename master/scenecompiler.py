@@ -469,7 +469,7 @@ class _SceneCompiler:
         #compile scene.cl
         scene_cl="""
         
-        {}
+{}
 
         {}
 

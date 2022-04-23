@@ -7,6 +7,8 @@ LETTER_RESOLUTION = 64
 
 define_auxillary_function("""
 
+__global int LETTER_AD_OFFS = -1;
+
 #define AXES_XYZ -1
 #define AXES_XY 0
 #define AXES_YZ 1
@@ -91,7 +93,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
 	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
 	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
-	int val = getADBit(AD_LETTERBITS,bitPosition);
+	int val = getADBit(LETTER_AD_OFFS,bitPosition);
 	if(val){
 		return -d;
 	}
@@ -110,6 +112,8 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 )
 
 scene_brush = define_brush(body="""
+
+LETTER_AD_OFFS = AD_LETTER_OFFS_f;
 
 v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
@@ -347,7 +351,7 @@ for row in range (LETTER_RESOLUTION + 1):
 		print(inside,end="")
 	print("\n",end="")
 
-addADBits("LETTERBITS",letterbits)
+addADBits("LETTER_OFFS_f",letterbits)
 
 
 addArbitraryData("NUMCURVES",[float(len(curves))])
