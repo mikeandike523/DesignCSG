@@ -2,22 +2,39 @@ from DesignCSG import *
 from designlibrary import *
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.pens.pointInsidePen import PointInsidePen
+
 # ######
 #Courtesy of everestial007 on StackOverflow
 #https://stackoverflow.com/a/42815781/5166365
 from fontTools.ttLib import TTFont
 font = TTFont('Designs/Roboto-Black.ttf')
 # ######
+
 cmap = font.getBestCmap()
 glyphSet = font.getGlyphSet()
 
-def vec3(x,y,z):
-	return np.array([x,y,z])
 
 AXES_XYZ  = -1
 AXES_XY = 0
 AXES_YZ = 1
 AXES_ZX = 2
+
+def vec3(x,y,z):
+	return np.array([x,y,z])
+
+def midpoint(A,B):
+	return 0.5*(A+B)
+
+class Curve:
+
+	def __init__(self,A,B,C,thickness = 0.075,axesTag=AXES_XY):
+		self.A = A
+		self.B = B
+		self.C = C
+
+		self.thickness = thickness
+		self.axesTag =axesTag
+
 
 LETTER_RESOLUTION = 64
 
@@ -156,34 +173,13 @@ def getLetterComponent(letter):
 
 	""".replace("<{LETTER}>",letter))
 
+	curves = []
 
 
-
-
-
-
-
-
-
-
-
-curves = []
-
-class Curve:
-
-	def __init__(self,A,B,C,thickness = 0.075,axesTag=AXES_XY):
-		self.A = A
-		self.B = B
-		self.C = C
-
-		self.thickness = thickness
-		self.axesTag =axesTag
 		
-def addCurve(curve):
-	curves.append(curve)
+	def addCurve(curve):
+		curves.append(curve)
 
-def midpoint(A,B):
-	return 0.5*(A+B)
 
 
 #render ttf here
