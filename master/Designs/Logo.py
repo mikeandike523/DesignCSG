@@ -122,39 +122,34 @@ class InterceptorPen(TTGlyphPen):
 		self.pathStart = self.currentPoint
 
 	def closePath(self):
-		print("Path Closed.")
+
 		A = self.currentPoint
 		C = self.pathStart
 		B = tuple(midpoint(np.array(A),np.array(C)))
 		self.quadraticSegments.append([A,B,C])
 		super().closePath()
 	def endPath(self):
-		print("Path ended but not closed.")
+
 		super().endPath()
 	def moveTo(self,pt):
-		print("Moved to point: "+repr(pt))
+
 		self.currentPoint = self.rescalePoint(pt)
 		self.pathStart = self.currentPoint
 		super().moveTo(pt)
 	def lineTo(self,pt):
-		print("Drew line to point: "+repr(pt))
+
 		A = self.currentPoint
 		C = self.rescalePoint(pt)
 		B = tuple(midpoint(np.array(A),np.array(C)))
-		print(A,B,C)
+
 		self.quadraticSegments.append([A,B,C])
 		self.currentPoint = self.rescalePoint(pt)
 		super().lineTo(pt)
 
-	#due to using trueType font, I can assume curveTo will not be called
-	def curveTo(self,*pts):
-		print("Drew cubic curve to: " +repr(pts))
-		super().curveTo(*pts)
-
 	def qCurveTo(self,*pts):
 		if pts[-1] is None:
 			raise Exception("The glyph drawn by this pen contains the rare case for a qCurveTo segment has only an off-curve last point.")
-		print("Drew quadratic curve to: " +repr(pts))
+
 		L = 1 + len(pts)
 		if L < 3:
 			raise Exception("The glyph has a quadratic segment with only two points.")
@@ -167,7 +162,7 @@ class InterceptorPen(TTGlyphPen):
 			full_pts.append(tuple(midpoint(np.array(A),np.array(B))))
 		full_pts.append(self.rescalePoint(pts[-2]))
 		full_pts.append(self.rescalePoint(pts[-1]))
-		print(L,len(full_pts))
+
 		L = len(full_pts)
 			
 		start = 0
@@ -197,7 +192,6 @@ __global int LETTER_AD_OFFS = -1;
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
-#define ZERO_WINDING (M_PI/64.0f)
 #define SUBSEGMENTS 64
 
 float arg(float x, float y){
@@ -231,8 +225,6 @@ float box3(float3 v, float3 c, float3 r){
 	return T_max(fabs(v.x-c.x)-r.x,T_max(fabs(v.y-c.y)-r.y,fabs(v.z-c.z)-r.z));
 
 }
-
-
 
 float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
 		return scaledVector3f(1.0-t,scaledVector3f(1.0-t,A)+scaledVector3f(t,B)) + scaledVector3f(t,scaledVector3f(1.0-t,B)+scaledVector3f(t,C));
@@ -319,20 +311,14 @@ def getLetterComponent(letter,transform=Transform.identity()):
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
 
 	""".replace("<{LETTER}>",letter))
 
 	curves = []
 
-
-		
 	def addCurve(curve):
 		curves.append(curve)
-
-
-
-
 
 	pen = InterceptorPen(glyphSet,*getScalers(letter))
 	g = glyphSet[cmap[ord(letter)]]
@@ -373,12 +359,10 @@ EKS = vec3(1,0,0)
 WHY = vec3(0,1,0)
 ZEE = vec3(0,0,1)
  
-theLetterC = getLetterComponent("C",transform = Transform.axes(EKS,WHY,ZEE))
-theLetterS = getLetterComponent("S", transform = Transform.axes(ZEE,WHY,EKS))
-theLetterG = getLetterComponent("G",transform = Transform.axes(ZEE,-EKS,WHY))
+leftLetter = getLetterComponent("C",transform = Transform.axes(EKS,WHY,-ZEE))
+rightLetter = getLetterComponent("S", transform = Transform.axes(ZEE,WHY,EKS))
+topLetter= getLetterComponent("G",transform = Transform.axes(ZEE,-EKS,WHY))
 
-drawIntersection(theLetterC,theLetterS,theLetterG)
+drawUnion(leftLetter,rightLetter,topLetter)
 
 commit()
-
-
