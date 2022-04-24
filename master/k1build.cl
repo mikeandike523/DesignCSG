@@ -603,7 +603,6 @@ __global int LETTER_AD_OFFS = -1;
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 #define toVector3f(v) (Vector3f(v.x,v.y,v.z))
 
-#define ZERO_WINDING (M_PI/64.0f)
 #define SUBSEGMENTS 64
 
 float arg(float x, float y){
@@ -637,8 +636,6 @@ float box3(float3 v, float3 c, float3 r){
 	return T_max(fabs(v.x-c.x)-r.x,T_max(fabs(v.y-c.y)-r.y,fabs(v.z-c.z)-r.z));
 
 }
-
-
 
 float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
 		return scaledVector3f(1.0-t,scaledVector3f(1.0-t,A)+scaledVector3f(t,B)) + scaledVector3f(t,scaledVector3f(1.0-t,B)+scaledVector3f(t,C));
@@ -769,7 +766,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
 
 	
 
@@ -801,7 +798,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
 
 	
 
@@ -833,7 +830,7 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
 	}
 
-	return T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.5,1.5,1.5)));
+	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
 
 	
 
