@@ -233,10 +233,8 @@ __kernel void  k1(
 
     if(intersection.hit!=-1){
         float3 n = getTriangleN(0);
-        color = fabs(n);
+        color = (float3)(0.1,0.3,0.2);
     }
-
-    color = fabs(getTriangleB(0));
   
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
