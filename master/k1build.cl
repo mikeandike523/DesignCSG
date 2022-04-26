@@ -267,6 +267,20 @@ double3 get_normal(double3 v,
 
 }
 
+double3 getNormal(double3 v){
+    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
+    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
+    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+
+    float Dx = sceneSDF(v+dx)-sceneSDF(v-dx);
+    float Dy = sceneSDF(v+dy)-sceneSDF(v-dy);
+    float Dz = sceneSDF(v+dz)-sceneSDF(v-dz);
+
+    float  twoE = 2.0*NORMAL_EPSILON;
+
+    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
+}
+
 float march(double3 o, double3 r,
 
     __global unsigned char * shape_id_bank,
@@ -457,6 +471,18 @@ double fastBox(double3 v, double3 center, double3 halfDiameter){
 	return T_max(q.x,T_max(q.y,q.z));
 }
 
+double grassblade(double3 v, double3 baseCenter, double3 normal){
+	v=v-baseCenter;
+
+	float h = dot(v,normal);
+	double3 p = (double3)(h*normal.x,h*normal.y,h*normal.z);
+
+	double3 r = v-p;
+	float rho = r.x*r.x-r.z*r.z;
+	return T_max(-h,T_max(h-1.0,rho-0.0025));
+
+}
+
 
 double wave(double x0, double z0,double x, double z, double amplitude){
 	float t0 = x- x0;
@@ -465,7 +491,7 @@ double wave(double x0, double z0,double x, double z, double amplitude){
 	return amplitude*exp(-r2);
 }
 
-double sceneSDF(double3 v){
+double getHeight(double3 v){
 	int N = 5;
 	float h = 0.0;
 	int ct = 0;
@@ -477,12 +503,28 @@ double sceneSDF(double3 v){
 			h+=wave(x0,z0,v.x,v.z,0.25*r);
 		}
 	}
+	return h;
+}
 
+double sceneSDF(double3 v){
+	float d = MAX_DISTANCE;
+
+	int G = 31;
+	float D = 5.0/(G-1);
+	float xf = round(v.x/D)*D;
+	float zf = round(v.z/D)*D;
+
+	double h = getHeight(v);
 	float d1 = v.y - (-2.4+h);
+
+	double3 grassCenter = Vector3d(xf,h,zf);
+	float d2 = grassblade(v,grassCenter,getNormal(grassCenter));
 	
+	d=T_min(d,d1);
+	d=T_min(d,d2);
 
 
-	return T_max(d1,fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
+	return T_max(d,fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
 }
 
 double3 sceneMaterial(double3 gv, double3 lv, double3 n)
