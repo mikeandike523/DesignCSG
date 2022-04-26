@@ -279,6 +279,7 @@ __kernel void  k2(
 
 
         
+#define AD_RANDOM_VALUES 0
 
 
         
@@ -307,21 +308,23 @@ double fastBox(double3 v, double3 center, double3 halfDiameter){
 }
 
 
-double wave(double x0, double z0,double x, double z, double amplitude, double angle){
-	float t0 = dot((float2)(x-x0,z-z0),(float2)(cos(angle),sin(angle)));
-	float t1 = dot((float2)(x-x0,z-z0),(float2)(cos(angle+M_PI/2.0),sin(angle+M_PI/2.0)));
-	float r = sqrt(t0*t0+t1*t1);
-	return amplitude*exp(-r*r);
+double wave(double x0, double z0,double x, double z, double amplitude){
+	float t0 = x- x0;
+	float t1 = z - z0;
+	float r2 = t0*t0+t1*t1;
+	return amplitude*exp(-r2);
 }
 
 double sceneSDF(double3 v){
-
+	int N = 5;
 	float h = 0.0;
-	for(int i=-5;i<=5;i++){
-		for(int j=-5;j<=5;j++){
-			float x0 = i/2.0;
-			float z0 = j/2.0;
-			h+=wave(x0,z0,v.x,v.z,0.25*rand((float2)(x0,z0)),0.0);
+	int ct = 0;
+	for(int i=-N;i<=N;i++){
+		for(int j=-N;j<=N;j++){
+			float x0 = i*2.5/N;
+			float z0 = j*2.5/N;
+			float r = getAD(AD_RANDOM_VALUES,ct++);
+			h+=wave(x0,z0,v.x,v.z,0.25*r);
 		}
 	}
 
