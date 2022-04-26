@@ -235,6 +235,8 @@ __kernel void  k1(
         float3 n = getTriangleN(0);
         color = fabs(n);
     }
+
+    color = fabs(getTriangleB(0));
   
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
