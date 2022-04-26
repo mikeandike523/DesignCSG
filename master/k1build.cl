@@ -21,7 +21,7 @@
 #define wargs shape_id_bank,object_position_bank,object_right_bank,object_up_bank,object_forward_bank,num_objects
 #define bsargs screen_stack_memory,build_procedure_data,num_build_steps,tid
  
-#define print_double3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
+#define print_float3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
 
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
@@ -29,14 +29,14 @@
 #define getAD(name,offset) (arbitrary_data[name+offset])
 
 
-float sdf_bank(double3 v, unsigned char shape_id);
-double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
-double sceneSDF(double3 v);
-double3 sceneMaterial(double3 gv, double3 lv, double3 n);
+float sdf_bank(float3 v, unsigned char shape_id);
+float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id);
+float sceneSDF(float3 v);
+float3 sceneMaterial(float3 gv, float3 lv, float3 n);
 
-__global double3 rgt_g;
-__global double3 upp_g;
-__global double3 fwd_g;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
 __global float * arbitrary_data;
 
 
@@ -136,7 +136,7 @@ void rodrigues(float * v1, float * v2, float * v1v2){
 
 float primary_sdf(
 
-    double3 v, 
+    float3 v, 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
     __global float * object_right_bank,
@@ -160,10 +160,10 @@ float primary_sdf(
 
 }
 
-double3 shade(
+float3 shade(
 
-    double3 v, 
-    double3 n,
+    float3 v, 
+    float3 n,
     __global unsigned char * shape_id_bank,
     __global unsigned char * material_id_bank,
     __global float * object_position_bank,
@@ -183,7 +183,7 @@ double3 shade(
 
     
 
-    double3 v2 = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
+    float3 v2 = (float3)(v.x/5.0,v.y/5.0,v.z/5.0);
     
         //x axis
     {
@@ -193,7 +193,7 @@ double3 shade(
         float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
         if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-            return (double3)(1.0, 0.0, 0.0);
+            return (float3)(1.0, 0.0, 0.0);
         }
         
     }
@@ -206,7 +206,7 @@ double3 shade(
         float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
         if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-            return (double3)(0.0, 1.0, 0.0);
+            return (float3)(0.0, 1.0, 0.0);
         }
         
     }
@@ -221,21 +221,21 @@ double3 shade(
             
         if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-            return (double3)(0.0, 0.0, 1.0);
+            return (float3)(0.0, 0.0, 1.0);
         }
         
         
     }
     
 
-    double3 lv = v;
-    double3 gv = v.x*rgt_g + v.y*upp_g+v.z*fwd_g;
+    float3 lv = v;
+    float3 gv = v.x*rgt_g + v.y*upp_g+v.z*fwd_g;
 
     return sceneMaterial(gv,lv,n);
 
 }
 
-double3 get_normal(double3 v,
+float3 get_normal(float3 v,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -253,9 +253,9 @@ double3 get_normal(double3 v,
 
 ){
 
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+    float3 dx = (float3)(NORMAL_EPSILON,0.0,0.0);
+    float3 dy = (float3)(0.0,NORMAL_EPSILON,0.0);
+    float3 dz = (float3)(0.0,0.0,NORMAL_EPSILON);
 
     float Dx = primary_sdf(v+dx, wargs, bsargs)-primary_sdf(v-dx, wargs, bsargs);
     float Dy = primary_sdf(v+dy, wargs, bsargs)-primary_sdf(v-dy, wargs, bsargs);
@@ -263,14 +263,14 @@ double3 get_normal(double3 v,
 
     float  twoE = 2.0*NORMAL_EPSILON;
 
-    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
+    return normalize((float3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
 
 }
 
-#define NORMAL_FUNCTION(name,functor) double3 name(double3 v){ \
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0); \
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0); \
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON); \
+#define NORMAL_FUNCTION(name,functor) float3 name(float3 v){ \
+    float3 dx = (float3)(NORMAL_EPSILON,0.0,0.0); \
+    float3 dy = (float3)(0.0,NORMAL_EPSILON,0.0); \
+    float3 dz = (float3)(0.0,0.0,NORMAL_EPSILON); \
  \
     float Dx = functor(v+dx)-functor(v-dx); \
     float Dy = functor(v+dy)-functor(v-dy); \
@@ -278,11 +278,11 @@ double3 get_normal(double3 v,
  \
     float  twoE = 2.0*NORMAL_EPSILON; \
  \
-    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz)); \
+    return normalize((float3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz)); \
 } 
 
 
-float march(double3 o, double3 r,
+float march(float3 o, float3 r,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -296,9 +296,9 @@ float march(double3 o, double3 r,
     __global int * build_procedure_data,
      int num_build_steps,
     int tid,
-    double3 rgt,
-    double3 upp,
-    double3 fwd
+    float3 rgt,
+    float3 upp,
+    float3 fwd
 
 
 ){    
@@ -307,10 +307,10 @@ float march(double3 o, double3 r,
     
 
     float d = 0.0;
-    double3 v = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
+    float3 v = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
 
 
-    r= (double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+    r= (float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
 
 
 
@@ -374,15 +374,15 @@ __kernel void  k1(
     int tid = iy*640+ix;
 
 
-    double3 o = (double3)(campos[0],campos[1],campos[2]);
+    float3 o = (float3)(campos[0],campos[1],campos[2]);
 
-    //o=(double3)(o.x/5.0,o.y/5.0,o.z/5.0); 
+    //o=(float3)(o.x/5.0,o.y/5.0,o.z/5.0); 
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
 
-    double3 rgt = (double3)(right[0],right[1],right[2]);
-    double3 upp = (double3)(up[0],up[1],up[2]);
-    double3 fwd = (double3)(forward[0],forward[1],forward[2]);
+    float3 rgt = (float3)(right[0],right[1],right[2]);
+    float3 upp = (float3)(up[0],up[1],up[2]);
+    float3 fwd = (float3)(forward[0],forward[1],forward[2]);
 
     rgt_g = rgt;
     upp_g = upp;
@@ -390,11 +390,11 @@ __kernel void  k1(
 
 
 
-    double3 r = (double3)(uv.x,uv.y,IFOV);
+    float3 r = (float3)(uv.x,uv.y,IFOV);
 
-    //double3 color = (double3)(uv.x,uv.y,1.0);
+    //float3 color = (float3)(uv.x,uv.y,1.0);
 
-    double3 color = (double3)(1.0,1.0,1.0);
+    float3 color = (float3)(1.0,1.0,1.0);
 
     
     float d = march(
@@ -416,7 +416,7 @@ __kernel void  k1(
 
     if(d>0.0){
         
-        double3 p = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+        float3 p = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
         color = shade(
             
         p,get_normal(p, wargs, bsargs),
@@ -454,45 +454,45 @@ __kernel void  k1(
 
 #define MATERIAL_MATCH (SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL)
 #define FABS(a) (a>=0.0?a:-a)
-#define VFABS(v) ((double3)(FABS(v.x),FABS(v.y),FABS(v.z)))
-#define Vector3d(x,y,z) ((double3)(x,y,z))
+#define VFABS(v) ((float3)(FABS(v.x),FABS(v.y),FABS(v.z)))
+#define Vector3f(x,y,z) ((float3)(x,y,z))
 #define RGT rgt_g
 #define UPP upp_g
 #define FWD fwd_g
 
 //https://stackoverflow.com/a/4275343/5166365
 float rand(float2 co){
-	double i = 0;
+	float i = 0;
     return fract(sin(dot(co, (float2)(12.9898, 78.233))) * 43758.5453,&i);
 }
 
-double fastBox(double3 v, double3 center, double3 halfDiameter){
-	double3 _v = (double3)(FABS(v.x-center.x),FABS(v.y-center.y),FABS(v.z-center.z));
-	double3 q = _v-halfDiameter;
+float fastBox(float3 v, float3 center, float3 halfDiameter){
+	float3 _v = (float3)(FABS(v.x-center.x),FABS(v.y-center.y),FABS(v.z-center.z));
+	float3 q = _v-halfDiameter;
 	return T_max(q.x,T_max(q.y,q.z));
 }
 
-double grassblade(double3 v, double3 baseCenter, double3 normal){
+float grassblade(float3 v, float3 baseCenter, float3 normal){
 	v=v-baseCenter;
 
 	float h = dot(v,normal);
-	double3 p = (double3)(h*normal.x,h*normal.y,h*normal.z);
+	float3 p = (float3)(h*normal.x,h*normal.y,h*normal.z);
 
-	double3 radialAxis = v-p;
+	float3 radialAxis = v-p;
 	float rho2 = radialAxis.x*radialAxis.x+radialAxis.y*radialAxis.y+radialAxis.z*radialAxis.z;
 	return T_max(rho2-0.000625,T_max(-h,h-0.4));
 
 }
 
 
-double wave(double x0, double z0,double x, double z, double amplitude){
+float wave(float x0, float z0,float x, float z, float amplitude){
 	float t0 = x- x0;
 	float t1 = z - z0;
 	float r2 = t0*t0+t1*t1;
 	return amplitude*exp(-r2);
 }
 
-double getHeight(double3 v){
+float getHeight(float3 v){
 	int N = 5;
 	float h = 0.0;
 	int ct = 0;
@@ -507,13 +507,13 @@ double getHeight(double3 v){
 	return h;
 }
 
-double ground_fn(double3 v){
+float ground_fn(float3 v){
 	return v.y - (-2.4+getHeight(v));
 }
 
 NORMAL_FUNCTION(groundNormal,ground_fn)
 
-double sceneSDF(double3 v){
+float sceneSDF(float3 v){
 	float d = MAX_DISTANCE;
 
 	int G = 17;
@@ -522,7 +522,7 @@ double sceneSDF(double3 v){
 	float xf0 = round(v.x/D)*D;
 	float zf0 = round(v.z/D)*D;
 
-	double h = getHeight(v);
+	float h = getHeight(v);
 	float d1 = v.y - (-2.4+h);
 
 	float d2 = MAX_DISTANCE;
@@ -531,7 +531,7 @@ double sceneSDF(double3 v){
 			for(int j=-S;j<=S;j++){
 				float xf = xf0+D*i;
 				float zf = zf0 + D*j;
-				double3 grassCenter = Vector3d(xf,-2.4+getHeight(Vector3d(xf,0.0f,zf)),zf);
+				float3 grassCenter = Vector3f(xf,-2.4+getHeight(Vector3f(xf,0.0f,zf)),zf);
 				float dg = grassblade(v,grassCenter,groundNormal(grassCenter));
 				d2 = T_min(d2,dg);
 
@@ -544,10 +544,10 @@ double sceneSDF(double3 v){
 	d=T_min(d,d2);
 
 
-	return T_max(d,fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
+	return T_max(d,fastBox(v,Vector3f(0.0,0.0,0.0),Vector3f(2.5,2.5,2.5)));
 }
 
-double3 sceneMaterial(double3 gv, double3 lv, double3 n)
+float3 sceneMaterial(float3 gv, float3 lv, float3 n)
 {
 
 	return VFABS(n);
