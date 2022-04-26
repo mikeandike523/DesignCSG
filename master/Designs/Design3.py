@@ -1,5 +1,7 @@
 from DesignCSG import *
 
+includeCL("LinAlg.cl")
+
 scene="""
 
 #define MATERIAL_MATCH (SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL)

@@ -287,6 +287,7 @@ __kernel void  k2(
          
 
 
+
 #define MATERIAL_MATCH (SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL)
 #define FABS(a) (a>=0.0?a:-a)
 #define VFABS(v) ((float3)(FABS(v.x),FABS(v.y),FABS(v.z)))
