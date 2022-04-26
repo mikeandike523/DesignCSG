@@ -7,7 +7,7 @@ add_preprocessor_define(define="""
 #define union(a,b) T_min(a,b)
 #define intersection(a,b) T_max(a,b)
 #define subtraction(a,b) T_max(a,-b)
-#define Vector3d(x,y,z) ((double3)((double)(x),(double)(y),(double)(z)))
+#define Vector3d(x,y,z) ((float3)((float)(x),(float)(y),(float)(z)))
 #define signOfInt(i) (i>0?1:(i<0?-1:(0)))
 #define upperClampVector3d(v) (Vector3d(T_max(v.x,0.0),T_max(v.y,0.0),T_max(v.z,0.0)))
 
@@ -66,21 +66,21 @@ float max3(float a, float b, float c){
 }
 
 
-float maxComponent(double3 v){
+float maxComponent(float3 v){
 
 	return T_max(v.x,T_max(v.y,v.z));
 
 }
 
-float box(double3 point, double3 center, double3 halfDiameter ){
+float box(float3 point, float3 center, float3 halfDiameter ){
 
 	point=fabs(point-center);
-	double3 q = point-halfDiameter;
+	float3 q = point-halfDiameter;
 	return maxComponent(q);
 
 }
 
-float getComponent(double3 v, int component){
+float getComponent(float3 v, int component){
 
 	if(component==0) return v.x;
 	if(component==1) return v.y;
@@ -89,13 +89,13 @@ float getComponent(double3 v, int component){
 
 }
 
-double3 termProduct(double3 a, double3 b){
+float3 termProduct(float3 a, float3 b){
 
 	return Vector3d(a.x*b.x,a.y*b.y,a.z*b.z);
 
 }
 
-double3 swizzle(double3 v, int a, int b, int c){
+float3 swizzle(float3 v, int a, int b, int c){
 
 	return Vector3d(getComponent(v,a),getComponent(v,b),getComponent(v,c));
 
@@ -104,7 +104,7 @@ double3 swizzle(double3 v, int a, int b, int c){
 
 
 
-float _hilbertUnitCell(double3 v){
+float _hilbertUnitCell(float3 v){
 
 	float d1 = box(v,Vector3d(-0.5,-0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
 	float d2 = box(v,Vector3d(0.5,-0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
@@ -133,7 +133,7 @@ float _hilbertUnitCell(double3 v){
 }
 
 
-float hilbertUnitCell(double3 v){
+float hilbertUnitCell(float3 v){
 
 	v=termProduct(swizzle(v,1,0,2),Vector3d(1,-1,1));
 	v=termProduct(swizzle(v,2,1,0),Vector3d(1,1,-1));
@@ -142,10 +142,10 @@ float hilbertUnitCell(double3 v){
 }
 
 
-float putHilbert(double3 v,int x, int y, int z)
+float putHilbert(float3 v,int x, int y, int z)
 {
 
-	double3 c = Vector3d(x/3.0,y/3.0,z/3.0);
+	float3 c = Vector3d(x/3.0,y/3.0,z/3.0);
 	v=Vector3d(v.x-c.x,v.y-c.y,v.z-c.z);
 	v=Vector3d(3.0*v.x,3.0*v.y,3.0*v.z);
 
@@ -166,9 +166,9 @@ float putHilbert(double3 v,int x, int y, int z)
 	float m21=quadrantMatrices[matrixOffset+7];
 	float m22=quadrantMatrices[matrixOffset+8];
 
-	double3 mc0 = Vector3d(m00,m01,m02);
-	double3 mc1 = Vector3d(m10,m11,m12);
-	double3 mc2 = Vector3d(m20,m21,m22); 
+	float3 mc0 = Vector3d(m00,m01,m02);
+	float3 mc1 = Vector3d(m10,m11,m12);
+	float3 mc2 = Vector3d(m20,m21,m22); 
 
 	float A = dot(v,mc0);
 	float B = dot(v,mc1);
@@ -178,10 +178,10 @@ float putHilbert(double3 v,int x, int y, int z)
 
 }
 
-float putShaft(double3 v, float halfWidth, float halfLength, int direction){
+float putShaft(float3 v, float halfWidth, float halfLength, int direction){
 
 	float d = MAX_DISTANCE;
-	double3 center = Vector3d(0.0,0.0,0.0);
+	float3 center = Vector3d(0.0,0.0,0.0);
 	switch(direction){
 		case DIRECTION_X:
 
@@ -201,9 +201,9 @@ float putShaft(double3 v, float halfWidth, float halfLength, int direction){
 	return d;
 }
 
-float putConnector(double3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
+float putConnector(float3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
 
-	double3 center = Vector3d(
+	float3 center = Vector3d(
 
 (largeI*1.0+i/2.0)*1/3.0,
 (largeJ*1.0+j/2.0)*1/3.0,
@@ -215,7 +215,7 @@ float putConnector(double3 v, int largeI, int largeJ, int largeK, int i, int j, 
 
 }
 
-float putConnectors(double3 v){
+float putConnectors(float3 v){
 
 	float d = MAX_DISTANCE;
 
@@ -235,7 +235,7 @@ float putConnectors(double3 v){
 }
 
 
-float hilbert_sdf(double3 v){
+float hilbert_sdf(float3 v){
 	
 	float m = MAX_DISTANCE;
 	for(int i=-1;i<=1;i++)

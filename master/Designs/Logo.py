@@ -292,7 +292,7 @@ def getLetterComponent(letter,transform=Transform.identity()):
 
 	LETTER_AD_OFFS = AD_LETTER_OFFS_<{LETTER}>;
 
-	v=(double3)(2.0*v.x,2.0*v.y,2.0*v.z);
+	v=(float3)(2.0*v.x,2.0*v.y,2.0*v.z);
 
 	int numCurves = (int)getAD(AD_NUMCURVES_<{LETTER}>,0);
 	float d = MAX_DISTANCE;
