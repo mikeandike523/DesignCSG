@@ -4,7 +4,6 @@
 import scenecompiler
 import numpy as np
 
-
 compiler = scenecompiler.SceneCompiler()
 sphere_brush = compiler.define_brush(body="return length(v)-0.5;")
 cylinder_brush = compiler.define_brush(body="""
@@ -206,36 +205,6 @@ def eraseIntersection(*components,transform=Transform.identity()):
         root.add_child(component)
     compiler.root.add_child(root)
 
-def setExportConfig(boundingBoxHalfDiameter,
-minimumOctreeLevel,
-maximumOctreeLevel,
-gridLevel,
-complexSurfaceThreshold,
-gradientDescentSteps=10,
-cacheSubdivision=16,
-queriesBeforeGC=64,
-queriesBeforeFree=1024,
-meshSubdivisionLevel=4,
-maxPoolSize = 0
-):
-
-    meshSubdivisionLevel = 0
-    maxPoolSize = 0
-
-    with open("exportConfig.txt","w") as fl:
-
-        outstr = ""
-        
-        outstr+=(str(5.0*boundingBoxHalfDiameter)+"\n")
-        outstr+=(str(minimumOctreeLevel)+"\n")
-        outstr+=(str(maximumOctreeLevel)+"\n")
-        outstr+=(str(gridLevel)+"\n")
-        outstr+=(str(complexSurfaceThreshold)+"\n")
-        outstr+=(str(gradientDescentSteps)+"\n")
-        outstr+=(str(cacheSubdivision)+"\n")
-        outstr+=(str(queriesBeforeGC)+"\n")
-        outstr+=(str(queriesBeforeFree)+"\n")
-
-
-        outstr.strip("\n")
-        fl.write(outstr)
+def includeCL(filename):
+    with open(filename,"r") as fl:
+        define_auxillary_function(fl.read())
