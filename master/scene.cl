@@ -28,9 +28,11 @@ double fastBox(double3 v, double3 center, double3 halfDiameter){
 }
 
 
-double wave(double x0, double z0,double x, double z, double amplitude, double waveNumber, double angle){
-	float t = dot((float2)(x-x0,z-z0),(float2)(cos(angle),sin(angle)));
-	return amplitude*cos(2*M_PI*waveNumber*t);
+double wave(double x0, double z0,double x, double z, double amplitude, double angle){
+	float t0 = dot((float2)(x-x0,z-z0),(float2)(cos(angle),sin(angle)));
+	float t1 = dot((float2)(x-x0,z-z0),(float2)(cos(angle+M_PI/2.0),sin(angle+M_PI/2.0)));
+	float r = sqrt(t0*t0+t1*t1);
+	return amplitude*exp(-r*r);
 }
 
 double sceneSDF(double3 v){
@@ -40,7 +42,7 @@ double sceneSDF(double3 v){
 		for(int j=-5;j<=5;j++){
 			float x0 = i/2.0;
 			float z0 = j/2.0;
-			h+=wave(x0,z0,v.x,v.z,0.05,5,rand((float2)(x0,z0)));
+			h+=wave(x0,z0,v.x,v.z,0.1*rand((float2)(x0,z0)),0.0);
 		}
 	}
 
