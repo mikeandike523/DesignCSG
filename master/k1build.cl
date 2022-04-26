@@ -516,7 +516,7 @@ float grassblade(float3 v, float3 baseCenter, float3 normal,float3 gradient){
 
 	float L = 0.4;
 
-	return fastBox(Vector3f(t0,t1,t2),Vector3f(0.0,L/2.0,0.0),Vector3f(0.025,L/2.0,0.0025));
+	return fastBox(Vector3f(t0,t1,t2),Vector3f(0.0,L/2.0,0.0),Vector3f(0.015,L/2.0,0.0025));
 
 }
 
@@ -537,7 +537,7 @@ float getHeight(float3 v){
 			float x0 = i*2.5/N;
 			float z0 = j*2.5/N;
 			float r = getAD(AD_RANDOM_VALUES,ct++);
-			h+=wave(x0,z0,v.x,v.z,0.25*r);
+			h+=wave(x0,z0,v.x,v.z,0.35*r);
 		}
 	}
 	return h;
@@ -550,17 +550,22 @@ float ground_fn(float3 v){
 NORMAL_FUNCTION(groundNormal,ground_fn)
 
 float3 groundGradient(float3 v,float epsilon){
-	float hx1 = ground_fn(Vector3f(v.x-epsilon,v.y,v.z));
-	float hx2 = ground_fn(Vector3f(v.x+epsilon,v.y,v.z));
-	float hz1 = ground_fn(Vector3f(v.x,v.y,v.z-epsilon));
-	float hz2 = ground_fn(Vector3f(v.x,v.y,v.z-epsilon));
-	return normalize(Vector3f((hx2-hx1)/(2.0*epsilon),0.0,(hz2-hz1)/(2.0*epsilon)));
+	float hx1 = getHeight(Vector3f(v.x-epsilon,v.y,v.z));
+	float hx2 = getHeight(Vector3f(v.x+epsilon,v.y,v.z));
+	float hz1 = getHeight(Vector3f(v.x,v.y,v.z-epsilon));
+	float hz2 = getHeight(Vector3f(v.x,v.y,v.z+epsilon));
+	float3  n1=normalize(Vector3f((hx2-hx1),0.0,(hz2-hz1)));
+	float h0 = getHeight(v);
+	float h1 =getHeight(Vector3f(v.x+epsilon*n1.x,v.y,v.z+epsilon*n1.z));
+	
+
+	return normalize(Vector3f((hx2-hx1),h1-h0,(hz2-hz1)));
 }
 
 float sceneSDF(float3 v){
 	float d = MAX_DISTANCE;
 
-	int G = 17;
+	int G = 31;
 	float D = 5.0/(G-1);
 	float trash = 0;
 	float xf0 = round(v.x/D)*D;
