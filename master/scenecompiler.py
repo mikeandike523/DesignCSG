@@ -506,6 +506,9 @@ class _SceneCompiler:
             for i,dataPoint in enumerate(data):
                 dataBuffer[start+i] = np.array(dataPoint,dtype="<f4")
 
+        with open("data_buffer_size.txt","w") as fl:
+            fl.write(str(len(dataBuffer)))
+
         with open("arbitrary_data.hex","wb") as fl:
             for item in dataBuffer:
                 fl.write(item.tobytes())
