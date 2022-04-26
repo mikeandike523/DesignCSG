@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdio>
 #include <CL/cl.h>
+#include <chrono>
 
 #include "Utils.h"
 #include "CVector.h"
@@ -87,6 +88,13 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		right[0] = v_right.x; right[1] = v_right.y; right[2] = v_right.z;
 		up[0] = v_up.x; up[1] = v_up.y; up[2] = v_up.z;
 		forward[0] = v_forward.x; forward[1] = v_forward.y; forward[2] = v_forward.z;
+
+		//https://stackoverflow.com/a/56107709/5166365
+		uint64_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+		
+		constexpr uint64_t twelve_seconds = 1000 * 12;
+		application_state[APPLICATION_STATE_TIME_MILLISECONDS] = (float)(millis%twelve_seconds);
 
 		//todo, only copy teh right buffers each frame, these are design choices
 

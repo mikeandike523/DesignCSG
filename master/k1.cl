@@ -303,8 +303,6 @@ __kernel void  k1(
     );
 
     if(intersection.hit!=-1){
-        float3 n = getTriangleN(intersection.hit);
-        n=n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
         color = fragment(intersection.hitPoint,intersection.hit);
     }
   
