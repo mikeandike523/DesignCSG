@@ -7,28 +7,28 @@
          
 
         
-        float sd0( double3 v){
+        float sd0( float3 v){
 
             return MAX_DISTANCE;
 
         }
         
 
-        float sd1( double3 v){
+        float sd1( float3 v){
 
             return 0.0;
 
         }
         
 
-        float sd2( double3 v){
+        float sd2( float3 v){
 
             return length(v)-0.5;
 
         }
         
 
-        float sd3( double3 v){
+        float sd3( float3 v){
 
             
 
@@ -42,7 +42,7 @@
         }
         
 
-        float sd4( double3 v){
+        float sd4( float3 v){
 
             
     v=fabs(v);
@@ -52,7 +52,7 @@
         }
         
 
-        float sd5( double3 v){
+        float sd5( float3 v){
 
              
 	return length(v)-0.5;
@@ -61,7 +61,7 @@
         }
         
 
-        float sd6( double3 v){
+        float sd6( float3 v){
 
              
 	v= fabs(v);
@@ -72,20 +72,20 @@
         
 
         
-        double3 shader0 (double3 gv, double3 lv, double3 n){
+        float3 shader0 (float3 gv, float3 lv, float3 n){
 
             return fabs(n);
 
         }
         
 
-        double3 shader1 (double3 gv, double3 lv, double3 n){
+        float3 shader1 (float3 gv, float3 lv, float3 n){
 
             
         
-        double3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
+        float3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
 
-        float L = dot(n_g,(double3)(0.0,0.0,-1.0)); return (double3)(L,L,L);
+        float L = dot(n_g,(float3)(0.0,0.0,-1.0)); return (float3)(L,L,L);
 
 
 
@@ -95,7 +95,7 @@
         
 
 
-        float sdf_bank(double3 v, unsigned char shape_id){
+        float sdf_bank(float3 v, unsigned char shape_id){
 
             switch(shape_id){
 
@@ -127,7 +127,7 @@ case 6: return sd6(v); break;
 
         }
 
-        double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id){
+        float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id){
 
 
             switch(material_id){
@@ -141,7 +141,7 @@ case 1: return shader1(gv,lv,n); break;
 
             }
 
-            return (double3)(1.0, 1.0, 1.0);
+            return (float3)(1.0, 1.0, 1.0);
         }
         
         

@@ -21,7 +21,7 @@
 #define wargs shape_id_bank,object_position_bank,object_right_bank,object_up_bank,object_forward_bank,num_objects
 #define bsargs screen_stack_memory,build_procedure_data,num_build_steps,tid
  
-#define print_double3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
+#define print_float3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
 
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
@@ -29,12 +29,12 @@
 #define getAD(name,offset) (arbitrary_data[name+offset])
 
 
-float sdf_bank(double3 v, unsigned char shape_id);
-double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
+float sdf_bank(float3 v, unsigned char shape_id);
+float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id);
 
-__global double3 rgt_g;
-__global double3 upp_g;
-__global double3 fwd_g;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
 __global float * arbitrary_data;
 
 
@@ -134,7 +134,7 @@ void rodrigues(float * v1, float * v2, float * v1v2){
 
 float primary_sdf(
 
-    double3 v, 
+    float3 v, 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
     __global float * object_right_bank,
@@ -157,12 +157,12 @@ float primary_sdf(
 
         unsigned char shape_id = shape_id_bank[i];
 
-        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
 
-        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
 
         float s  = sdf_bank(ABC,shape_id);
 
@@ -196,11 +196,11 @@ float primary_sdf(
 
             case IMPORT:
                     {
-                        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-                        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-                        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-                        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-                        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+                        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+                        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+                        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+                        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+                        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
                         screen_stack_memory[stack_offset+command_destination]=sdf_bank(ABC,command_left_argument);
                     }
             break;
@@ -231,7 +231,7 @@ float primary_sdf(
 
 
         //scale for axes markers, todo: change 5.0 to INITIAL_SCALE and assure match with scenecompiler.py
-        v = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
+        v = (float3)(v.x/5.0,v.y/5.0,v.z/5.0);
 
 
         //x axis
@@ -273,10 +273,10 @@ float primary_sdf(
 
 }
 
-double3 shade(
+float3 shade(
 
-    double3 v, 
-    double3 n,
+    float3 v, 
+    float3 n,
     __global unsigned char * shape_id_bank,
     __global unsigned char * material_id_bank,
     __global float * object_position_bank,
@@ -293,22 +293,22 @@ double3 shade(
 
 ){
 
-  //  v=(double3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
+  //  v=(float3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
 
     float min_s = MAX_DISTANCE;
     int material_match =  -1;
-    double3 ABC_out = (double3)(0.0,0.0,0.0);
+    float3 ABC_out = (float3)(0.0,0.0,0.0);
 
     for(int i=0;i< num_objects;i++){
 
         unsigned char shape_id = shape_id_bank[i];
 
-        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
+        float3 o = (float3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
+        float3 shape_right = (float3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
+        float3 shape_up = (float3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
+        float3 shape_forward = (float3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
 
-        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
+        float3 ABC = (float3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
 
         float s  = sdf_bank(ABC,shape_id);
 
@@ -324,7 +324,7 @@ double3 shade(
     else{
 
 
-        v = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
+        v = (float3)(v.x/5.0,v.y/5.0,v.z/5.0);
     
            //x axis
         {
@@ -334,7 +334,7 @@ double3 shade(
             float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (double3)(1.0, 0.0, 0.0);
+                return (float3)(1.0, 0.0, 0.0);
             }
         
         }
@@ -347,7 +347,7 @@ double3 shade(
             float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (double3)(0.0, 1.0, 0.0);
+                return (float3)(0.0, 1.0, 0.0);
             }
         
         }
@@ -362,7 +362,7 @@ double3 shade(
             
             if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (double3)(0.0, 0.0, 1.0);
+                return (float3)(0.0, 0.0, 1.0);
             }
         
         
@@ -370,11 +370,11 @@ double3 shade(
     
     }
     
-    return (double3)(239.0/255.0, 66.0/255.0, 245/255.0);
+    return (float3)(239.0/255.0, 66.0/255.0, 245/255.0);
 
 }
 
-double3 get_normal(double3 v,
+float3 get_normal(float3 v,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -392,14 +392,14 @@ double3 get_normal(double3 v,
 
 ){
 
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+    float3 dx = (float3)(NORMAL_EPSILON,0.0,0.0);
+    float3 dy = (float3)(0.0,NORMAL_EPSILON,0.0);
+    float3 dz = (float3)(0.0,0.0,NORMAL_EPSILON);
 
 
-   // double3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
-  //  double3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
-   // double3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
+   // float3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
+  //  float3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
+   // float3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
 
 
 
@@ -409,11 +409,11 @@ double3 get_normal(double3 v,
 
     float  twoE = 2.0*NORMAL_EPSILON;
 
-    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
+    return normalize((float3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
 
 }
 
-float march(double3 o, double3 r,
+float march(float3 o, float3 r,
 
     __global unsigned char * shape_id_bank,
     __global float * object_position_bank,
@@ -427,9 +427,9 @@ float march(double3 o, double3 r,
     __global int * build_procedure_data,
      int num_build_steps,
     int tid,
-    double3 rgt,
-    double3 upp,
-    double3 fwd
+    float3 rgt,
+    float3 upp,
+    float3 fwd
 
 
 ){    
@@ -438,10 +438,10 @@ float march(double3 o, double3 r,
     
 
     float d = 0.0;
-    double3 v = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
+    float3 v = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd));
 
 
-    r= (double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+    r= (float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
 
 
 
@@ -505,15 +505,15 @@ __kernel void  k1(
     int tid = iy*640+ix;
 
 
-    double3 o = (double3)(campos[0],campos[1],campos[2]);
+    float3 o = (float3)(campos[0],campos[1],campos[2]);
 
-    //o=(double3)(o.x/5.0,o.y/5.0,o.z/5.0); 
+    //o=(float3)(o.x/5.0,o.y/5.0,o.z/5.0); 
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
 
-    double3 rgt = (double3)(right[0],right[1],right[2]);
-    double3 upp = (double3)(up[0],up[1],up[2]);
-    double3 fwd = (double3)(forward[0],forward[1],forward[2]);
+    float3 rgt = (float3)(right[0],right[1],right[2]);
+    float3 upp = (float3)(up[0],up[1],up[2]);
+    float3 fwd = (float3)(forward[0],forward[1],forward[2]);
 
     rgt_g = rgt;
     upp_g = upp;
@@ -521,11 +521,11 @@ __kernel void  k1(
 
 
 
-    double3 r = (double3)(uv.x,uv.y,IFOV);
+    float3 r = (float3)(uv.x,uv.y,IFOV);
 
-    //double3 color = (double3)(uv.x,uv.y,1.0);
+    //float3 color = (float3)(uv.x,uv.y,1.0);
 
-    double3 color = (double3)(1.0,1.0,1.0);
+    float3 color = (float3)(1.0,1.0,1.0);
 
     
     float d = march(
@@ -547,7 +547,7 @@ __kernel void  k1(
 
     if(d>0.0){
         
-        double3 p = (double3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(double3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
+        float3 p = (float3)(dot(o,rgt),dot(o,upp),dot(o,fwd))+d*(float3)(dot(r,rgt),dot(r,upp),dot(r,fwd));
         color = shade(
             
         p,get_normal(p, wargs, bsargs),
