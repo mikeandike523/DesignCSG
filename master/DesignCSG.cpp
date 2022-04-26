@@ -9,24 +9,17 @@ int hasModel = 0;
 #include <Windows.h>
 #include "DrawPane.h"
 #include "Utils.h"
-#include "Evaluator.h"
 #include "Grid.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <queue>
-#include "ISV.hpp"
 #include <chrono>
 #define CMS_DEBUG
 #define logRoutine DebugPrint
-#include "mesh.hpp"
-#include "readLookupTable.hpp"
-#include "utils.hpp"
-#include "GetThreadCount.h"
 #include <mutex>
 #include <filesystem>
 
-Evaluator* global_evaluator = nullptr;
 std::string logString;
 std::mutex logStringMutex;
 std::string designPath = "Designs\\Untitled.py";
@@ -61,7 +54,6 @@ enum
 {
 	ID_Run = 1,
 	ID_Save = 2,
-	ID_Export = 3,
 	ID_New = 4,
 	ID_Open = 5,
 	ID_Delete = 6,
@@ -95,13 +87,11 @@ private:
 	void OnAbout(wxCommandEvent& event);;
 	void OnRun(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
-	void OnExport(wxCommandEvent& event);
 	void OnIdle(wxIdleEvent& event);
 	void OnNew(wxCommandEvent& event);
 	void OnOpen(wxCommandEvent& event);
 	void OnDelete(wxCommandEvent& event);
 	void OnSaveAs(wxCommandEvent& event);
-	void OnExportInner();
 
 	wxDECLARE_EVENT_TABLE();
 
@@ -113,7 +103,6 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_MENU(wxID_EXIT, MyFrame::OnExit)
 EVT_MENU(ID_Run, MyFrame::OnRun)
 EVT_MENU(ID_Save, MyFrame::OnSave)
-EVT_MENU(ID_Export, MyFrame::OnExport)
 EVT_MENU(ID_New,MyFrame::OnNew)
 EVT_MENU(ID_Open,MyFrame::OnOpen)
 EVT_MENU(ID_Delete,MyFrame::OnDelete)
@@ -352,9 +341,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->Append(ID_Run, "&Run",
 		"Run your design");
 
-	//menuFile->Append(ID_Export, "&Export",
-	//	"Export your design");
-
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
 	wxMenuBar* menuBar = new wxMenuBar;
@@ -434,7 +420,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	hbox->Add(panel_box, wxSizerFlags(1).Expand());
 	this->debugConsole = new wxTextCtrl((wxWindow*)pnl, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(640, 200), wxTE_MULTILINE);
-	this->sbmp = new BasicDrawPane((wxFrame*)pnl, wxSize(640, 480), debugConsole, &global_evaluator);
+	this->sbmp = new BasicDrawPane((wxFrame*)pnl, wxSize(640, 480), debugConsole);
 	panel_box->Add(pnl, wxSizerFlags(1).Expand());
 	panel_box_2->Add(this->sbmp, wxSizerFlags(1).CenterHorizontal());
 	debugConsole->SetEditable(false);
@@ -488,9 +474,9 @@ void updateArbitraryData(MyFrame * ctx) {
 		size_t itemCount = 0;
 		uint8_t dataPoint[4];
 		while (fread(&dataPoint, 1, 4, dataFile)) {
-			if (cms::is_big_endian()) {
+			/*if (cms::is_big_endian()) {
 				cms::reverseFourBytes(dataPoint);
-			}
+			}*/
 			float dataPointf = 0.0;
 			memcpy(&dataPointf, dataPoint, 4);
 			arbitrary_data_temp[itemCount++] = dataPointf;
@@ -512,15 +498,14 @@ void updateExportArbitraryData() {
 		size_t itemCount = 0;
 		uint8_t dataPoint[4];
 		while (fread(&dataPoint, 1, 4, dataFile)) {
-			if (cms::is_big_endian()) {
+	/*		if (cms::is_big_endian()) {
 				cms::reverseFourBytes(dataPoint);
-			}
+			}*/
 			float dataPointf = 0.0;
 			memcpy(&dataPointf, dataPoint, 4);
 			arbitrary_data_temp[itemCount++] = dataPointf;
 		}
 		fclose(dataFile);
-		global_evaluator->setArbitraryData(arbitrary_data_temp, itemCount);
 
 
 	}
@@ -612,7 +597,6 @@ enum class ExportProcessState {
 
 };
 
-cms::Mesh* mesh = nullptr;
 std::map<int, int> histogram;
 int minimumOctreeLevel = 5;
 int maximumOctreeLevel = 7;
@@ -634,159 +618,6 @@ ExportProcessState exportProcessState = ExportProcessState::IDLE;
 
 std::pair<int, std::string> buildStatus;
 
-void MyFrame::OnExportInner() {
-
-	if (this->sbmp->initialized()) {
-
-		//log(debugConsole, "Exporting...\n", Mode::W);
-		DebugPrint("Exporting.\n");
-		DebugPrint("Autodetect build volume.\n");
-
-		
-
-		 buildStatus = global_evaluator->build(
-			this->sbmp->shape_id_bank_buffer,
-			this->sbmp->object_position_bank_buffer,
-			this->sbmp->object_right_bank_buffer,
-			this->sbmp->object_up_bank_buffer,
-			this->sbmp->object_forward_bank_buffer,
-			this->sbmp->num_objects_buffer,
-			this->sbmp->build_procedure_data_buffer,
-			this->sbmp->num_build_steps_buffer
-		);
-
-		if (buildStatus.first == -1) {
-			log(debugConsole,"Error building export kernel:\n"+buildStatus.second,Mode::W);
-			return;
-		}
-
-		updateExportArbitraryData();
-
-		exportProcessState = ExportProcessState::ESTIMATING_BOUNDING_BOX;
-		
-#define BOUNDING_BOX_DIAMETER boundingBoxHalfDiameter
-#define BOUNDING_BOX_RESOLUTION 256
-#define BB_EPSILON ((float)BOUNDING_BOX_DIAMETER/BOUNDING_BOX_RESOLUTION*1.0)
-#define ISOLEVEL 0.000
-#define MCUBES_EPS 0.000010
-		const float cube_diameter = (float)BOUNDING_BOX_DIAMETER / BOUNDING_BOX_RESOLUTION;
-		std::vector<v3f_t> grid;
-		for (int ix = -BOUNDING_BOX_RESOLUTION / 2; ix < BOUNDING_BOX_RESOLUTION / 2; ix++)
-			for (int iy = -BOUNDING_BOX_RESOLUTION / 2; iy < BOUNDING_BOX_RESOLUTION / 2; iy++)
-				for (int iz = -BOUNDING_BOX_RESOLUTION / 2; iz < BOUNDING_BOX_RESOLUTION / 2; iz++)
-				{
-					grid.push_back(v3f_add(v3f(-cube_diameter / 2), v3f_scale(v3f(ix, iy, iz), cube_diameter)));
-				}
-		std::vector<float> sdfvals = global_evaluator->eval_sdf_at_points(grid);
-		std::vector<std::pair<v3f_t, float>> data;
-		data.reserve(sdfvals.size());
-		std::transform(grid.begin(), grid.end(), sdfvals.begin(), std::back_inserter(data),
-			[](v3f_t a, float b) { return std::make_pair(a, b); });
-		std::vector<std::pair<v3f_t, float>> interiorPoints;
-		std::copy_if(data.begin(), data.end(), std::back_inserter(interiorPoints), [](std::pair<v3f_t, float> p) {return p.second < BB_EPSILON; });
-		float minX = 0.0;
-		float maxX = 0.0;
-		float minY = 0.0;
-		float maxY = 0.0;
-		float minZ = 0.0;
-		float maxZ = 0.0;
-		for (int i = 0; i < interiorPoints.size(); i++) {
-			v3f_t pt = interiorPoints.at(i).first;
-			if (pt.x < minX) minX = pt.x;
-			if (pt.x > maxX)maxX = pt.x;
-			if (pt.y < minY) minY = pt.y;
-			if (pt.y > maxY)maxY = pt.y;
-			if (pt.z < minZ) minZ = pt.z;
-			if (pt.z > maxZ) maxZ = pt.z;
-		}
-		v3f_t center = v3f((minX + maxX) * 0.5, (minY + maxY) * 0.5, (minZ + maxZ) * 0.5);
-		v3f_t diameters = v3f(maxX - minX, maxY - minY, maxZ - minZ);
-		box_t bx = box(center, diameters);
-		float mbx = T_max(bx.diameters.x, T_max(bx.diameters.y, bx.diameters.z));
-		bx.diameters = v3f(mbx);
-		print_box(bx);
-		sdfvals.resize(0);
-		sdfvals.shrink_to_fit();
-		grid.resize(0);
-		grid.shrink_to_fit();
-		DebugPrint("Setting up CMS export.\n");
-
-		exportProcessState = ExportProcessState::PERFORMING_CMS;
-
-		std::map<int, std::vector<cms::IndexTriangle>> trsMap = cms::getIndexTrianglesFromTable(".\\lookupTable.txt");
-		cms::Box3f boundingBox(cms::Vector3f(bx.center.x, bx.center.y, bx.center.z), cms::Vector3f(bx.diameters.x / 2.0f, bx.diameters.y / 2.0f, bx.diameters.z / 2.0f));
-		std::function<std::vector<float>(std::vector<v3f_t>&)> evr;
-		std::function<std::vector<v3f_t>(std::vector<v3f_t>&)> evrN;
-		evr = (std::function<std::vector<float>(std::vector<v3f_t>&)>)(
-			[](std::vector<v3f_t>& pts) {
-				return global_evaluator->eval_sdf_at_points(pts);
-			}
-		);
-		evrN = (std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>)(
-			[](std::vector<v3f_t>& pts) {
-				return global_evaluator->eval_normal_at_points(pts);
-			}
-		);
-		int res = 1 << gridLevel;
-		ISV::ISV3D64<float, std::function<std::vector<float>(std::vector<v3f_t>&)>> sampler(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, bx, evr, queriesBeforeFree, queriesBeforeGC);
-		ISV::ISV3D64<v3f_t, std::function<std::vector<v3f_t>(std::vector<v3f_t>&)>> samplerN(res, res, res, res / cacheSubdivision, res / cacheSubdivision, res / cacheSubdivision, bx, evrN, queriesBeforeFree, queriesBeforeGC);
-		mesh = new cms::Mesh(boundingBox, sampler, 
-		samplerN, trsMap, minimumOctreeLevel, maximumOctreeLevel, gridLevel, complexSurfaceThreshold, histogram);
-		wxTextCtrl* dC = debugConsole;
-		auto logAppend = [&dC](std::string message) {
-			log(dC, message, Mode::A);
-		};
-		logRoutine("Extracting Surface...\n");
-		std::vector<cms::Triangle3f> trs = mesh->getSurface();
-		delete mesh;
-
-		exportProcessState = ExportProcessState::RETOPOLOGIZING;
-
-
-		logRoutine("Retopologizing...\n");
-		int osize = trs.size();
-		trs = cms::retopologize(trs, boundingBox, minimumOctreeLevel, gridLevel);
-		DebugPrint("Retopology: Added %d triangles.\n", trs.size() - osize);
-
-		exportProcessState = ExportProcessState::PERFORMING_GRADIENT_DESCENT;
-
-		cms::performGradientDescent(gradientDescentSteps, trs,
-			global_evaluator
-			,
-			&gradientDescentStepsCompleted
-		);
-		maxTriangles = trs.size();
-		writingTriangles = 1;
-
-
-		exportProcessState = ExportProcessState::WRITING_TRIANGLES_TO_STL;
-
-
-
-		cms::writeTrianglesToSTL((std::string("Exports\\")+Utils::replaceExtension(Utils::getBaseName(designPath),".py",".stl")).c_str(), trs, &numTrianglesWritten);
-		cms::writeTrianglesToPLY((std::string("Exports\\") + Utils::replaceExtension(Utils::getBaseName(designPath), ".py", ".ply")).c_str(), trs, &numTrianglesWritten);
-
-		writingTriangles = 0;
-
-		char buff1[4096];
-		snprintf(buff1,4096, "Python310\\python.exe convert.py \"Exports\\\%s\" && start Exports\\", "Untitled.stl");
-
-		system(buff1);
-
-
-		system("start Exports");
-
-		exportProcessState = ExportProcessState::COMPLETE;
-
-		edone = 1;
-	
-	}
-	else {
-		log(debugConsole, "Cannot Export Yet.", Mode::W);
-		edone = 1;
-	}
-
-}
 
 //credit dgoguerra https://gist.github.com/dgoguerra/7194777
 static const char* humanSize(uint64_t bytes)
@@ -807,230 +638,6 @@ static const char* humanSize(uint64_t bytes)
 }
 
 std::string logText;
-
-void MyFrame::OnExport(wxCommandEvent& event) {
-
-	return;
-
-	if (!hasModel) { log(debugConsole, "Cannot Export Yet.", Mode::W); return; }
-	FILE* exportConfigFile = fopen("exportConfig.txt", "rb");
-	std::string exportConfigFileContents;
-	char c;
-	while (fread(&c, 1, 1, exportConfigFile)) {
-		exportConfigFileContents += c;
-	}
-	fclose(exportConfigFile);
-	std::vector<std::string> configLines = cms::tokenize(exportConfigFileContents, '\n');
-	for (std::string configLine : configLines) {
-		std::string cl = std::string(configLine);
-		DebugPrint("%s\n", cl.c_str());
-	}
-	boundingBoxHalfDiameter = std::stof(configLines[0]);
-	minimumOctreeLevel = std::stoi(configLines[1]);
-	maximumOctreeLevel = std::stoi(configLines[2]);
-	gridLevel = std::stoi(configLines[3]);
-	complexSurfaceThreshold = std::stof(configLines[4]);
-	gradientDescentSteps = std::stoi(configLines[5]);
-	cacheSubdivision = std::stoi(configLines[6]);
-	queriesBeforeGC = std::stoi(configLines[7]);
-	queriesBeforeFree = std::stoi(configLines[8]);
-
-		
-
-	auto task = [](MyFrame* frm) {
-		logRoutine("Logging test...\n");
-		frm->OnExportInner();
-	};
-	if (edone) {
-
-
-		exportProcessState = ExportProcessState::IDLE;
-
-		edone = 0;
-		std::thread t(task, this);
-		t.detach();
-		wxMilliSleep(50);
-		unsigned long long start = std::chrono::duration_cast<std::chrono::seconds>(
-			std::chrono::system_clock::now().time_since_epoch()).count();
-		auto task2 = [/*&start*/](wxTextCtrl* debugConsole, unsigned long long start) {
-			while (!edone) {
-
-				if (buildStatus.first == -1) {
-				
-					edone = 1;
-					return;
-				}
-
-				auto timeAndMemoryString = [&start]() {
-					MEMORYSTATUSEX statex;
-					statex.dwLength = sizeof(statex);
-					GlobalMemoryStatusEx(&statex);
-					unsigned long total = statex.ullTotalVirtual;
-					unsigned long avail = statex.ullAvailVirtual;
-					unsigned long used = total - avail;
-					unsigned long long end = std::chrono::duration_cast<std::chrono::seconds>(
-						std::chrono::system_clock::now().time_since_epoch()).count();
-					unsigned long long delta = end - start;
-					long hours = delta / 3600;
-					long minutes = (delta % 3600) / 60;
-					long seconds = (delta % 60);
-					std::string timeString = "";
-					static char buff1[4096];
-					if (hours) {
-						snprintf(buff1,4096, "%u hours", hours);
-						timeString += std::string(buff1);
-					}
-					if (minutes || (hours && seconds)) {
-						snprintf(buff1,4096, " %u minutes", minutes);
-						timeString += std::string(buff1);
-					}
-					if (seconds || minutes || (minutes && hours) || (!seconds && !minutes && !hours)) {
-						snprintf(buff1,4096, " %u seconds", seconds);
-						timeString += std::string(buff1);
-					}
-					std::string message = "Memory Usage: " + std::string(humanSize(used)) + "\nTime Elapsed: " + timeString + "\n";
-
-					return message;
-
-				};
-
-				auto histogramString = []() {
-
-					static char buff1[4096];
-					std::string message="";
-					static std::string hS;
-					//std::string hS;
-					if (mesh != nullptr) {
-						snprintf(buff1,4096, "Total Remaining Items: %d\n", mesh->getRemainingItems());
-						message += std::string(buff1);
-
-						message += "Triangle counts:\t";
-
-						if (!mesh->complete) {
-
-							std::lock_guard<std::mutex> lock(mesh->meshMutex);
-							hS = "";
-							for (auto p : mesh->histogram) {
-								snprintf(buff1,4096, "lvl%d->%d\t", p.first, p.second);
-								hS += std::string(buff1);
-							}
-						}
-						message += hS;
-						message += '\n';
-						
-					}
-
-					return message;
-
-				};
-
-				logText = "";
-
-				logText += "Exporting...\n";
-
-				logText += timeAndMemoryString();
-
-				static char buff1[4096];
-
-				switch (exportProcessState) {
-				
-				case ExportProcessState::IDLE: break;
-
-				case ExportProcessState::ESTIMATING_BOUNDING_BOX: 
-					
-					logText += "Estimating bounding box...\n";
-				
-	
-				break;
-
-				case ExportProcessState::PERFORMING_CMS: 
-
-					logText += "Estimating bounding box... Done.\n";
-					logText += "Performing cms algorithm...\n";
-					logText += histogramString();
-
-				break;
-
-				case ExportProcessState::RETOPOLOGIZING: 
-					
-					logText += "Estimating bounding box... Done.\n";
-					logText += "Performing cms algorithm...\n";
-					logText += histogramString();
-					logText += "Done.\n";
-					logText += "Retopologizing...\n";
-
-				break;
-
-				case ExportProcessState::PERFORMING_GRADIENT_DESCENT:
-				
-					logText += "Estimating bounding box... Done.\n";
-					logText += "Performing cms algorithm...\n";
-					logText += histogramString();
-					logText += "Done.\n";
-					logText += "Retopologizing... Done.\n";
-					snprintf(buff1,4096, "Performing gradient descent... step %d of %d", gradientDescentStepsCompleted, gradientDescentSteps);
-					logText += std::string(buff1);
-
-				break;
-
-
-				case ExportProcessState::WRITING_TRIANGLES_TO_STL:
-
-					logText += "Estimating bounding box... Done.\n";
-					logText += "Performing cms algorithm...\n";
-					logText += histogramString();
-					logText += "Done.\n";
-					logText += "Retopologizing... Done.\n";
-					snprintf(buff1,4096, "Performing gradient descent... Done.\n");
-					logText += std::string(buff1);
-					snprintf(buff1,4096,"Writing triangles to STL... %d of %d\n", numTrianglesWritten,maxTriangles);
-					logText += std::string(buff1);
-			
-
-				break;
-
-
-				case ExportProcessState::WRITING_TRIANGLES_TO_PLY:
-
-					logText += "Estimating bounding box... Done.\n";
-					logText += "Performing cms algorithm...\n";
-					logText += histogramString();
-					logText += "Done.\n";
-					logText += "Retopologizing... Done.\n";
-					snprintf(buff1, 4096, "Performing gradient descent... Done.\n");
-					logText += std::string(buff1);
-					snprintf(buff1, 4096, "Writing triangles to STL... Done.\n");
-					logText += std::string(buff1);
-					snprintf(buff1, 4096, "Writing triangles to PLY... %d of %d\n", numTrianglesWritten, maxTriangles);
-					logText += std::string(buff1);
-
-
-				break;
-
-				case ExportProcessState::COMPLETE: break;
-
-					
-
-				}
-
-				log(debugConsole,logText,Mode::W);
-
-				wxMilliSleep(100);
-			}
-
-			log(debugConsole, "Done exporting.", Mode::A);
-			
-
-		};
-		std::thread t2(task2, debugConsole, start);
-		t2.detach();
-	}
-	else {
-		log(debugConsole, "Export Already In Progress", Mode::W);
-	}
-
-}
-
 
 
 

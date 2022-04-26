@@ -5,7 +5,7 @@
 #include <CL/cl.h>
 
 #include "CVector.h"
-#include "Evaluator.h"
+
 
 #define BYTE uint8_t
 #define PI 3.1415926
@@ -30,7 +30,7 @@ class BasicDrawPane : public wxPanel
 
 public:
 	int initialized();
-	BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console, Evaluator** global_evaluator);
+	BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console);
 	void mouseMoved(wxMouseEvent& event);
 	void mouseDown(wxMouseEvent& event);
 	void mouseWheelMoved(wxMouseEvent& event);
@@ -101,7 +101,6 @@ public:
 
 	wxTextCtrl* console;
 	int pvalid = 0;
-	Evaluator** global_evaluator_p;
 
 	DECLARE_EVENT_TABLE()
 

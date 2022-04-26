@@ -8,7 +8,6 @@
 
 #include "Utils.h"
 #include "CVector.h"
-#include "Evaluator.h"
 
 #define CLIP8(x) ((x>255) ? 255 : ((x < 0 )? 0: x))
 
@@ -113,9 +112,6 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
-
-
-		*global_evaluator_p = new Evaluator(device, context, queue, console);
 
 		is_init = 1;
 	}
@@ -309,18 +305,8 @@ LoadSceneResult BasicDrawPane::loadScene()
 	err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &camposin_buffer);
 	err |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &rightin_buffer);
 	err |= clSetKernelArg(kernel, 3, sizeof(cl_mem), &upin_buffer);
-	err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &forwardin_buffer);
-	err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &shape_id_bank_buffer);
-	err |= clSetKernelArg(kernel, 6, sizeof(cl_mem), &material_id_bank_buffer);
-	err |= clSetKernelArg(kernel, 7, sizeof(cl_mem), &object_position_bank_buffer);
-	err |= clSetKernelArg(kernel, 8, sizeof(cl_mem), &object_right_bank_buffer);
-	err |= clSetKernelArg(kernel, 9, sizeof(cl_mem), &object_up_bank_buffer);
-	err |= clSetKernelArg(kernel, 10, sizeof(cl_mem), &object_forward_bank_buffer);
-	err |= clSetKernelArg(kernel, 11, sizeof(cl_mem), &num_objects_buffer);
-	err |= clSetKernelArg(kernel, 12, sizeof(cl_mem), &screen_stack_memory_buffer);
-	err |= clSetKernelArg(kernel, 13, sizeof(cl_mem), &build_procedure_data_buffer);
-	err |= clSetKernelArg(kernel, 14, sizeof(cl_mem), &num_build_steps_buffer);
-	err |= clSetKernelArg(kernel, 15, sizeof(cl_mem), &arbitrary_data_buffer);
+	err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &forwardin_buffer);;
+	err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &arbitrary_data_buffer);
 
 	if (err == CL_SUCCESS)
 		pvalid = 1;
@@ -484,12 +470,11 @@ int BasicDrawPane::initialized()
 	return is_init;
 }
 
-BasicDrawPane::BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console, Evaluator** _global_evaluator) :
+BasicDrawPane::BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console) :
 	wxPanel(parent, wxID_ANY, wxDefaultPosition, s), console(_console)
 {
 	this->SetBackgroundColour(wxColor(*wxWHITE));
 	is_init = 0;
-	global_evaluator_p = _global_evaluator;
 }
 
 

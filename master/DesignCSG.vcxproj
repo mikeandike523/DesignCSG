@@ -147,23 +147,12 @@
     <ClCompile Include="CVector.cpp" />
     <ClCompile Include="DesignCSG.cpp" />
     <ClCompile Include="DrawPane.cpp" />
-    <ClCompile Include="Evaluator.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cms\main\Headers\cms.hpp" />
     <ClInclude Include="cms\main\Headers\geometry.hpp" />
-    <ClInclude Include="cms\main\Headers\mesh.hpp" />
-    <ClInclude Include="cms\main\Headers\octree.hpp" />
-    <ClInclude Include="cms\main\Headers\readLookupTable.hpp" />
-    <ClInclude Include="cms\main\Headers\utils.hpp" />
     <ClInclude Include="CVector.h" />
     <ClInclude Include="DrawPane.h" />
-    <ClInclude Include="Evaluator.h" />
-    <ClInclude Include="GetThreadCount.h" />
-    <ClInclude Include="happly.h" />
-    <ClInclude Include="ISV.hpp" />
-    <ClInclude Include="tlhelp32.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>

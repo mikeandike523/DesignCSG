@@ -27,9 +27,6 @@
     <ClCompile Include="CVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Evaluator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DrawPane.h">
@@ -38,40 +35,10 @@
     <ClInclude Include="CVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Evaluator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ISV.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cms\main\Headers\cms.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cms\main\Headers\geometry.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cms\main\Headers\mesh.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cms\main\Headers\octree.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cms\main\Headers\readLookupTable.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cms\main\Headers\utils.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GetThreadCount.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tlhelp32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="happly.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
