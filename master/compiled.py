@@ -14,14 +14,19 @@ class Triangle3:
 		self.A=A
 		self.B=B
 		self.C=C
-		self.N=np.cross(C-A,B-A)
+		self.N=normalize(np.cross(C-A,B-A))
 
 triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
 #construct some triangles here
-addTriangle(Triangle3(vec3(1,0,0),vec3(0,1,0),vec3(0,0,1)))
+A=vec3(-1,0,1)
+B=vec3(1,0,1)
+C=vec3(1,0,-1)
+D=vec3(-1,0,-1)
+addTriangle(Triangle3(A,B,C))
+addTriangle(Triangle3(C,D,A))
 
 
 

@@ -46,7 +46,7 @@ of3_t of3(float3 hitPoint,int hit){
 }
 
 of3_t miss(){
-    return of3((float3)(0.0,0.0,0.0),0);
+    return of3((float3)(0.0,0.0,0.0),-1);
 }
 
 float3 getTriangleA(int it){
@@ -78,17 +78,62 @@ float3 getTriangleN(int it){
     );
 }
 
+
+float3 adjust(float3 v){
+    return v.x*rgt_g+v.y*upp_g+v.z*fwd_g;
+}
+
+float3 getAdjustedTriangleA(int it){
+    return adjust((float3)(
+    getAD(AD_TRIANGLE_DATA,it*12+0*3+0),
+    getAD(AD_TRIANGLE_DATA,it*12+0*3+1),
+    getAD(AD_TRIANGLE_DATA,it*12+0*3+2)
+    ));
+}
+float3 getAdjustedTriangleB(int it){
+    return adjust((float3)(
+    getAD(AD_TRIANGLE_DATA,it*12+1*3+0),
+    getAD(AD_TRIANGLE_DATA,it*12+1*3+1),
+    getAD(AD_TRIANGLE_DATA,it*12+1*3+2)
+    ));
+}
+float3 getAdjustedTriangleC(int it){
+    return adjust((float3)(
+    getAD(AD_TRIANGLE_DATA,it*12+2*3+0),
+    getAD(AD_TRIANGLE_DATA,it*12+2*3+1),
+    getAD(AD_TRIANGLE_DATA,it*12+2*3+2)
+    ));
+}
+float3 getAdjustedTriangleN(int it){
+    return adjust((float3)(
+    getAD(AD_TRIANGLE_DATA,it*12+3*3+0),
+    getAD(AD_TRIANGLE_DATA,it*12+3*3+1),
+    getAD(AD_TRIANGLE_DATA,it*12+3*3+2)
+    ));
+}
+
+
 int getNumTriangles(){
     return (int)getAD(AD_NUM_TRIANGLES,0);    
+}
+
+float scalarProject(float3 subject, float3 base){
+
+    float3 n = base/length(base);
+    return dot(subject,n);
 }
 
 of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N ){
 
 
-    o=o-A;
+    float3 offset=o-A;
     float3 AB = B-A;
     float3 BC = C-B;
     float3 CA = A-C;
+    float L1 = length(AB);
+    float L2 = length(BC);
+    float L3 = length(CA);
+
     //(o+t*r).N = 0
     //o.N+t*r.N = 0
     //t=-o.N/r.N
@@ -96,13 +141,26 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     if(fabs(rDotN)<EPSILON_DENOMINATOR_MISS){
         return miss();
     }
-    float t = dot(o,N)/dot(r,N);
+    float t = dot(offset,N)/dot(r,N);
     if(t<-EPSILON_INTERSECTION_TOLERANCE){
         return miss();
     }
 
+    float3 intersectionPoint =o+t*r;
+    float3 P1 = intersectionPoint - A;
+    float3 P2 = intersectionPoint - B;
+    float3 P3 = intersectionPoint - C;
 
-    return of3(o+t*r,0);
+    float p1 = scalarProject(P1,AB);
+    float p2 = scalarProject(P2,BC);
+    float p3 = scalarProject(P3,CA);
+
+    if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
+        return miss();
+    }
+
+
+    return of3(A+intersectionPoint,0);
 }
 
 of3_t raycast(float3 o, float3 r){
@@ -116,17 +174,17 @@ of3_t raycast(float3 o, float3 r){
 
     
     for(int it=0;it<numTriangles;it++){
-        float3 A = getTriangleA(it);
-        float3 B = getTriangleB(it);
-        float3 C = getTriangleC(it);
-        float3 N = getTriangleN(it);
+        float3 A = getAdjustedTriangleA(it);
+        float3 B = getAdjustedTriangleB(it);
+        float3 C = getAdjustedTriangleC(it);
+        float3 N = getAdjustedTriangleN(it);
         of3_t cast= raycastTriangle(o,r,A,B,C,N);
         if(cast.hit!=-1){
-            float d = length(cast.hitPoint-o);
+            float d = length(cast.hitPoint-o); //global hitpoint
             if(itHit==-1||d<dist){
                 d=dist;
                 itHit = it;
-                hitPoint=cast.hitPoint;
+                hitPoint=cast.hitPoint; //global hitpoint
             }
         }
     }
@@ -182,10 +240,7 @@ __kernel void  k1(
     float3 color = (float3)(1.0,1.0,1.0);
 
     of3_t intersection = raycast(
-      //  Vector3f(dot(r,rgt),dot(r,upp),dot(r,fwd)),
-        //Vector3f(dot(o,rgt),dot(o,upp),dot(o,fwd))    
-
-        o,r 
+        r,o   
     );
 
     if(intersection.hit!=-1){
