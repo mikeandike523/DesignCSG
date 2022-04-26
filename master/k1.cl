@@ -155,9 +155,9 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float p2 = scalarProject(P2,BC);
     float p3 = scalarProject(P3,CA);
 
-   // if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
-       // return miss();
-  //  }
+    if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
+        return miss();
+    }
 
 
     return of3(A+intersectionPoint,0);
