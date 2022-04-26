@@ -31,6 +31,8 @@
 
 float sdf_bank(double3 v, unsigned char shape_id);
 double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id);
+double sceneSDF(double3 v);
+double3 sceneMaterial(double3 gv, double3 lv, double3 n);
 
 __global double3 rgt_g;
 __global double3 upp_g;
@@ -150,125 +152,10 @@ float primary_sdf(
 ){
 
 
-    /*                    
-    float min_s = MAX_DISTANCE;
-
-    for(int i=0;i< num_objects;i++){
-
-        unsigned char shape_id = shape_id_bank[i];
-
-        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-
-        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
-
-        float s  = sdf_bank(ABC,shape_id);
+  
 
 
-        if(s<min_s){
-            min_s = s;
-        }
-
-    }
-
-
-
-
-    return min_s;
-    */
-
-    __private float screen_stack_memory[STACK_MEMORY_PER_PIXEL];
-    
-    float export_value = MAX_DISTANCE;
-    //int stack_offset = tid * STACK_MEMORY_PER_PIXEL;
-    int stack_offset = 0;
-    for(int command_number = 0; command_number < num_build_steps; command_number++){
-
-        int command_opcode = build_procedure_data[command_number*4+0];
-        int command_left_argument = build_procedure_data[command_number*4+1];
-        int command_right_argument = build_procedure_data[command_number*4+2];
-        int command_destination = build_procedure_data[command_number*4+3];
-        int i = command_right_argument;
-
-        switch(command_opcode){
-
-            case IMPORT:
-                    {
-                        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-                        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-                        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-                        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-                        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
-                        screen_stack_memory[stack_offset+command_destination]=sdf_bank(ABC,command_left_argument);
-                    }
-            break;
-
-            case EXPORT:
-                export_value = screen_stack_memory[stack_offset+command_left_argument];
-            break;
-
-            case MIN:
-                screen_stack_memory[stack_offset+command_destination] = T_min(screen_stack_memory[stack_offset+command_left_argument],screen_stack_memory[stack_offset+command_right_argument]);
-            break;
-
-            case MAX:
-                screen_stack_memory[stack_offset+command_destination] = T_max(screen_stack_memory[stack_offset+command_left_argument],screen_stack_memory[stack_offset+command_right_argument]);
-            break;
-
-            case NEGATE:
-                screen_stack_memory[stack_offset+command_destination] = -screen_stack_memory[stack_offset+command_left_argument];
-            break;
-
-            case IDENTITY:
-                screen_stack_memory[stack_offset+command_destination] = screen_stack_memory[stack_offset+command_left_argument];
-            break;
-
-        }
-
-    }
-
-
-        //scale for axes markers, todo: change 5.0 to INITIAL_SCALE and assure match with scenecompiler.py
-        v = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
-
-
-        //x axis
-        {
-            
-            float r = sqrt(v.y*v.y+v.z*v.z);
-            float h = v.x-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
-        
-        
-        }
-
-         //y axis
-        {
-            
-            float r = sqrt(v.x*v.x+v.z*v.z);
-            float h = v.y-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
-        
-        
-        }
-
-
-          //z axis
-        {
-            
-            float r = sqrt(v.x*v.x+v.y*v.y);
-            float h = v.z-0.5;
-            export_value=T_min(export_value,axes_cylinderSDF(r, h, 0.5, AXES_RADIUS));
-        
-        
-        }
-
-
-
-
-    return export_value;
+    return sceneSDF(v);
     
 
 }
@@ -293,84 +180,58 @@ double3 shade(
 
 ){
 
-  //  v=(double3)(v.x/INITIAL_SCALE,v.y/INITIAL_SCALE,v.z/INITIAL_SCALE);
 
-    float min_s = MAX_DISTANCE;
-    int material_match =  -1;
-    double3 ABC_out = (double3)(0.0,0.0,0.0);
+    
 
-    for(int i=0;i< num_objects;i++){
-
-        unsigned char shape_id = shape_id_bank[i];
-
-        double3 o = (double3)(object_position_bank[i*3+0],object_position_bank[i*3+1],object_position_bank[i*3+2]);
-        double3 shape_right = (double3)(object_right_bank[i*3+0],object_right_bank[i*3+1],object_right_bank[i*3+2]);
-        double3 shape_up = (double3)(object_up_bank[i*3+0],object_up_bank[i*3+1],object_up_bank[i*3+2]);
-        double3 shape_forward = (double3)(object_forward_bank[i*3+0],object_forward_bank[i*3+1],object_forward_bank[i*3+2]);
-
-        double3 ABC = (double3)(dot(v-o,shape_right),dot(v-o,shape_up),dot(v-o,shape_forward));
-
-        float s  = sdf_bank(ABC,shape_id);
-
-        if(s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
-            material_match = i;
-            ABC_out = ABC;
+    double3 v2 = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
+    
+        //x axis
+    {
+            
+        float r = sqrt(v2.y*v2.y+v2.z*v2.z);
+        float h = v2.x-0.5;
+        float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
+        if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
+            
+            return (double3)(1.0, 0.0, 0.0);
         }
-
+        
     }
 
-    if(material_match!=-1)
-        return shader_bank(v,ABC_out,n, material_id_bank[material_match]);
-    else{
-
-
-        v = (double3)(v.x/5.0,v.y/5.0,v.z/5.0);
-    
-           //x axis
-        {
+        //y axis
+    {
             
-            float r = sqrt(v.y*v.y+v.z*v.z);
-            float h = v.x-0.5;
-            float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
-            if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
+        float r = sqrt(v2.x*v2.x+v2.z*v2.z);
+        float h = v2.y-0.5;
+        float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
+        if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
             
-                return (double3)(1.0, 0.0, 0.0);
-            }
-        
+            return (double3)(0.0, 1.0, 0.0);
         }
-
-         //y axis
-        {
-            
-            float r = sqrt(v.x*v.x+v.z*v.z);
-            float h = v.y-0.5;
-            float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
-            if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
-            
-                return (double3)(0.0, 1.0, 0.0);
-            }
         
+    }
+
+
+        //z axis
+    {
+            
+        float r = sqrt(v2.x*v2.x+v2.y*v2.y);
+        float h = v2.z-0.5;
+	float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
+            
+        if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
+            
+            return (double3)(0.0, 0.0, 1.0);
         }
-
-
-          //z axis
-        {
-            
-            float r = sqrt(v.x*v.x+v.y*v.y);
-            float h = v.z-0.5;
-		float axes_s=axes_cylinderSDF(r, h, 0.5, 0.025);
-            
-            if(axes_s<SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL){
-            
-                return (double3)(0.0, 0.0, 1.0);
-            }
         
         
-        }
-    
     }
     
-    return (double3)(239.0/255.0, 66.0/255.0, 245/255.0);
+
+    double3 lv = v;
+    double3 gv = v.x*rgt_g + v.y*upp_g+v.z*fwd_g;
+
+    return sceneMaterial(gv,lv,n);
 
 }
 
@@ -395,13 +256,6 @@ double3 get_normal(double3 v,
     double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
     double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
     double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
-
-
-   // double3 dx = _dx.x*rgt_g+_dx.y*upp_g+_dx.z*fwd_g;
-  //  double3 dy = _dy.x*rgt_g+_dy.y*upp_g+_dy.z*fwd_g;
-   // double3 dz = _dz.x*rgt_g+_dz.y*upp_g+_dz.z*fwd_g;
-
-
 
     float Dx = primary_sdf(v+dx, wargs, bsargs)-primary_sdf(v-dx, wargs, bsargs);
     float Dy = primary_sdf(v+dy, wargs, bsargs)-primary_sdf(v-dy, wargs, bsargs);
@@ -575,8 +429,7 @@ __kernel void  k1(
  
 }
         
-#define AD_RANDOM_VALUES 0
-
+        
 
         
 
@@ -639,142 +492,4 @@ double3 sceneMaterial(double3 gv, double3 lv, double3 n)
 
 
 
-        
-        float sd0( double3 v){
-
-            return MAX_DISTANCE;
-
-        }
-        
-
-        float sd1( double3 v){
-
-            return 0.0;
-
-        }
-        
-
-        float sd2( double3 v){
-
-            return length(v)-0.5;
-
-        }
-        
-
-        float sd3( double3 v){
-
-            
-
-    v=fabs(v);
-    float x = length((float2)(v.x,v.z));
-    float y = v.y;
-    return max(x-0.5,y-0.5);
-
-
-
-        }
-        
-
-        float sd4( double3 v){
-
-            
-    v=fabs(v);
-    return max(v.x-0.5,max(v.y-0.5,v.z-0.5));
-
-
-        }
-        
-
-        float sd5( double3 v){
-
-            
-	return T_max(sceneSDF(v),fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
-
-
-        }
-        
-
-        
-        double3 shader0 (double3 gv, double3 lv, double3 n){
-
-            return fabs(n);
-
-        }
-        
-
-        double3 shader1 (double3 gv, double3 lv, double3 n){
-
-            
-        
-        double3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
-
-        float L = dot(n_g,(double3)(0.0,0.0,-1.0)); return (double3)(L,L,L);
-
-
-
-        
-
-        }
-        
-
-        double3 shader2 (double3 gv, double3 lv, double3 n){
-
-            
-	return sceneMaterial(gv,lv,n);
-
-
-        }
-        
-
-
-        float sdf_bank(double3 v, unsigned char shape_id){
-
-            switch(shape_id){
-
-                
-case 0: return sd0(v); break;
-
-
-case 1: return sd1(v); break;
-
-
-case 2: return sd2(v); break;
-
-
-case 3: return sd3(v); break;
-
-
-case 4: return sd4(v); break;
-
-
-case 5: return sd5(v); break;
-
-
-            }
-
-            return 0.0;
-
-        }
-
-        double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id){
-
-
-            switch(material_id){
-
-                
-case 0: return shader0(gv,lv,n); break;
-
-
-case 1: return shader1(gv,lv,n); break;
-
-
-case 2: return shader2(gv,lv,n); break;
-
-
-            }
-
-            return (double3)(1.0, 1.0, 1.0);
-        }
-        
-        
         

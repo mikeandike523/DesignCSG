@@ -37,7 +37,6 @@ void setDesignPath(std::string dp) {
 
 std::string newFileTemplate = 
 "from DesignCSG import *\n"
-"from designlibrary import *\n"
 "\n"
 "\n"
 
@@ -400,11 +399,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 
 
-	wxStyledTextCtrl * designLibraryText = new wxStyledTextCtrl(tabs, wxNewId(), wxDefaultPosition, wxDefaultSize);
+	//wxStyledTextCtrl * designLibraryText = new wxStyledTextCtrl(tabs, wxNewId(), wxDefaultPosition, wxDefaultSize);
 
-	dlText = designLibraryText;
+	//dlText = designLibraryText;
 
-	setupStyledTextControl(designLibraryText, Utils::readFile("designlibrary.py"));
+	//setupStyledTextControl(designLibraryText, Utils::readFile("designlibrary.py"));
 
 	//wxStyledTextCtrl* designCSGText = new wxStyledTextCtrl(tabs, wxNewId(), wxDefaultPosition, wxDefaultSize);
 
@@ -417,7 +416,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	tabs->AddPage(text, wxString(std::filesystem::path(designPath).filename()), false, -1);
 
-	tabs->AddPage(designLibraryText, "designlibrary.py", false, -1);
+	//tabs->AddPage(designLibraryText, "designlibrary.py", false, -1);
 
 //	tabs->AddPage(designCSGText, "DesignCSG.py", false, -1);
 
@@ -464,7 +463,7 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 
 void saveRoutine(MyFrame * ths) {
 	Utils::writeFile(designPath.c_str(), std::string(ths->text->GetText()));
-	Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
+	//Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
 	//Utils::writeFile("DesignCSG.py", std::string(ths->dCSGText->GetText()));
 	Utils::writeFile("designPath.txt", designPath);
 }

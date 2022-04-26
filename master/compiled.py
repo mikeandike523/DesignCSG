@@ -1,8 +1,6 @@
 from DesignCSG import *
-from designlibrary import *
 
-
-define_auxillary_function("""
+scene="""
 
 #define MATERIAL_MATCH (SDF_EPSILON*TOLERANCE_FACTOR_MATERIAL)
 #define FABS(a) (a>=0.0?a:-a)
@@ -58,23 +56,6 @@ double3 sceneMaterial(double3 gv, double3 lv, double3 n)
 	return VFABS(n);
 }
 
-""")
+"""
 
-sceneBrush = define_brush(body="""
-	return T_max(sceneSDF(v),fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
-""")
-
-sceneMaterial= define_material(body="""
-	return sceneMaterial(gv,lv,n);
-""")
-
-
-np.random.seed(2022)
-randomValues = []
-for _ in range(256):
-	randomValues.append(np.random.uniform())
-addArbitraryData("RANDOM_VALUES",randomValues)
-
-
-drawComponent(scenecompiler.Component(brush=sceneBrush,material=sceneMaterial,transform=Transform.identity()))
-commit()
+commit(scene=scene)

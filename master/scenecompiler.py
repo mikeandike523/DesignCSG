@@ -475,98 +475,21 @@ class _SceneCompiler:
         #compile scene.cl
         scene_cl="""
         
-{}
-
         {}
 
         {}
 
         {}
 
-        {}
-
-
-        float sdf_bank(double3 v, unsigned char shape_id){{
-
-            switch(shape_id){{
-
-                {}
-
-            }}
-
-            return 0.0;
-
-        }}
-
-        double3 shader_bank(double3 gv, double3 lv, double3 n, unsigned char material_id){{
-
-
-            switch(material_id){{
-
-                {}
-
-            }}
-
-            return (double3)(1.0, 1.0, 1.0);
-        }}
-        
-        
         """.format(
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
-            "\n".join([str(b) for b in self.brushes]),
-            "\n".join([str(m) for m in self.materials]),
-            "\n".join([ "\ncase {}: return sd{}(v); break;\n".format(brush.bank_index,brush.bank_index) for brush in self.brushes]),
-            "\n".join([ "\ncase {}: return shader{}(gv,lv,n); break;\n".format(material.bank_index,material.bank_index) for material in self.materials])
-        )
+            )
         
         Utils.fwrite("scene.cl",scene_cl)
 
-        #unroll components
-        unrolled_components = []
-        unrolled_components.extend(self.root.get_unrolled_components())
-        for index, component in enumerate(unrolled_components):
-            component.unrolled_index = index
-            component.propogate_transforms()
-        
-        scene_txt = ""
-        for component in unrolled_components:
-            brush_index = component.brush.bank_index
-            material_index = component.material.bank_index
-            position = component.position()
-            _up=Transform.reciprocal_vector(component.up())
-            _right = Transform.reciprocal_vector(component.right())
-            _forward = Transform.reciprocal_vector(component.forward())
-            scene_txt+=("{:d} {:d} "+"{:.6f} "*3 + "{:.6f} "*8 + "{:.6f}\n").format(brush_index,material_index,*list(position),*list(_right),*list(_up),*list(_forward))
-            
-        Utils.fwrite("scene.txt",scene_txt)
-
-        #next step: restore build process
-
-        #step 1: allocate a variable for each object with children
-        for component in unrolled_components:
-            if len(component.children) > 0:
-                component.variable = self.allocator.allocate()
-
-        #capture the root allocation for export
-        export_variable = self.root.variable
-
-        #allocate a register to handle more complex operations
-        self.allocator.allocate(name="R0")
-
-        #generate commands recursively
-        commands = self.root.get_commands(self.allocator)
-
-        commands.append(Command("EXPORT",export_variable,Argument.null(),Argument.null()))
-
-        #print("\n".join([repr(cmd) for cmd in commands]))
-
-        Utils.fwrite("buildprocedure.txt", "\n".join([str(cmd) for cmd in commands]))
-
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
-
-    
 
         for chunk in self.ad:
             name = chunk.name
