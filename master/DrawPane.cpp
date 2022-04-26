@@ -312,8 +312,8 @@ LoadSceneResult BasicDrawPane::loadScene()
 		pvalid = 1;
 
 
-	//static int rotatedOnce = 0;
-	static int rotatedOnce = 1; //dont rotate
+	static int rotatedOnce = 0;
+	//static int rotatedOnce = 1; //dont rotate
 
 
 	if (!rotatedOnce) {
