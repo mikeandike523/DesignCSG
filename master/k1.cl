@@ -199,7 +199,7 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     }
 
 
-    of3_t of= of3(A+intersectionPoint,0);
+    of3_t of= of3(intersectionPoint,0);
     of.p1 = p1;
     of.p2 = p2;
     of.p3 = p3;
