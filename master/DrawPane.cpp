@@ -32,6 +32,9 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 	//That's what you get when copy-pasting old projects
 
 	if (!is_init) {
+
+		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt"));
+
 		err = 0;
 		FILE* test = fopen("k1build.cl", "r");
 		if (!test) {

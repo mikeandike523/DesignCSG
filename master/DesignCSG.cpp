@@ -467,7 +467,7 @@ void loadRoutine(MyFrame* ths) {
 
 void updateArbitraryData(MyFrame * ctx) {
 
-	static float arbitrary_data_temp[ARBITRARY_DATA_POINTS];
+	float * arbitrary_data_temp = (float *) calloc(ctx->sbmp->ARBITRARY_DATA_POINTS,sizeof(float));
 	if (std::filesystem::is_regular_file("arbitrary_data.hex")) {
 
 		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
@@ -486,29 +486,7 @@ void updateArbitraryData(MyFrame * ctx) {
 
 
 	}
-
-}
-
-void updateExportArbitraryData() {
-
-	static float arbitrary_data_temp[ARBITRARY_DATA_POINTS];
-	if (std::filesystem::is_regular_file("arbitrary_data.hex")) {
-
-		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
-		size_t itemCount = 0;
-		uint8_t dataPoint[4];
-		while (fread(&dataPoint, 1, 4, dataFile)) {
-	/*		if (cms::is_big_endian()) {
-				cms::reverseFourBytes(dataPoint);
-			}*/
-			float dataPointf = 0.0;
-			memcpy(&dataPointf, dataPoint, 4);
-			arbitrary_data_temp[itemCount++] = dataPointf;
-		}
-		fclose(dataFile);
-
-
-	}
+	free(arbitrary_data_temp);
 
 }
 

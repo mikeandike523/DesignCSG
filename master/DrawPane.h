@@ -15,7 +15,8 @@
 #define MAX_BUILD_STEPS 256
 #define IZOOM 2.5
 #define STACK_MEMORY_PER_PIXEL 64
-#define ARBITRARY_DATA_POINTS 131072
+
+
 
 enum class LoadSceneResult{
 
@@ -29,6 +30,7 @@ class BasicDrawPane : public wxPanel
 {
 
 public:
+	int ARBITRARY_DATA_POINTS = 65536 / 4;
 	int initialized();
 	BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console);
 	void mouseMoved(wxMouseEvent& event);
