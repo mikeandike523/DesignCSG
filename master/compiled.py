@@ -77,7 +77,4 @@ addArbitraryData("RANDOM_VALUES",randomValues)
 
 
 drawComponent(scenecompiler.Component(brush=sceneBrush,material=sceneMaterial,transform=Transform.identity()))
-
-
-
 commit()

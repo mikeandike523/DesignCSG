@@ -353,8 +353,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->Append(ID_Run, "&Run",
 		"Run your design");
 
-	menuFile->Append(ID_Export, "&Export",
-		"Export your design");
+	//menuFile->Append(ID_Export, "&Export",
+	//	"Export your design");
 
 	wxMenu* menuHelp = new wxMenu;
 	menuHelp->Append(wxID_ABOUT);
@@ -810,6 +810,8 @@ static const char* humanSize(uint64_t bytes)
 std::string logText;
 
 void MyFrame::OnExport(wxCommandEvent& event) {
+
+	return;
 
 	if (!hasModel) { log(debugConsole, "Cannot Export Yet.", Mode::W); return; }
 	FILE* exportConfigFile = fopen("exportConfig.txt", "rb");

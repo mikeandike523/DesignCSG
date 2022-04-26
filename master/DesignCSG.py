@@ -24,7 +24,15 @@ box_brush = compiler.define_brush(body="""
 define_brush = compiler.define_brush
 define_material = compiler.define_material
 addArbitraryData = compiler.addArbitraryData
-commit = compiler.commit
+def commit(component = None):
+    if component is not None:
+        compiler.root.brush=component.brush
+        compiler.root.material=component.material
+        compiler.root.transform=component.intrinsic_transform
+        compiler.commit()
+    else:
+        compiler.commit()
+    
 define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define
 Transform = scenecompiler.Transform
