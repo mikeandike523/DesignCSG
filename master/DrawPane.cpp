@@ -35,7 +35,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 	if (!is_init) {
 
-		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt"));
+		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt"))/4;
 
 		err = 0;
 		FILE* test = fopen("k1build.cl", "r");
@@ -76,7 +76,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
 
-		application_state_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
+		application_state_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, application_state, &err);
 
 
 		is_init = 1;
@@ -287,6 +287,7 @@ LoadSceneResult BasicDrawPane::loadScene()
 	err |= clSetKernelArg(kernel, 3, sizeof(cl_mem), &upin_buffer);
 	err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &forwardin_buffer);;
 	err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &arbitrary_data_buffer);
+	err |= clSetKernelArg(kernel, 6, sizeof(cl_mem), &application_state_buffer);
 
 	if (err == CL_SUCCESS)
 		pvalid = 1;

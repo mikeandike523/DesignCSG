@@ -31,7 +31,6 @@
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
-float3 vertex(float3 gv, float3 gn);
 float3 fragment(float3 gv, float3 gn);
 
 
@@ -196,6 +195,7 @@ of3_t raycast(float3 o, float3 r){
         float3 B = getAdjustedTriangleB(it);
         float3 C = getAdjustedTriangleC(it);
         float3 N = getAdjustedTriangleN(it);
+
         of3_t cast= raycastTriangle(o,r,A,B,C,N);
         if(cast.hit!=-1){
             float d = length(cast.hitPoint-o); //global hitpoint
@@ -269,8 +269,9 @@ __kernel void  k1(
     );
 
     if(intersection.hit!=-1){
-        float3 n = getTriangleN(0);
-        color = Vector3f(intersection.p1,intersection.p2,intersection.p3);
+        float3 n = getTriangleN(intersection.hit);
+        n=n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
+        color = fragment(intersection.hitPoint,n);
     }
   
     outpixels[tid*3+0] = RCOMP(color);

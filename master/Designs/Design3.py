@@ -53,7 +53,8 @@ for triangle in triangles:
 
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
-commit(scene=""" 
-	//in the future, fragment shaders will go here
-
+commit(shaders=""" 
+float3 fragment(float3 gb, float3 gn){
+	return fabs(gn);
+}
 """)

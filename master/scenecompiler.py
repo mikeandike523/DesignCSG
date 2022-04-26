@@ -7,8 +7,10 @@ import os
 from typing import List
 import struct
 
+INITIAL_SCALE = 1.0
+
 with open("deviceInfo.txt","r") as fl:
-    ARBITRARY_DATA_POINTS=int(fl.read())/4
+    ARBITRARY_DATA_POINTS=int(int(fl.read())/4)
 
 compiler =  None
 

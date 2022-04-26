@@ -37,11 +37,16 @@ float3 fastcross(float3 a, float3 b){
 
 
  
-	//in the future, fragment shaders will go here
+float3 fragment(float3 gb, float3 gn){
+	return fabs(gn);
+}
 
 
+        #define APPLICATION_STATE_TIME_MILLISECONDS 0
+#define nowMillis() (getAS(APPLICATION_STATE_TIME_MILLISECONDS,0))
 
-        #define EPSILON_DENOMINATOR_MISS 0.000001
+
+#define EPSILON_DENOMINATOR_MISS 0.000001
 #define EPSILON_INTERSECTION_TOLERANCE 0.001
 #define clip(c) (c>255?255:(c<0?0:c))
 #define RCOMP(c) (clip((int)(255.0*c.x)))
@@ -66,11 +71,15 @@ float3 fastcross(float3 a, float3 b){
 #define T_max(a,b) (a>b?a:b)
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
+#define getAS(name,offset) (arbitrary_data[name+offset])
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
+float3 fragment(float3 gv, float3 gn);
+
 
 __global float * arbitrary_data;
+__global float * application_state;
 __global float3 rgt_g;
 __global float3 upp_g;
 __global float3 fwd_g;
@@ -230,6 +239,7 @@ of3_t raycast(float3 o, float3 r){
         float3 B = getAdjustedTriangleB(it);
         float3 C = getAdjustedTriangleC(it);
         float3 N = getAdjustedTriangleN(it);
+
         of3_t cast= raycastTriangle(o,r,A,B,C,N);
         if(cast.hit!=-1){
             float d = length(cast.hitPoint-o); //global hitpoint
@@ -265,10 +275,12 @@ __kernel void  k1(
     __global float * right,
     __global float * up, 
     __global float * forward,
-    __global float * _arbitrary_data
+    __global float * _arbitrary_data,
+    __global float * _application_state
 ){
 
     arbitrary_data = _arbitrary_data;
+    application_state = _application_state;
 
 
     int ix = get_global_id(0);
@@ -301,8 +313,9 @@ __kernel void  k1(
     );
 
     if(intersection.hit!=-1){
-        float3 n = getTriangleN(0);
-        color = Vector3f(intersection.p1,intersection.p2,intersection.p3);
+        float3 n = getTriangleN(intersection.hit);
+        n=n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
+        color = fragment(intersection.hitPoint,n);
     }
   
     outpixels[tid*3+0] = RCOMP(color);
