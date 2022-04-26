@@ -1,4 +1,4 @@
-#define MAX_STEPS 512
+#define MAX_STEPS 4096
 #define MAX_DISTANCE 64.0
 #define SDF_EPSILON 0.005
 #define NORMAL_EPSILON 0.005

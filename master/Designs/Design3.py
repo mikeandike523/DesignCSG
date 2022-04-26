@@ -29,8 +29,8 @@ double grassblade(double3 v, double3 baseCenter, double3 normal){
 	double3 p = (double3)(h*normal.x,h*normal.y,h*normal.z);
 
 	double3 radialAxis = v-p;
-	float rho = length(radialAxis);
-	return T_max(rho-0.05,T_max(-h,h-0.4));
+	float rho2 = radialAxis.x*radialAxis.x+radialAxis.y*radialAxis.y+radialAxis.z*radialAxis.z;
+	return T_max(rho2-0.000625,T_max(-h,h-0.4));
 
 }
 
@@ -66,16 +66,29 @@ NORMAL_FUNCTION(groundNormal,ground_fn)
 double sceneSDF(double3 v){
 	float d = MAX_DISTANCE;
 
-	int G = 31;
+	int G = 17;
 	float D = 5.0/(G-1);
-	float xf = (float)((int)(v.x/D))*D;
-	float zf = (float)((int)(v.z/D))*D;
+	float trash = 0;
+	float xf0 = round(v.x/D)*D;
+	float zf0 = round(v.z/D)*D;
 
 	double h = getHeight(v);
 	float d1 = v.y - (-2.4+h);
 
-	double3 grassCenter = Vector3d(xf,-2.4+h,zf);
-	float d2 = grassblade(v,grassCenter,groundNormal(grassCenter));
+	float d2 = MAX_DISTANCE;
+	int S = 1;
+	for(int i=-S;i<=S;i++){
+			for(int j=-S;j<=S;j++){
+				float xf = xf0+D*i;
+				float zf = zf0 + D*j;
+				double3 grassCenter = Vector3d(xf,-2.4+getHeight(Vector3d(xf,0.0f,zf)),zf);
+				float dg = grassblade(v,grassCenter,groundNormal(grassCenter));
+				d2 = T_min(d2,dg);
+
+		}
+
+	}
+
 
 	d=T_min(d,d1);
 	d=T_min(d,d2);
