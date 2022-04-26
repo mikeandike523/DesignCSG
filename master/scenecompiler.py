@@ -507,7 +507,7 @@ class _SceneCompiler:
                 dataBuffer[start+i] = np.array(dataPoint,dtype="<f4")
 
         with open("data_buffer_size.txt","w") as fl:
-            fl.write(str(len(dataBuffer)))
+            fl.write(str(len(self.ad)))
 
         with open("arbitrary_data.hex","wb") as fl:
             for item in dataBuffer:
