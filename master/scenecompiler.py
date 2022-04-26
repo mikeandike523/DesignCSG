@@ -482,11 +482,11 @@ class _SceneCompiler:
 
         header_cl="""
         
-        {}
+{}
 
-        {}
+{}
 
-        {}
+{}
 
         """.format(
             ad_definitions,

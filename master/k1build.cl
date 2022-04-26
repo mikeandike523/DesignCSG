@@ -1,12 +1,12 @@
 
         
-        #define AD_NUM_TRIANGLES 0
+#define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
 
 
-        
 
-         
+
+ 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
 typedef struct tag_mat3_t{
@@ -42,6 +42,7 @@ float3 fastcross(float3 a, float3 b){
 
 
         #define EPSILON_DENOMINATOR_MISS 0.000001
+#define EPSILON_INTERSECTION_TOLERANCE 0.001
 #define clip(c) (c>255?255:(c<0?0:c))
 #define RCOMP(c) (clip((int)(255.0*c.x)))
 #define GCOMP(c) (clip((int)(255.0*c.y)))
@@ -65,6 +66,8 @@ float3 fastcross(float3 a, float3 b){
 #define T_max(a,b) (a>b?a:b)
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
+
+#define Vector3f(x,y,z) ((float3)(x,y,z))
 
 
 __global float * arbitrary_data;
@@ -123,7 +126,26 @@ int getNumTriangles(){
 }
 
 of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N ){
-    return miss();
+
+
+    o=o-A;
+    float3 AB = B-A;
+    float3 BC = C-B;
+    float3 CA = A-C;
+    //(o+t*r).N = 0
+    //o.N+t*r.N = 0
+    //t=-o.N/r.N
+    float rDotN = dot(r,N);
+    if(fabs(rDotN)<EPSILON_DENOMINATOR_MISS){
+        return miss();
+    }
+    float t = dot(o,N)/dot(r,N);
+    if(t<-EPSILON_INTERSECTION_TOLERANCE){
+        return miss();
+    }
+
+
+    return of3(o+t*r,0);
 }
 
 of3_t raycast(float3 o, float3 r){
@@ -203,17 +225,21 @@ __kernel void  k1(
     float3 color = (float3)(1.0,1.0,1.0);
 
     of3_t intersection = raycast(
-        o,r
+      //  Vector3f(dot(r,rgt),dot(r,upp),dot(r,fwd)),
+        //Vector3f(dot(o,rgt),dot(o,upp),dot(o,fwd))    
+
+        o,r 
     );
 
     if(intersection.hit!=-1){
-        float3 n = getTriangleN(intersection.hit);
+        float3 n = getTriangleN(0);
         color = fabs(n);
     }
 
-
-
-
+    if(getNumTriangles()==0)
+    color = (float3)(1.0,0.0,0.0);
+    else
+    color=(float3)(0.0,1.0,0.0);
   
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
