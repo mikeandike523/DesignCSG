@@ -31,7 +31,7 @@
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
-float3 fragment(float3 gv, float3 gn);
+float3 fragment(float3 gv, float3 gn, int it);
 
 
 __global float * arbitrary_data;
@@ -271,7 +271,7 @@ __kernel void  k1(
     if(intersection.hit!=-1){
         float3 n = getTriangleN(intersection.hit);
         n=n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
-        color = fragment(intersection.hitPoint,n);
+        color = fragment(intersection.hitPoint,n,intersection.hit);
     }
   
     outpixels[tid*3+0] = RCOMP(color);
