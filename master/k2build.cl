@@ -321,7 +321,7 @@ double sceneSDF(double3 v){
 		for(int j=-5;j<=5;j++){
 			float x0 = i/2.0;
 			float z0 = j/2.0;
-			h+=wave(x0,z0,v.x,v.z,0.1*rand((float2)(x0,z0)),0.0);
+			h+=wave(x0,z0,v.x,v.z,0.25*rand((float2)(x0,z0)),0.0);
 		}
 	}
 
