@@ -24,15 +24,22 @@ float fastBox(float3 v, float3 center, float3 halfDiameter){
 	return T_max(q.x,T_max(q.y,q.z));
 }
 
-float grassblade(float3 v, float3 baseCenter, float3 normal){
+float grassblade(float3 v, float3 baseCenter, float3 normal,float3 gradient){
+	float3 upV =normal;
+	float3  rightV = gradient;
+	float3 fwdV = -fastcross(normal,gradient);
+
+
+
 	v=v-baseCenter;
 
-	float h = dot(v,normal);
-	float3 p = (float3)(h*normal.x,h*normal.y,h*normal.z);
+	float t0 = dot(v,rightV);
+	float t1 = dot(v,upV);
+	float t2 = dot(v,fwdV);
 
-	float3 radialAxis = v-p;
-	float rho2 = radialAxis.x*radialAxis.x+radialAxis.y*radialAxis.y+radialAxis.z*radialAxis.z;
-	return T_max(rho2-0.000625,T_max(-h,h-0.4));
+	float L = 0.4;
+
+	return fastBox(Vector3f(t0,t1,t2),Vector3f(0.0,L/2.0,0.0),Vector3f(0.025,L/2.0,0.0025));
 
 }
 
@@ -65,6 +72,14 @@ float ground_fn(float3 v){
 
 NORMAL_FUNCTION(groundNormal,ground_fn)
 
+float3 groundGradient(float3 v,float epsilon){
+	float hx1 = ground_fn(Vector3f(v.x-epsilon,v.y,v.z));
+	float hx2 = ground_fn(Vector3f(v.x+epsilon,v.y,v.z));
+	float hz1 = ground_fn(Vector3f(v.x,v.y,v.z-epsilon));
+	float hz2 = ground_fn(Vector3f(v.x,v.y,v.z-epsilon));
+	return normalize(Vector3f((hx2-hx1)/(2.0*epsilon),0.0,(hz2-hz1)/(2.0*epsilon)));
+}
+
 float sceneSDF(float3 v){
 	float d = MAX_DISTANCE;
 
@@ -84,7 +99,7 @@ float sceneSDF(float3 v){
 				float xf = xf0+D*i;
 				float zf = zf0 + D*j;
 				float3 grassCenter = Vector3f(xf,-2.4+getHeight(Vector3f(xf,0.0f,zf)),zf);
-				float dg = grassblade(v,grassCenter,groundNormal(grassCenter));
+				float dg = grassblade(v,grassCenter,groundNormal(grassCenter),groundGradient(grassCenter,NORMAL_EPSILON));
 				d2 = T_min(d2,dg);
 
 		}
