@@ -1,4 +1,5 @@
 #define EPSILON_DENOMINATOR_MISS 0.000001
+#define clip(c) (c>255?255:(c<0?0:c))
 #define RCOMP(c) (clip((int)(255.0*c.x)))
 #define GCOMP(c) (clip((int)(255.0*c.y)))
 #define BCOMP(c) (clip((int)(255.0*c.z)))
@@ -21,6 +22,12 @@
 #define T_max(a,b) (a>b?a:b)
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
+
+
+__global float * arbitrary_data;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
 
 //optional float3
 typedef struct tag_of3_t{
@@ -80,18 +87,30 @@ of3_t raycast(float3 o, float3 r){
 
     int numTriangles = getNumTriangles();
 
-    int hasHit = 0;
+
     float dist = 0.0;
     float3 hitPoint = (float3)(0.0,0.0,0.0);
     int itHit = -1;
 
     
     for(int it=0;it<numTriangles;it++){
-    
+        float3 A = getTriangleA(it);
+        float3 B = getTriangleB(it);
+        float3 C = getTriangleC(it);
+        float3 N = getTriangleN(it);
+        of3_t cast= raycastTriangle(o,r,A,B,C,N);
+        if(cast.hit!=-1){
+            float d = length(cast.hitPoint-o);
+            if(itHit==-1||d<dist){
+                d=dist;
+                itHit = it;
+                hitPoint=cast.hitPoint;
+            }
+        }
     }
 
     if(itHit!=-1){
-        return oft()
+        return of3(hitPoint,itHit);
     }
 
     return miss();
@@ -145,7 +164,8 @@ __kernel void  k1(
     );
 
     if(intersection.hit!=-1){
-        float3 n
+        float3 n = getTriangleN(intersection.hit);
+        color = fabs(n);
     }
 
 

@@ -39,6 +39,11 @@ class Utils:
         with open(fname,"w") as fl:
             fl.write(content)
 
+    @staticmethod
+    def fread(fname):
+        with open(fname,"r") as fl:
+            return fl.read()
+
 class Transform:
     """A wrapper class for common homogenous transformations"""
 
@@ -473,7 +478,9 @@ class _SceneCompiler:
             ad_definitions+=("#define AD_{} {}\n".format(name,start))
 
         #compile scene.cl
-        scene_cl="""
+
+
+        header_cl="""
         
         {}
 
@@ -487,7 +494,8 @@ class _SceneCompiler:
             "\n".join(self.auxillary_functions),
             )
         
-        Utils.fwrite("scene.cl",scene_cl)
+
+        Utils.fwrite("k1build.cl",header_cl+Utils.fread("k1.cl"))
 
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
 

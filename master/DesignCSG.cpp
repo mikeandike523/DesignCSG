@@ -526,9 +526,7 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 	clearLogs(debugConsole);
 
 	Utils::runProcess("", "C:\\Windows\\System32\\cmd.exe /K \".\\Python310\\python.exe compiled.py > .\\log.txt 2>&1 && exit || exit\"");
-	Utils::runProcess("", "C:\\Windows\\System32\\cmd.exe /K copy /b k1.cl + scene.cl k1build.cl && exit || exit");
-	Utils::runProcess("", "C:\\Windows\\System32\\cmd.exe /K copy /b k2.cl + scene.cl k2build.cl && exit || exit");
-	
+
 	long then = Utils::time_ms();
 
 	LoadSceneResult result;
