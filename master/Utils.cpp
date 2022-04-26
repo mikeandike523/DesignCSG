@@ -42,6 +42,20 @@ namespace Utils {
 
 		}
 
+		int param_name = CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE;
+		int param_value_size = sizeof(cl_ulong);
+		cl_ulong param_value = 0;
+		size_t param_value_size_ret;
+
+		clGetDeviceInfo(dev, param_name, param_value_size, &param_value, &param_value_size_ret);
+
+		DebugPrint("Buffer max size in bytes: %d\n",param_value);
+
+		FILE* deviceInfoFile = fopen("deviceInfo.txt", "w");
+		fprintf(deviceInfoFile, "%d", param_value);
+		fclose(deviceInfoFile);
+
+
 		return dev;
 	}
 
