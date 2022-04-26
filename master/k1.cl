@@ -36,6 +36,9 @@ __global float3 fwd_g;
 typedef struct tag_of3_t{
     float3 hitPoint;
     int hit;
+    float p1;
+    float p2;
+    float p3;
 } of3_t;
 
 of3_t of3(float3 hitPoint,int hit){
@@ -155,12 +158,17 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float p2 = scalarProject(P2,BC);
     float p3 = scalarProject(P3,CA);
 
+
     if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
         return miss();
     }
 
 
-    return of3(A+intersectionPoint,0);
+    of3_t of= of3(A+intersectionPoint,0);
+    of.p1 = p1;
+    of.p2 = p2;
+    of.p3 = p3;
+    return of;
 }
 
 of3_t raycast(float3 o, float3 r){
@@ -171,6 +179,7 @@ of3_t raycast(float3 o, float3 r){
     float dist = 0.0;
     float3 hitPoint = (float3)(0.0,0.0,0.0);
     int itHit = -1;
+    of3_t ret;
 
     
     for(int it=0;it<numTriangles;it++){
@@ -185,12 +194,17 @@ of3_t raycast(float3 o, float3 r){
                 d=dist;
                 itHit = it;
                 hitPoint=cast.hitPoint; //global hitpoint
+                ret.p1 = cast.p1;
+                ret.p2 = cast.p2;
+                ret.p3 = cast.p3;
             }
         }
     }
 
     if(itHit!=-1){
-        return of3(hitPoint,itHit);
+        ret.hitPoint = hitPoint;
+        ret.hit= itHit;
+        return ret;
     }
 
     return miss();
@@ -245,7 +259,7 @@ __kernel void  k1(
 
     if(intersection.hit!=-1){
         float3 n = getTriangleN(0);
-        color = fabs(n);
+        color = Vector3f(intersection.p1,intersection.p2,intersection.p3);
     }
   
     outpixels[tid*3+0] = RCOMP(color);

@@ -27,6 +27,12 @@ C=vec3(1,-1,0)
 D=vec3(-1,-1,0)
 addTriangle(Triangle3(A,B,C))
 addTriangle(Triangle3(C,D,A))
+A=vec3(-1,0,1)
+B=vec3(1,0,1)
+C=vec3(1,0,-1)
+D=vec3(-1,0,-1)
+addTriangle(Triangle3(A,B,C))
+addTriangle(Triangle3(C,D,A))
 
 
 
