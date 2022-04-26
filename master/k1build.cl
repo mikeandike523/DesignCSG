@@ -267,19 +267,20 @@ double3 get_normal(double3 v,
 
 }
 
-double3 getNormal(double3 v){
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+#define NORMAL_FUNCTION(name,functor) double3 name(double3 v){ \
+    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0); \
+    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0); \
+    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON); \
+ \
+    float Dx = functor(v+dx)-functor(v-dx); \
+    float Dy = functor(v+dy)-functor(v-dy); \
+    float Dz = functor(v+dz)-functor(v-dz); \
+ \
+    float  twoE = 2.0*NORMAL_EPSILON; \
+ \
+    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz)); \
+} 
 
-    float Dx = sceneSDF(v+dx)-sceneSDF(v-dx);
-    float Dy = sceneSDF(v+dy)-sceneSDF(v-dy);
-    float Dz = sceneSDF(v+dz)-sceneSDF(v-dz);
-
-    float  twoE = 2.0*NORMAL_EPSILON;
-
-    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
-}
 
 float march(double3 o, double3 r,
 
@@ -477,9 +478,9 @@ double grassblade(double3 v, double3 baseCenter, double3 normal){
 	float h = dot(v,normal);
 	double3 p = (double3)(h*normal.x,h*normal.y,h*normal.z);
 
-	double3 r = v-p;
-	float rho = r.x*r.x-r.z*r.z;
-	return T_max(-h,T_max(h-1.0,rho-0.0025));
+	double3 radialAxis = v-p;
+	float rho = length(radialAxis);
+	return T_max(rho-0.05,T_max(-h,h-0.4));
 
 }
 
@@ -506,20 +507,26 @@ double getHeight(double3 v){
 	return h;
 }
 
+double ground_fn(double3 v){
+	return v.y - (-2.4+getHeight(v));
+}
+
+NORMAL_FUNCTION(groundNormal,ground_fn)
+
 double sceneSDF(double3 v){
 	float d = MAX_DISTANCE;
 
 	int G = 31;
 	float D = 5.0/(G-1);
-	float xf = round(v.x/D)*D;
-	float zf = round(v.z/D)*D;
+	float xf = (float)((int)(v.x/D))*D;
+	float zf = (float)((int)(v.z/D))*D;
 
 	double h = getHeight(v);
 	float d1 = v.y - (-2.4+h);
 
-	double3 grassCenter = Vector3d(xf,h,zf);
-	float d2 = grassblade(v,grassCenter,getNormal(grassCenter));
-	
+	double3 grassCenter = Vector3d(xf,-2.4+h,zf);
+	float d2 = grassblade(v,grassCenter,groundNormal(grassCenter));
+
 	d=T_min(d,d1);
 	d=T_min(d,d2);
 
@@ -531,6 +538,7 @@ double3 sceneMaterial(double3 gv, double3 lv, double3 n)
 {
 
 	return VFABS(n);
+
 
 }
 

@@ -267,19 +267,20 @@ double3 get_normal(double3 v,
 
 }
 
-double3 getNormal(double3 v){
-    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0);
-    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0);
-    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON);
+#define NORMAL_FUNCTION(name,functor) double3 name(double3 v){ \
+    double3 dx = (double3)(NORMAL_EPSILON,0.0,0.0); \
+    double3 dy = (double3)(0.0,NORMAL_EPSILON,0.0); \
+    double3 dz = (double3)(0.0,0.0,NORMAL_EPSILON); \
+ \
+    float Dx = functor(v+dx)-functor(v-dx); \
+    float Dy = functor(v+dy)-functor(v-dy); \
+    float Dz = functor(v+dz)-functor(v-dz); \
+ \
+    float  twoE = 2.0*NORMAL_EPSILON; \
+ \
+    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz)); \
+} 
 
-    float Dx = sceneSDF(v+dx)-sceneSDF(v-dx);
-    float Dy = sceneSDF(v+dy)-sceneSDF(v-dy);
-    float Dz = sceneSDF(v+dz)-sceneSDF(v-dz);
-
-    float  twoE = 2.0*NORMAL_EPSILON;
-
-    return normalize((double3)(1.0/twoE*Dx,1.0/twoE*Dy,1.0/twoE*Dz));
-}
 
 float march(double3 o, double3 r,
 
