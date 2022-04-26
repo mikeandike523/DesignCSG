@@ -7,8 +7,8 @@ import os
 from typing import List
 import struct
 
-INITIAL_SCALE = 5.0
-ARBITRARY_DATA_POINTS=131072
+with open("deviceInfo.txt","r") as fl:
+    ARBITRARY_DATA_POINTS=int(fl.read())/4
 
 compiler =  None
 
@@ -518,6 +518,8 @@ class _SceneCompiler:
     def addArbitraryData(self,name,data):
         start = self.adCounter
         self.adCounter+=len(data)
+        if self.adCounter >= ARBITRARY_DATA_POINTS:
+            raise Exception(f"Arbitrary data limit exceed. Maximum is {ARBITRARY_DATA_POINTS} data points = {ARBITRARY_DATA_POINTS*4} bytes.");
         self.ad.append(ArbitraryDataChunk(name,start,data))
         
         
