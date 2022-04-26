@@ -24,8 +24,8 @@ define_brush = compiler.define_brush
 define_material = compiler.define_material
 addArbitraryData = compiler.addArbitraryData
 
-def commit(scene):
-    define_auxillary_function(scene)
+def commit(shaders):
+    define_auxillary_function(shaders)
     compiler.commit()
     
 define_auxillary_function=compiler.define_auxillary_function

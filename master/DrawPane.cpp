@@ -11,6 +11,8 @@
 
 #define CLIP8(x) ((x>255) ? 255 : ((x < 0 )? 0: x))
 
+#define APPLICATION_STATE_TIME_MILLISECONDS 0
+
 void BasicDrawPane::setArbitraryData(float * data, size_t items) {
 	memcpy(arbitrary_data,data, sizeof(float) * items);
 	clEnqueueWriteBuffer(queue,
@@ -52,17 +54,9 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		queue = clCreateCommandQueueWithProperties(context, device, NULL, &err);
 
 
-
-
-		shape_id_bank = (BYTE*)malloc(MAX_OBJECTS * sizeof(uint8_t));
-		material_id_bank = (BYTE*)malloc(MAX_OBJECTS * sizeof(uint8_t));
-		object_position_bank = (float*)malloc(MAX_OBJECTS * 3 * sizeof(float));
-		object_right_bank = (float*)malloc(MAX_OBJECTS * 3 * sizeof(float));
-		object_up_bank = (float*)malloc(MAX_OBJECTS * 3 * sizeof(float));
-		object_forward_bank = (float*)malloc(MAX_OBJECTS * 3 * sizeof(float));
 		pixel_data = (BYTE*)malloc(3 * 640 * 480);
-		build_procedure_data = (int*)malloc(4 * sizeof(int) * MAX_BUILD_STEPS);
 		arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
+		application_state = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
 
 		pixdataout_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE |
 			CL_MEM_COPY_HOST_PTR, 3 * 640 * 480 * sizeof(uint8_t), pixel_data, &err);
@@ -79,41 +73,10 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		forwardin_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
 			CL_MEM_COPY_HOST_PTR, 3 * sizeof(float), up, &err);
 
-		shape_id_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 1 * sizeof(uint8_t) * MAX_OBJECTS, shape_id_bank, &err);
-
-		material_id_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 1 * sizeof(uint8_t) * MAX_OBJECTS, material_id_bank, &err);
-
-		object_position_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 3 * sizeof(float) * MAX_OBJECTS, object_position_bank, &err);
-
-		DebugPrint("%p\n", object_up_bank);
-
-		object_up_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 3 * sizeof(float) * MAX_OBJECTS, object_up_bank, &err);
-
-		object_right_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 3 * sizeof(float) * MAX_OBJECTS, object_right_bank, &err);
-
-
-		DebugPrint("err %d\n", err);
-
-		object_forward_bank_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 3 * sizeof(float) * MAX_OBJECTS, object_forward_bank, &err);
-
-		num_objects_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 1 * sizeof(int) * 1, &num_objects, &err);
-
-		screen_stack_memory_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 640 * 480 * sizeof(float) * STACK_MEMORY_PER_PIXEL, NULL, &err);
-
-		build_procedure_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, 4 * sizeof(int) * MAX_BUILD_STEPS, build_procedure_data, &err);
-
-		num_build_steps_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY |
-			CL_MEM_COPY_HOST_PTR, sizeof(int), &num_build_steps, &err);
-
 		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
+
+
+		application_state_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
 
 		is_init = 1;
@@ -167,6 +130,20 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 			0,
 			NULL,
 			NULL);
+
+
+
+
+		clEnqueueWriteBuffer(queue,
+			application_state_buffer,
+			CL_TRUE,
+			0,
+			ARBITRARY_DATA_POINTS * sizeof(float),
+			application_state,
+			0,
+			NULL,
+			NULL);
+
 
 
 

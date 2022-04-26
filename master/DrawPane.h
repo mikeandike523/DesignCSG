@@ -79,20 +79,11 @@ public:
 	cl_mem upin_buffer;
 	cl_mem forwardin_buffer;
 
-	cl_mem shape_id_bank_buffer;
-	cl_mem material_id_bank_buffer;
-	cl_mem object_position_bank_buffer;
-	cl_mem object_right_bank_buffer;
-	cl_mem object_up_bank_buffer;
-	cl_mem object_forward_bank_buffer;
-	cl_mem num_objects_buffer;
-
-	cl_mem screen_stack_memory_buffer;
-	cl_mem build_procedure_data_buffer;
-	cl_mem num_build_steps_buffer;
-
 
 	cl_mem arbitrary_data_buffer;
+
+	cl_mem application_state_buffer;
+	float* application_state;
 
 	const size_t global_size[2] = { 640,480 };
 	const size_t local_size[2] = { 8,8 };

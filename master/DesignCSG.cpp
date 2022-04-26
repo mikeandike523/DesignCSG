@@ -449,8 +449,6 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 
 void saveRoutine(MyFrame * ths) {
 	Utils::writeFile(designPath.c_str(), std::string(ths->text->GetText()));
-	//Utils::writeFile("designlibrary.py", std::string(ths->dlText->GetText()));
-	//Utils::writeFile("DesignCSG.py", std::string(ths->dCSGText->GetText()));
 	Utils::writeFile("designPath.txt", designPath);
 }
 

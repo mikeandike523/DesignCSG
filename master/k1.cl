@@ -1,3 +1,7 @@
+#define APPLICATION_STATE_TIME_MILLISECONDS 0
+#define nowMillis() (getAS(APPLICATION_STATE_TIME_MILLISECONDS,0))
+
+
 #define EPSILON_DENOMINATOR_MISS 0.000001
 #define EPSILON_INTERSECTION_TOLERANCE 0.001
 #define clip(c) (c>255?255:(c<0?0:c))
@@ -23,11 +27,16 @@
 #define T_max(a,b) (a>b?a:b)
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
+#define getAS(name,offset) (arbitrary_data[name+offset])
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
+float3 vertex(float3 gv, float3 gn);
+float3 fragment(float3 gv, float3 gn);
+
 
 __global float * arbitrary_data;
+__global float * application_state;
 __global float3 rgt_g;
 __global float3 upp_g;
 __global float3 fwd_g;
@@ -222,10 +231,12 @@ __kernel void  k1(
     __global float * right,
     __global float * up, 
     __global float * forward,
-    __global float * _arbitrary_data
+    __global float * _arbitrary_data,
+    __global float * _application_state
 ){
 
     arbitrary_data = _arbitrary_data;
+    application_state = _application_state;
 
 
     int ix = get_global_id(0);
