@@ -297,7 +297,7 @@ __kernel void  k1(
     float3 color = (float3)(1.0,1.0,1.0);
 
     of3_t intersection = raycast(
-        r,o   
+        o,r
     );
 
     if(intersection.hit!=-1){
