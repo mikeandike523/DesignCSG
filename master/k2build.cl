@@ -279,7 +279,8 @@ __kernel void  k2(
 
 
         
-        
+        #define AD_RANDOM_VALUES 0
+
 
         
 
@@ -331,13 +332,14 @@ double sceneSDF(double3 v){
 	
 
 
-	return d1;
+	return T_max(d1,fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
 }
 
 double3 sceneMaterial(double3 gv, double3 lv, double3 n)
 {
 
 	return VFABS(n);
+
 }
 
 

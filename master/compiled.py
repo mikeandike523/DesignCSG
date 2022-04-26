@@ -47,15 +47,22 @@ double sceneSDF(double3 v){
 	
 
 
-	return d1;
+	return T_max(d1,fastBox(v,Vector3d(0.0,0.0,0.0),Vector3d(2.5,2.5,2.5)));
 }
 
 double3 sceneMaterial(double3 gv, double3 lv, double3 n)
 {
 
 	return VFABS(n);
+
 }
 
 """
+
+np.random.seed(2022)
+randomValues = []
+for _ in range(256):
+	randomValues.append(np.random.uniform())
+addArbitraryData("RANDOM_VALUES",randomValues)
 
 commit(scene=scene)
