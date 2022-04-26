@@ -497,7 +497,7 @@ class _SceneCompiler:
             )
         
 
-        Utils.fwrite("k1build.cl",header_cl+Utils.fread("k1.cl"))
+        Utils.fwrite("k1build.cl",header_cl+"\n"+Utils.fread("k1.cl")+"\n"+self.shaders)
 
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
 

@@ -54,7 +54,9 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 commit(shaders=""" 
-float3 fragment(float3 gb, float3 gn, int it){
-	return fabs(gn);
+float3 getTriangleN(int it);
+float3 fragment(float3 gv, int it){
+	return fabs(getTriangleN(it));
 }
+Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)

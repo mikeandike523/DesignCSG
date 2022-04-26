@@ -31,7 +31,34 @@
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
-float3 fragment(float3 gv, float3 gn, int it);
+typedef struct tag_Triangle3f {
+    float3 A;
+    float3 B;
+    float3 C;
+    float3 N;
+
+} Triangle3f_t;
+
+Triangle3f_t Triangle3f(float3 A, float3 B, float3 C){
+    Triangle3f_t tr;
+    tr.A = A;
+    tr.B = B;
+    tr.C = C;
+    tr.N = cross(C-A,B-A);
+    return tr;
+}
+
+Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
+    Triangle3f_t tr;
+    tr.A = A;
+    tr.B = B;
+    tr.C = C;
+    tr.N = N;
+    return tr;
+}
+
+float3 fragment(float3 gv, int it);
+Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
 __global float * arbitrary_data;
@@ -195,6 +222,13 @@ of3_t raycast(float3 o, float3 r){
         float3 B = getAdjustedTriangleB(it);
         float3 C = getAdjustedTriangleC(it);
         float3 N = getAdjustedTriangleN(it);
+        Triangle3f_t tr = Triangle3fWithNormal(A,B,C,N);
+        tr=vertex(tr,it);
+        A = tr.A;
+        B = tr.B;
+        C = tr.C;
+        N = tr.N;
+
 
         of3_t cast= raycastTriangle(o,r,A,B,C,N);
         if(cast.hit!=-1){
@@ -271,7 +305,7 @@ __kernel void  k1(
     if(intersection.hit!=-1){
         float3 n = getTriangleN(intersection.hit);
         n=n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
-        color = fragment(intersection.hitPoint,n,intersection.hit);
+        color = fragment(intersection.hitPoint,intersection.hit);
     }
   
     outpixels[tid*3+0] = RCOMP(color);

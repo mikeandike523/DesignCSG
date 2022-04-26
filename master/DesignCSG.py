@@ -25,7 +25,7 @@ define_material = compiler.define_material
 addArbitraryData = compiler.addArbitraryData
 
 def commit(shaders):
-    define_auxillary_function(shaders)
+    compiler.shaders=shaders
     compiler.commit()
     
 define_auxillary_function=compiler.define_auxillary_function
