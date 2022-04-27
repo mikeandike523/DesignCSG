@@ -69,10 +69,11 @@ aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
 aspect/=minaspect
 
+S=50.0
 
-rescaleX = lambda x: (-1.0 + 2.0 * (x-minX)/(maxX-minX))*aspect[0]
-rescaleY= lambda y: (-1.0 + 2.0 * (y-minY)/(maxY-minY))*aspect[1]
-rescaleZ = lambda z: (-1.0 + 2.0 * (z-minZ)/(maxZ-minZ))*aspect[2]
+rescaleX = lambda x: (-1.0*S + 2.0*S * (x-minX)/(maxX-minX))*aspect[0]
+rescaleY= lambda y: (-1.0 *S+ 2.0 *S* (y-minY)/(maxY-minY))*aspect[1]
+rescaleZ = lambda z: (-1.0 *S+ 2.0 *S* (z-minZ)/(maxZ-minZ))*aspect[2]
 
 rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 
