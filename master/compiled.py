@@ -120,8 +120,8 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*3.0
-segments = 256
+R=max(aspect[0],aspect[2])*10.5
+segments =32
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
@@ -157,15 +157,7 @@ addArbitraryData("RANDOM_TABLE",randomTexture)
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
-__global int rand_counter_g = 0;
-float rand(){
-	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
-	rand_counter_g = (rand_counter_g+1)%4096;
-	return r;
-}
-float rand2(){
-	return -1.0+rand()*2.0;
-}
+
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -177,11 +169,7 @@ float3 fragment(float3 gv, int it){
 
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
-	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);
-	float3 normalOffset = Vector3f(0.05*rand2(),0.05*rand2(),0.05*rand2());
-	ln+=normalOffset;
-	ln=normalize(ln);
-	
+	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);	
 	float3 gn = toGlobal(ln);
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,gn);

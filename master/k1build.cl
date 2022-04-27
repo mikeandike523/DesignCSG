@@ -5,7 +5,7 @@
 #define AD_TRIANGLE_DATA 1
 #define AD_NUM_LIGHT_TRIANGLES 42733
 #define AD_LIGHT_TRIANGLE_DATA 42734
-#define AD_RANDOM_TABLE 45806
+#define AD_RANDOM_TABLE 43118
 
 
 
@@ -77,6 +77,8 @@ float3 fastcross(float3 a, float3 b){
 
 #define f2f3(f) Vector3f(f,f,f)
 
+
+
 float3 termProduct(float3 a,float3 b){
 
     return Vector3f(a.x*b.x,a.y*b.y,a.z*b.z);
@@ -118,6 +120,16 @@ __global float3 rgt_g;
 __global float3 upp_g;
 __global float3 fwd_g;
 __global float3 camera_g;
+
+__global int rand_counter_g = 0;
+float rand(){
+	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
+	rand_counter_g = (rand_counter_g+1)%4096;
+	return r;
+}
+float rand2(){
+	return -1.0+rand()*2.0;
+}
 
 //optional float3
 typedef struct tag_of3_t{
@@ -353,8 +365,9 @@ __kernel void  k1(
 
     int hits = 0;
     for(int i=0;i<SAMPLES;i++){
+        float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
         of3_t intersection = raycast(
-            o,r,AD_TRIANGLE_DATA
+            o,_r,AD_TRIANGLE_DATA
         );
 
         if(intersection.hit!=-1){
@@ -375,17 +388,9 @@ __kernel void  k1(
  
 }
  
-#define R 3.384524157142835
+#define R 11.845834549999923
 #define H 3.480871528856729
-__global int rand_counter_g = 0;
-float rand(){
-	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
-	rand_counter_g = (rand_counter_g+1)%4096;
-	return r;
-}
-float rand2(){
-	return -1.0+rand()*2.0;
-}
+
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -397,11 +402,7 @@ float3 fragment(float3 gv, int it){
 
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
-	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);
-	float3 normalOffset = Vector3f(0.05*rand2(),0.05*rand2(),0.05*rand2());
-	ln+=normalOffset;
-	ln=normalize(ln);
-	
+	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);	
 	float3 gn = toGlobal(ln);
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,gn);

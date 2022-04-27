@@ -310,7 +310,7 @@ bool MyApp::OnInit()
 	
 	}
 
-	freopen("consolelog.txt", "w", stdout);
+	//freopen("consolelog.txt", "w", stdout);
 	MyFrame* frame = new MyFrame("DesignCSG", wxDefaultPosition, wxSize(640 + 350, 700));
 	frame->Show(true);
 	return true;
