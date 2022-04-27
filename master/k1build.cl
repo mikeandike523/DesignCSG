@@ -1,5 +1,5 @@
 
-#define SAMPLES 8
+#define SAMPLES 16
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
@@ -77,7 +77,13 @@ float3 fastcross(float3 a, float3 b){
 
 #define f2f3(f) Vector3f(f,f,f)
 
-
+float angleZeroToTwoPi(float x, float y){
+    float a = atan2(y,x);
+    if(a<0.0){
+        a = 2.0*M_PI+a;
+    }
+    return a;
+}
 
 float3 termProduct(float3 a,float3 b){
 
@@ -127,7 +133,7 @@ float rand(){
 	rand_counter_g = (rand_counter_g+1)%4096;
 	return r;
 }
-float rand2(){
+float randCoord(){
 	return -1.0+rand()*2.0;
 }
 
@@ -401,12 +407,42 @@ float3 reflection(float3 ray, float3 normal){
 }
 float3 fragment(float3 gv, int it){
 
+	float specular = 1.0;
+
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
 	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);	
 	float3 gn = toGlobal(ln);
+	float3 lAB = normalize(getTriangleB(it,AD_TRIANGLE_DATA)-getTriangleA(it,AD_TRIANGLE_DATA));
+	float3 gAB = toGlobal(lAB);
+	float3 vx = gAB;
+	float3 vy=normalize(gn);
+	float3 vz =normalize(-cross(vx,vy));
+
+
+
 	float3 incident = normalize(gv-camera_g);
-	float3 reflected = reflection(incident,gn);
+	float3 reflected = reflection(incident,vy);
+	float t0 = dot(reflected,vx);
+	float t1 = dot(reflected,vy);
+	float t2 = dot(reflected,vz);
+	//float r = length(Vector3f(t0,0.0,t2));
+	//float anglery = angleZeroToTwoPi(r,t1);
+	//float anglexz = angleZeroToTwoPi(t0,t2);
+	//float d1 = randCoord()*M_PI*(1.0-specular);
+	//float d2 = randCoord()*M_PI*(1.0-specular);
+	//anglery+=d1;
+	//anglexz+=d2;
+	//float h = sin(anglery);
+	//float x = cos(anglexz);
+	//float z = sin(anglexz);
+	float h = t1;
+	float x = t0;
+	float z = t2;
+	float3 _reflected = Vector3f(x,h,z);
+	reflected = _reflected.x*vx+_reflected.y*vy+_reflected.z*vz;
+
+
 	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		L += 1.0;
