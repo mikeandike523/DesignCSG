@@ -146,12 +146,26 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(4);
+setSamples(8);
+
+randomTexture = []
+for _ in range(4096):
+	randomTexture.append(np.random.uniform())
+
+addArbitraryData("RANDOM_TABLE",randomTexture)
 
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
-
+__global int rand_counter_g = 0;
+float rand(){
+	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
+	rand_counter_g = (rand_counter_g+1)%4096;
+	return r;
+}
+float rand2(){
+	return -1.0+rand()*2.0;
+}
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -164,6 +178,10 @@ float3 fragment(float3 gv, int it){
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
 	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);
+	float3 normalOffset = Vector3f(0.05*rand2(),0.05*rand2(),0.05*rand2());
+	ln+=normalOffset;
+	ln=normalize(ln);
+	
 	float3 gn = toGlobal(ln);
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,gn);
