@@ -1,5 +1,5 @@
 
-#define RANDOM_TABLE_SIZE 16777216
+#define RANDOM_TABLE_SIZE 16384
 #define SAMPLES 4
 
 #define AD_NUM_TRIANGLES 0
@@ -345,7 +345,7 @@ __kernel void  k1(
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
-    int rand_counter = (ix+iy)%4096;
+    int rand_counter = tid % RANDOM_TABLE_SIZE;
 
 
 

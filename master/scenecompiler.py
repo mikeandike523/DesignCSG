@@ -8,7 +8,7 @@ from typing import List
 import struct
 
 INITIAL_SCALE = 1.0
-RANDOM_TABLE_SIZE=4096*4096
+RANDOM_TABLE_SIZE=4096*4
 
 with open("deviceInfo.txt","r") as fl:
     ARBITRARY_DATA_POINTS=int(int(fl.read())/4)
@@ -478,7 +478,7 @@ class _SceneCompiler:
     def commit(self):
 
         randomTexture = []
-        for _ in range(4096):
+        for _ in range(RANDOM_TABLE_SIZE):
             randomTexture.append(np.random.uniform())
         self.addArbitraryData("RANDOM_TABLE",randomTexture)
 
