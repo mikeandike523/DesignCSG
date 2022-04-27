@@ -99,5 +99,3 @@ float3 fragment(float3 gv, int it){
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)
-
-print(data)

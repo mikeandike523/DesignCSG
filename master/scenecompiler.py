@@ -513,7 +513,7 @@ class _SceneCompiler:
 
         with open("arbitrary_data.hex","wb") as fl:
             for item in dataBuffer:
-                fl.write(item.tobytes())
+                fl.write(struct.pack("<f",item))
 
         print("Instance tree compiled successfully.")
 

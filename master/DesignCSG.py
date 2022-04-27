@@ -3,6 +3,7 @@
 
 import scenecompiler
 import numpy as np
+import struct
 
 compiler = scenecompiler.SceneCompiler()
 sphere_brush = compiler.define_brush(body="return length(v)-0.5;")
@@ -219,6 +220,6 @@ def readSTLData(filepath):
         offs = 84
         while offs < len(bts):
             for offs2 in range(0,48,4):
-                data.append(np.frombuffer(bts[(offs+offs2):(offs+offs2+4)],dtype="<f4")[0]) #N, A, B, C
+                data.append(struct.unpack("<f",bts[(offs+offs2):(offs+offs2+4)])[0]) #N, A, B, C
             offs+=50
         return numtrs,data
