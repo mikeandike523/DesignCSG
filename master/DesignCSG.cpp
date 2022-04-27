@@ -471,7 +471,7 @@ void updateArbitraryData(MyFrame * ctx) {
 		FILE* dataFile = fopen("arbitrary_data.hex", "rb");
 		size_t itemCount = 0;
 		uint8_t dataPoint[4];
-		while (fread(&dataPoint, 1, 4, dataFile)) {
+		while (fread(&dataPoint, 4, 1, dataFile)) {
 			/*if (cms::is_big_endian()) {
 				cms::reverseFourBytes(dataPoint);
 			}*/

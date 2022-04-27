@@ -359,9 +359,9 @@ __kernel void  k1(
  
 float3 getTriangleN(int it);
 float3 fragment(float3 gv, int it){
-	//return fabs(getTriangleN(it));
-	float d = length(gv-camera_g);
-	return f2f3(d/10.0);
+	return fabs(getTriangleN(it));
+	//float d = length(gv-camera_g);
+	//return f2f3(d/10.0);
 	//return gv;
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

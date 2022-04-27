@@ -62,12 +62,14 @@ for point in itertools.chain(Apoints,Bpoints,Cpoints):
 aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
 aspect/=minaspect
+#aspect*=10
 
 rescaleX = lambda x: (-1.0 + 2.0 * (x-minX)/(maxX-minX))*aspect[0]
 rescaleY= lambda y: (-1.0 + 2.0 * (y-minY)/(maxY-minY))*aspect[1]
 rescaleZ = lambda z: (-1.0 + 2.0 * (z-minZ)/(maxZ-minZ))*aspect[2]
 
-rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
+#rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
+rescaleVector = lambda v: 10*v
 
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
 	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))
@@ -90,10 +92,12 @@ addArbitraryData("TRIANGLE_DATA",data_triangles)
 commit(shaders=""" 
 float3 getTriangleN(int it);
 float3 fragment(float3 gv, int it){
-	//return fabs(getTriangleN(it));
-	float d = length(gv-camera_g);
-	return f2f3(d/10.0);
+	return fabs(getTriangleN(it));
+	//float d = length(gv-camera_g);
+	//return f2f3(d/10.0);
 	//return gv;
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)
+
+print(data)
