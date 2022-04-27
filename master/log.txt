@@ -1,7 +1,2 @@
 File Assets/Mesh/Flower.stl, numtrs 3305.
-Traceback (most recent call last):
-  File "C:\Projects\DesignCSG\master\compiled.py", line 64, in <module>
-    addArbitraryData("TRIANGLE_DATA",data_triangles)
-  File "C:\Projects\DesignCSG\master\scenecompiler.py", line 524, in addArbitraryData
-    raise Exception(f"Arbitrary data limit exceed. Maximum is {ARBITRARY_DATA_POINTS} data points = {ARBITRARY_DATA_POINTS*4} bytes.");
-Exception: Arbitrary data limit exceed. Maximum is 16384 data points = 65536 bytes.
+Instance tree compiled successfully.

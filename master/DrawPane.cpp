@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <CL/cl.h>
 #include <chrono>
+#include <thread>
 
 #include "Utils.h"
 #include "CVector.h"
@@ -36,7 +37,6 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 	if (!is_init) {
 
-		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt"))/4;
 
 		err = 0;
 		FILE* test = fopen("k1build.cl", "r");
@@ -54,6 +54,71 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		queue = clCreateCommandQueueWithProperties(context, device, NULL, &err);
 
+
+
+		static uint64_t max_floats = 1;
+	
+		
+		
+		static int buffer_task_complete = 0;
+		static int buffer_task_running = 0;
+		auto task = []( uint64_t* max_floats_p, int* task_complete_p, int * running_p, cl_context * context) {
+			(*running_p) = 1;
+			int testing_max_floats = 1;
+			int* testing_max_floats_p = &testing_max_floats;
+			while (*testing_max_floats_p) {
+				(* max_floats_p) *= 2;
+				if ((*max_floats_p) > 256 * 1024 * 1024 / 4) (*testing_max_floats_p) = 0; //256 MB
+				DebugPrint("Attempting to create float buffer with %d elements... ", *max_floats_p);
+				float* testArray = (float*)calloc((*max_floats_p), sizeof(float));
+				cl_int max_floats_err = CL_SUCCESS;
+				cl_mem testBuffer = clCreateBuffer(*context, CL_MEM_READ_ONLY |
+					CL_MEM_COPY_HOST_PTR, (*max_floats_p) * sizeof(float), testArray, &max_floats_err);
+				if (max_floats_err == CL_SUCCESS) {
+					DebugPrint("Success.\n");
+					clReleaseMemObject(testBuffer);
+				}
+				else {
+					DebugPrint("Failed.\n");
+					(*testing_max_floats_p) = 0;
+				}
+				free(testArray);
+
+			}
+			(*task_complete_p) = 1;
+		};
+
+
+
+		if (!buffer_task_running&&!buffer_task_complete) {
+			std::thread t(task,&max_floats,&buffer_task_complete,&buffer_task_running,&context);
+			t.detach();
+			return;
+		}
+		if (!buffer_task_complete) {
+			return;
+		}
+	
+
+		max_floats /= 2; //since last clCreateBuffer was not successful
+
+		if (max_floats > 1024 * 1024 * 256 / 4) {
+			max_floats = 1024 * 1024 * 256 / 4;
+			DebugPrint("Capped buffer at 256MB.\n");
+		}
+
+		if (max_floats != 1024 * 1024 * 256 / 4) {
+			DebugPrint("Buffer max floats: %d\n", max_floats);
+		}
+		else
+		DebugPrint("Buffer max floats: 256 MB with 4 bytes per float = %d floats\n", max_floats);
+
+		FILE* deviceInfoFile = fopen("deviceInfo.txt", "w");
+		fprintf(deviceInfoFile, "%d", max_floats);
+		fclose(deviceInfoFile);
+
+
+		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt")) / 4;
 
 		pixel_data = (BYTE*)malloc(3 * 640 * 480);
 		arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
