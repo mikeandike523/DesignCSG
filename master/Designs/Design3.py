@@ -1,6 +1,7 @@
 from DesignCSG import *
 import numpy as np
 import itertools
+import struct
 
 includeCL("LinAlg.cl")
 
@@ -8,8 +9,6 @@ def vec3(x,y,z):
 	return np.array([x,y,z],dtype=float)
 
 def normalize(v):
-	if np.linalg.norm(v) < 1e-6:
-		print(v)
 	return v/np.linalg.norm(v)
 
 def cross(A,B):
@@ -115,3 +114,23 @@ float3 fragment(float3 gv, int it){
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)
+
+with open("Assets/Mesh/test.stl","wb") as fl:
+	for _ in range(80):
+		fl.write(struct.pack("x"))
+	fl.write(struct.pack("<I",numtrs))
+	for triangle in triangles:
+		A=triangle.A
+		B=triangle.B
+		C=triangle.C
+		for _ in range(3):
+			fl.write(struct.pack("<f",0.0))
+		for coord in range(3):
+			fl.write(struct.pack("<f",A[coord]))
+		for coord in range(3):
+			fl.write(struct.pack("<f",B[coord]))
+		for coord in range(3):
+			fl.write(struct.pack("<f",C[coord]))
+		fl.write(struct.pack("<H",0))
+
+			
