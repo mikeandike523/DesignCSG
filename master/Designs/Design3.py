@@ -120,12 +120,12 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*10.0
+R=max(aspect[0],aspect[2])*7.5
 segments =32
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
-	dy = vec3(0.0,aspect[1]*2.5,0.0)
+	dy = vec3(0.0,aspect[1]*3.5,0.0)
 	A = dy
 	B = dy + R*vec3(cos(t1),0.0,sin(t1))
 	C = dy + R*vec3(cos(t2),0.0,sin(t2))
@@ -146,7 +146,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(4);
+setSamples(32);
 
 commit(shaders=""" 
 #define R <{R}>

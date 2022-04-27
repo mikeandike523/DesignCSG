@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 4
+#define SAMPLES 32
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
@@ -397,7 +397,7 @@ __kernel void  k1(
  
 }
  
-#define R 11.281747190476118
+#define R 8.461310392857088
 #define H 3.480871528856729
 
 float3 reflection(float3 ray, float3 normal){
