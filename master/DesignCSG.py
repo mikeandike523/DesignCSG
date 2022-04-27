@@ -208,3 +208,17 @@ def eraseIntersection(*components,transform=Transform.identity()):
 def includeCL(filename):
     with open(filename,"r") as fl:
         define_auxillary_function(fl.read())
+
+def readSTLData(filepath):
+    with open(filepath,"rb") as fl:
+        bts = fl.read()
+        numtrsBytes = bts[80:84]
+        numtrs = np.frombuffer(numtrsBytes,dtype="<u4")[0]
+        print(f"File {filepath}, numtrs {numtrs}.")
+        data=[]
+        offs = 84
+        while offs < len(bts):
+            for offs2 in range(0,48,4):
+                data.append(np.frombuffer(bts[(offs+offs2):(offs+offs2+4)],dtype="<f4")[0]) #N, A, B, C
+            offs+=50
+        return numtrs,data

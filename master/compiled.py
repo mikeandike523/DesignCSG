@@ -20,6 +20,14 @@ triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
+numtrs,data = readSTLData("Assets/Mesh/Flower.stl")
+for it in range(numtrs):
+	A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
+	B=vec3(data[it*12+6+0],data[it*12+6+1],data[it*12+6+2])
+	C=vec3(data[it*12+9+0],data[it*12+9+1],data[it*12+9+2])
+	addTriangle(Triangle3(A,B,C))
+
+
 #construct some triangles here
 A=vec3(-1,1,0)
 B=vec3(1,1,0)

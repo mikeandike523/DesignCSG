@@ -13,3 +13,4 @@ master/**/__pycache__/**
 master/x64/Debug/*
 master/!x64/Debug/*.exe
 master/!x64/Debug/*.dll
+master/Assets/Mesh/*
