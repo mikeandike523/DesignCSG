@@ -85,7 +85,7 @@ __global float3 camera_g;
 
 float rand(int * counter){
 	float r = getAD(AD_RANDOM_TABLE,*counter);
-	(*counter) = ((*counter)+1)%4096;
+	(*counter) = ((*counter)+1)%RANDOM_TABLE_SIZE;
 	return r;
 }
 float randCoord(int * counter){

@@ -8,6 +8,7 @@ from typing import List
 import struct
 
 INITIAL_SCALE = 1.0
+RANDOM_TABLE_SIZE=4096*4096
 
 with open("deviceInfo.txt","r") as fl:
     ARBITRARY_DATA_POINTS=int(int(fl.read())/4)
@@ -475,7 +476,7 @@ class _SceneCompiler:
         return self.basic_lighting
 
     def commit(self):
-        
+
         randomTexture = []
         for _ in range(4096):
             randomTexture.append(np.random.uniform())
@@ -489,6 +490,7 @@ class _SceneCompiler:
 
                  
         header_cl="""
+#define RANDOM_TABLE_SIZE {}
 #define SAMPLES {}
 
 {}
@@ -497,7 +499,7 @@ class _SceneCompiler:
 
 {}
 
-        """.format(int(self.samples),
+        """.format(int(RANDOM_TABLE_SIZE),int(self.samples),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
