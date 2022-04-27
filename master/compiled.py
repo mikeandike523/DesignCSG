@@ -27,12 +27,14 @@ C=vec3(1,-1,0)
 D=vec3(-1,-1,0)
 addTriangle(Triangle3(A,B,C))
 addTriangle(Triangle3(C,D,A))
+
 A=vec3(-1,0,1)
 B=vec3(1,0,1)
 C=vec3(1,0,-1)
 D=vec3(-1,0,-1)
 addTriangle(Triangle3(A,B,C))
 addTriangle(Triangle3(C,D,A))
+
 
 
 
@@ -56,7 +58,10 @@ addArbitraryData("TRIANGLE_DATA",data_triangles)
 commit(shaders=""" 
 float3 getTriangleN(int it);
 float3 fragment(float3 gv, int it){
-	return fabs(getTriangleN(it));
+	//return fabs(getTriangleN(it));
+	float d = length(gv-camera_g);
+	return f2f3(d/10.0);
+	//return gv;
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)

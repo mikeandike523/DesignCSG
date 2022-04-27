@@ -71,6 +71,8 @@ float3 fastcross(float3 a, float3 b){
 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
+#define f2f3(f) Vector3f(f,f,f)
+
 typedef struct tag_Triangle3f {
     float3 A;
     float3 B;
@@ -106,6 +108,7 @@ __global float * application_state;
 __global float3 rgt_g;
 __global float3 upp_g;
 __global float3 fwd_g;
+__global float3 camera_g;
 
 //optional float3
 typedef struct tag_of3_t{
@@ -274,7 +277,7 @@ of3_t raycast(float3 o, float3 r){
         if(cast.hit!=-1){
             float d = length(cast.hitPoint-o); //global hitpoint
             if(itHit==-1||d<dist){
-                d=dist;
+                dist=d;
                 itHit = it;
                 hitPoint=cast.hitPoint; //global hitpoint
                 ret.p1 = cast.p1;
@@ -320,6 +323,7 @@ __kernel void  k1(
 
 
     float3 o = (float3)(campos[0],campos[1],campos[2]);
+    camera_g = o;
 
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
@@ -355,6 +359,9 @@ __kernel void  k1(
  
 float3 getTriangleN(int it);
 float3 fragment(float3 gv, int it){
-	return fabs(getTriangleN(it));
+	//return fabs(getTriangleN(it));
+	float d = length(gv-camera_g);
+	return f2f3(d/10.0);
+	//return gv;
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
