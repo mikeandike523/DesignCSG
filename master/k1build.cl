@@ -1,5 +1,5 @@
 
-#define SAMPLES 16
+#define SAMPLES 4
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
@@ -116,7 +116,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it);
+float3 fragment(float3 gv, int it, int * rand_counter);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -127,14 +127,13 @@ __global float3 upp_g;
 __global float3 fwd_g;
 __global float3 camera_g;
 
-__global int rand_counter_g = 0;
-float rand(){
-	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
-	rand_counter_g = (rand_counter_g+1)%4096;
+float rand(int * counter){
+	float r = getAD(AD_RANDOM_TABLE,*counter);
+	(*counter) = ((*counter)+1)%4096;
 	return r;
 }
-float randCoord(){
-	return -1.0+rand()*2.0;
+float randCoord(int * counter){
+	return -1.0+rand(counter)*2.0;
 }
 
 //optional float3
@@ -339,12 +338,14 @@ __kernel void  k1(
 
     arbitrary_data = _arbitrary_data;
     application_state = _application_state;
-
+    
 
     int ix = get_global_id(0);
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
+    int rand_counter = tid%4096;
+
 
 
     float3 o = (float3)(campos[0],campos[1],campos[2]);
@@ -378,7 +379,7 @@ __kernel void  k1(
         );
 
         if(intersection.hit!=-1){
-            totalColor += fragment(intersection.hitPoint,intersection.hit);
+            totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter);
             hits++;
         }
     }
@@ -395,8 +396,9 @@ __kernel void  k1(
  
 }
  
-#define R 3.9486115166666407
+#define R 11.281747190476118
 #define H 3.480871528856729
+
 
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
@@ -405,9 +407,10 @@ float3 reflection(float3 ray, float3 normal){
 	float3 reflected = orthagonalVector-normalComponentVector;
 	return reflected;
 }
-float3 fragment(float3 gv, int it){
+float3 fragment(float3 gv, int it, int * rand_counter){
 
-	float specular = 1.0;
+	const float specular = 1.0;
+	const float bias = 0.01;
 
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
@@ -419,32 +422,34 @@ float3 fragment(float3 gv, int it){
 	float3 vy=normalize(gn);
 	float3 vz =normalize(-cross(vx,vy));
 
-
-
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,vy);
 	float t0 = dot(reflected,vx);
 	float t1 = dot(reflected,vy);
 	float t2 = dot(reflected,vz);
-	//float r = length(Vector3f(t0,0.0,t2));
-	//float anglery = angleZeroToTwoPi(r,t1);
-	//float anglexz = angleZeroToTwoPi(t0,t2);
-	//float d1 = randCoord()*M_PI*(1.0-specular);
-	//float d2 = randCoord()*M_PI*(1.0-specular);
-	//anglery+=d1;
-	//anglexz+=d2;
-	//float h = sin(anglery);
-	//float x = cos(anglexz);
-	//float z = sin(anglexz);
-	float h = t1;
-	float x = t0;
-	float z = t2;
-	float3 _reflected = Vector3f(x,h,z);
-	reflected = _reflected.x*vx+_reflected.y*vy+_reflected.z*vz;
+
+	float anglexy = atan2(t1,t0);
+	float d1 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	anglexy+=d1;
+	t0=cos(anglexy);
+	t1=sin(anglexy);
+	t2 = t2;
+
+	float anglezy = atan2(t1,t2);
+	float d2 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	anglezy+=d2;
+	t0=t0;
+	t1=sin(anglezy);
+	t2=cos(anglezy);
+
+	reflected = t0*vx+t1*vy+t2*vz;
 
 
 	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
+		gv = gv+bias*gn;
+		intersection = raycast(gv,reflected,AD_TRIANGLE_DATA);
+		if(intersection.hit==-1)
 		L += 1.0;
 	}
 	return f2f3(L);

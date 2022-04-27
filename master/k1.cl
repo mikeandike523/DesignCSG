@@ -72,7 +72,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it);
+float3 fragment(float3 gv, int it, int * rand_counter);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -83,14 +83,13 @@ __global float3 upp_g;
 __global float3 fwd_g;
 __global float3 camera_g;
 
-__global int rand_counter_g = 0;
-float rand(){
-	float r = getAD(AD_RANDOM_TABLE,rand_counter_g);
-	rand_counter_g = (rand_counter_g+1)%4096;
+float rand(int * counter){
+	float r = getAD(AD_RANDOM_TABLE,*counter);
+	(*counter) = ((*counter)+1)%4096;
 	return r;
 }
-float randCoord(){
-	return -1.0+rand()*2.0;
+float randCoord(int * counter){
+	return -1.0+rand(counter)*2.0;
 }
 
 //optional float3
@@ -295,12 +294,14 @@ __kernel void  k1(
 
     arbitrary_data = _arbitrary_data;
     application_state = _application_state;
-
+    
 
     int ix = get_global_id(0);
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
+    int rand_counter = tid%4096;
+
 
 
     float3 o = (float3)(campos[0],campos[1],campos[2]);
@@ -334,7 +335,7 @@ __kernel void  k1(
         );
 
         if(intersection.hit!=-1){
-            totalColor += fragment(intersection.hitPoint,intersection.hit);
+            totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter);
             hits++;
         }
     }

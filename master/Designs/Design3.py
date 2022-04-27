@@ -120,7 +120,7 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*3.5
+R=max(aspect[0],aspect[2])*10.0
 segments =32
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
@@ -146,7 +146,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(16);
+setSamples(4);
 
 randomTexture = []
 for _ in range(4096):
@@ -158,6 +158,7 @@ commit(shaders="""
 #define R <{R}>
 #define H <{H}>
 
+
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -165,9 +166,10 @@ float3 reflection(float3 ray, float3 normal){
 	float3 reflected = orthagonalVector-normalComponentVector;
 	return reflected;
 }
-float3 fragment(float3 gv, int it){
+float3 fragment(float3 gv, int it, int * rand_counter){
 
-	float specular = 1.0;
+	const float specular = 1.0;
+	const float bias = 0.01;
 
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
@@ -179,32 +181,34 @@ float3 fragment(float3 gv, int it){
 	float3 vy=normalize(gn);
 	float3 vz =normalize(-cross(vx,vy));
 
-
-
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,vy);
 	float t0 = dot(reflected,vx);
 	float t1 = dot(reflected,vy);
 	float t2 = dot(reflected,vz);
-	//float r = length(Vector3f(t0,0.0,t2));
-	//float anglery = angleZeroToTwoPi(r,t1);
-	//float anglexz = angleZeroToTwoPi(t0,t2);
-	//float d1 = randCoord()*M_PI*(1.0-specular);
-	//float d2 = randCoord()*M_PI*(1.0-specular);
-	//anglery+=d1;
-	//anglexz+=d2;
-	//float h = sin(anglery);
-	//float x = cos(anglexz);
-	//float z = sin(anglexz);
-	float h = t1;
-	float x = t0;
-	float z = t2;
-	float3 _reflected = Vector3f(x,h,z);
-	reflected = _reflected.x*vx+_reflected.y*vy+_reflected.z*vz;
+
+	float anglexy = atan2(t1,t0);
+	float d1 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	anglexy+=d1;
+	t0=cos(anglexy);
+	t1=sin(anglexy);
+	t2 = t2;
+
+	float anglezy = atan2(t1,t2);
+	float d2 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	anglezy+=d2;
+	t0=t0;
+	t1=sin(anglezy);
+	t2=cos(anglezy);
+
+	reflected = t0*vx+t1*vy+t2*vz;
 
 
 	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
+		gv = gv+bias*gn;
+		intersection = raycast(gv,reflected,AD_TRIANGLE_DATA);
+		if(intersection.hit==-1)
 		L += 1.0;
 	}
 	return f2f3(L);
