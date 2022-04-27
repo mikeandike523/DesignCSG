@@ -1,4 +1,6 @@
-C:\Projects\DesignCSG\master\compiled.py:11: RuntimeWarning: invalid value encountered in true_divide
+C:\Projects\DesignCSG\master\compiled.py:13: RuntimeWarning: invalid value encountered in true_divide
   return v/np.linalg.norm(v)
-File Assets/Mesh/Untitled_34.stl, numtrs 1564.
+-140.5190887451172 -82.36772155761719 0.0 116.15687561035156 -27.06960678100586 80.06401062011719
+[0. 0. 0.]
+[0. 0. 0.]
 Instance tree compiled successfully.

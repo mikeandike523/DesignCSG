@@ -210,16 +210,20 @@ def includeCL(filename):
     with open(filename,"r") as fl:
         define_auxillary_function(fl.read())
 
+from stl import mesh
 def readSTLData(filepath):
-    with open(filepath,"rb") as fl:
-        bts = fl.read()
-        numtrsBytes = bts[80:84]
-        numtrs = np.frombuffer(numtrsBytes,dtype="<u4")[0]
-        print(f"File {filepath}, numtrs {numtrs}.")
-        data=[]
-        offs = 84
-        while offs < len(bts):
-            for offs2 in range(0,48,4):
-                data.append(struct.unpack("<f",bts[(offs+offs2):(offs+offs2+4)])[0]) #N, A, B, C
-            offs+=50
-        return numtrs,data
+    stlMesh = mesh.Mesh.from_file(filepath)
+    numtrs = len(stlMesh.v1)
+    normalPlaceholder = np.zeros((len(stlMesh.v1),3),dtype=float)
+    data = []
+    for A,B,C,N in zip(stlMesh.v0,stlMesh.v1,stlMesh.v2,normalPlaceholder):
+        for coord in range(3):
+            data.append(N[coord])
+        for coord in range(3):
+            data.append(A[coord])
+        for coord in range(3):
+            data.append(B[coord])
+        for coord in range(3):
+            data.append(C[coord])
+    return numtrs,data
+

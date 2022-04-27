@@ -8,6 +8,8 @@ def vec3(x,y,z):
 	return np.array([x,y,z],dtype=float)
 
 def normalize(v):
+	if np.linalg.norm(v) < 1e-6:
+		print(v)
 	return v/np.linalg.norm(v)
 
 class Triangle3:
@@ -21,7 +23,7 @@ triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
-numtrs,data = readSTLData("Assets/Mesh/Untitled_34.stl")
+numtrs,data = readSTLData("Assets/Mesh/beto_lowpoly_flowalistik.STL")
 def swapYZ(v):
 	temp=v[1]
 	v[1]=v[2]
@@ -31,6 +33,7 @@ def swapYZ(v):
 Apoints = []
 Bpoints = []
 Cpoints = []
+
 
 for it in range(numtrs):
 	A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
@@ -42,6 +45,7 @@ for it in range(numtrs):
 	Apoints.append(A)
 	Bpoints.append(B)
 	Cpoints.append(C)
+
 
 
 minX = float("+inf")
@@ -59,17 +63,18 @@ for point in itertools.chain(Apoints,Bpoints,Cpoints):
 	minZ = min(minZ,point[2])
 	maxZ = max(maxZ,point[2])
 
+print(minX,maxX,minY,maxY,minZ,maxZ)
+
 aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
 aspect/=minaspect
-#aspect*=10
+
 
 rescaleX = lambda x: (-1.0 + 2.0 * (x-minX)/(maxX-minX))*aspect[0]
 rescaleY= lambda y: (-1.0 + 2.0 * (y-minY)/(maxY-minY))*aspect[1]
 rescaleZ = lambda z: (-1.0 + 2.0 * (z-minZ)/(maxZ-minZ))*aspect[2]
 
 rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
-#rescaleVector = lambda v: 10*v
 
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
 	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))
