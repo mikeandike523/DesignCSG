@@ -73,6 +73,11 @@ float3 fastcross(float3 a, float3 b){
 
 #define f2f3(f) Vector3f(f,f,f)
 
+float3 termProduct(float3 a,float3 b){
+
+    return Vector3f(a.x*b.x,a.y*b.y,a.z*b.z);
+}
+
 typedef struct tag_Triangle3f {
     float3 A;
     float3 B;
@@ -99,7 +104,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 lv, int it);
+float3 fragment(float3 gv, int it);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -383,20 +388,28 @@ float3 getTriangleN(int it);
 float3 toGlobal(float3 lcl){
 	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
 }
-float3 fragment(float3 lv, int it){
-	int hits = 16;
-	int lights = 16;
+float3 toLocal(float3 glbl){
+	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
+}
+float3 fragment(float3 gv, int it){
+#define BIAS 0.005
+	float3 lv = toLocal(gv);
+	int lights = 8;
+	int hits = lights;
+	float3 hit = Vector3f(0.0,0.0,0.0);
 	for(int i=0;i<lights;i++){
 		float t = M_PI*2.0*(float)i/(float)lights;
-		float3 L = Vector3f(0.25*R*cos(t),1.0f,0.25*R*sin(t));
-		float3 o = lv;
-		float3 r = normalize(L-lv);
-		of3_t intersection = raycast(toGLobal(o),toGlobal(r));
+		float3 L = Vector3f(0.75*R*cos(t),4.0f,0.75*R*sin(t));
+		float3 o = gv;
+		float3 r = toGlobal(normalize(L-lv));
+		of3_t intersection = raycast(o+termProduct(r,Vector3f(BIAS,BIAS,BIAS)),r);
 		if(intersection.hit!=-1){
 			hits--;
+			hit = intersection.hitPoint;
 		}
 	}
-
+		
 	return  f2f3((float)hits/(float)lights);
+		
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

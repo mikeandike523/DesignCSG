@@ -33,6 +33,11 @@
 
 #define f2f3(f) Vector3f(f,f,f)
 
+float3 termProduct(float3 a,float3 b){
+
+    return Vector3f(a.x*b.x,a.y*b.y,a.z*b.z);
+}
+
 typedef struct tag_Triangle3f {
     float3 A;
     float3 B;
@@ -59,7 +64,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 lv, int it);
+float3 fragment(float3 gv, int it);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
