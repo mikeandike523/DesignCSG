@@ -164,6 +164,12 @@ float scalarProject(float3 subject, float3 base){
     return dot(subject,n);
 }
 
+int signum(float f){
+    if(f==0.0) return 0;
+    if(f>0.0) return 1;
+    return -1;
+}
+
 of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N ){
 
 
@@ -192,14 +198,28 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 P2 = intersectionPoint - B;
     float3 P3 = intersectionPoint - C;
 
-    float p1 = scalarProject(P1,AB);
-    float p2 = scalarProject(P2,BC);
-    float p3 = scalarProject(P3,CA);
+ //   float p1 = scalarProject(P1,AB);
+   // float p2 = scalarProject(P2,BC);
+   // float p3 = scalarProject(P3,CA);
 
 
-    if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
+
+
+
+    //if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
+      //  return miss();
+    //}
+
+    float p1 = dot(cross(P1,AB),N);
+    float p2= dot(cross(P2,BC),N);
+    float p3 = dot(cross(P3,CA),N);
+    
+    int s = signum(p1)+signum(p2)+signum(p3);
+    if(s!=-3&&s!=3){
         return miss();
     }
+
+
 
 
     of3_t of= of3(intersectionPoint,0);
