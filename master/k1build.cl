@@ -365,7 +365,8 @@ __kernel void  k1(
 
     int hits = 0;
     for(int i=0;i<SAMPLES;i++){
-        float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
+     //   float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
+        float3 _r = r;
         of3_t intersection = raycast(
             o,_r,AD_TRIANGLE_DATA
         );
@@ -388,7 +389,7 @@ __kernel void  k1(
  
 }
  
-#define R 11.845834549999923
+#define R 3.9486115166666407
 #define H 3.480871528856729
 
 float3 reflection(float3 ray, float3 normal){

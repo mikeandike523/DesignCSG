@@ -321,7 +321,8 @@ __kernel void  k1(
 
     int hits = 0;
     for(int i=0;i<SAMPLES;i++){
-        float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
+     //   float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
+        float3 _r = r;
         of3_t intersection = raycast(
             o,_r,AD_TRIANGLE_DATA
         );

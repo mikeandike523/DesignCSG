@@ -120,7 +120,7 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*10.5
+R=max(aspect[0],aspect[2])*3.5
 segments =32
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
