@@ -1,5 +1,6 @@
 from DesignCSG import *
 import numpy as np
+import itertools
 
 includeCL("LinAlg.cl")
 
@@ -21,33 +22,56 @@ def addTriangle(tr):
 	triangles.append(tr)
 
 numtrs,data = readSTLData("Assets/Mesh/Flower.stl")
+def swapYZ(v):
+	temp=v[1]
+	v[1]=v[2]
+	v[2]=temp
+	return v
+
+Apoints = []
+Bpoints = []
+Cpoints = []
+
 for it in range(numtrs):
 	A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
 	B=vec3(data[it*12+6+0],data[it*12+6+1],data[it*12+6+2])
 	C=vec3(data[it*12+9+0],data[it*12+9+1],data[it*12+9+2])
-	addTriangle(Triangle3(A,B,C))
+	A=swapYZ(A)
+	B=swapYZ(B)
+	C=swapYZ(C)
+	Apoints.append(A)
+	Bpoints.append(B)
+	Cpoints.append(C)
 
 
-#construct some triangles here
-A=vec3(-1,1,0)
-B=vec3(1,1,0)
-C=vec3(1,-1,0)
-D=vec3(-1,-1,0)
-addTriangle(Triangle3(A,B,C))
-addTriangle(Triangle3(C,D,A))
+minX = float("+inf")
+maxX = float("-inf")
+minY =float("+inf")
+maxY=float("-inf")
+minZ=float("+inf")
+maxZ=float("-inf")
 
-A=vec3(-1,0,1)
-B=vec3(1,0,1)
-C=vec3(1,0,-1)
-D=vec3(-1,0,-1)
-addTriangle(Triangle3(A,B,C))
-addTriangle(Triangle3(C,D,A))
+for point in itertools.chain(Apoints,Bpoints,Cpoints):
+	minX = min(minX,point[0])
+	maxX = max(maxX,point[0])
+	minY = min(minY,point[1])
+	maxY = max(maxY,point[1])
+	minZ = min(minZ,point[2])
+	maxZ = max(maxZ,point[2])
 
+aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
+minaspect = np.min(aspect)
+aspect/=minaspect
 
+rescaleX = lambda x: (-1.0 + 2.0 * (x-minX)/(maxX-minX))*aspect[0]
+rescaleY= lambda y: (-1.0 + 2.0 * (y-minY)/(maxY-minY))*aspect[1]
+rescaleZ = lambda z: (-1.0 + 2.0 * (z-minZ)/(maxZ-minZ))*aspect[2]
 
+rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 
-
-
+for A,B,C in zip(Apoints,Bpoints,Cpoints):
+	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))
+			
 data_num_triangles = [len(triangles)]
 addArbitraryData("NUM_TRIANGLES",data_num_triangles)
 data_triangles = []

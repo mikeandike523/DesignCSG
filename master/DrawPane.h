@@ -13,7 +13,7 @@
 #define yawspeed PI/30.0
 #define MAX_OBJECTS 512
 #define MAX_BUILD_STEPS 256
-#define IZOOM 2.5
+#define IZOOM 5.0
 #define STACK_MEMORY_PER_PIXEL 64
 
 
