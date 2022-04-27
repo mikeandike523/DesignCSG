@@ -2,6 +2,8 @@
         
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
+#define AD_NUM_LIGHT_TRIANGLES 42733
+#define AD_LIGHT_TRIANGLE_DATA 42734
 
 
 
@@ -135,32 +137,39 @@ of3_t miss(){
     return of3((float3)(0.0,0.0,0.0),-1);
 }
 
-float3 getTriangleA(int it){
+float3 toGlobal(float3 lcl){
+	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
+}
+float3 toLocal(float3 glbl){
+	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
+}
+
+float3 getTriangleA(int it,int bankName){
     return (float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+2)
+    getAD(bankName,it*12+0*3+0),
+    getAD(bankName,it*12+0*3+1),
+    getAD(bankName,it*12+0*3+2)
     );
 }
-float3 getTriangleB(int it){
+float3 getTriangleB(int it,int bankName){
     return (float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+2)
+    getAD(bankName,it*12+1*3+0),
+    getAD(bankName,it*12+1*3+1),
+    getAD(bankName,it*12+1*3+2)
     );
 }
-float3 getTriangleC(int it){
+float3 getTriangleC(int it, int bankName){
     return (float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+2)
+    getAD(bankName,it*12+2*3+0),
+    getAD(bankName,it*12+2*3+1),
+    getAD(bankName,it*12+2*3+2)
     );
 }
-float3 getTriangleN(int it){
+float3 getTriangleN(int it, int bankName){
     return (float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+2)
+    getAD(bankName,it*12+3*3+0),
+    getAD(bankName,it*12+3*3+1),
+    getAD(bankName,it*12+3*3+2)
     );
 }
 
@@ -169,38 +178,9 @@ float3 adjust(float3 v){
     return v.x*rgt_g+v.y*upp_g+v.z*fwd_g;
 }
 
-float3 getAdjustedTriangleA(int it){
-    return adjust((float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+0*3+2)
-    ));
-}
-float3 getAdjustedTriangleB(int it){
-    return adjust((float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+1*3+2)
-    ));
-}
-float3 getAdjustedTriangleC(int it){
-    return adjust((float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+2*3+2)
-    ));
-}
-float3 getAdjustedTriangleN(int it){
-    return adjust((float3)(
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+0),
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+1),
-    getAD(AD_TRIANGLE_DATA,it*12+3*3+2)
-    ));
-}
 
-
-int getNumTriangles(){
-    return (int)getAD(AD_NUM_TRIANGLES,0);    
+int getNumTriangles(int bankName){
+    return (int)getAD(bankName,0);    
 }
 
 float scalarProject(float3 subject, float3 base){
@@ -275,10 +255,9 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     return of;
 }
 
-of3_t raycast(float3 o, float3 r){
+of3_t raycast(float3 o, float3 r, int bankName){
 
-    int numTriangles = getNumTriangles();
-
+    int numTriangles = getNumTriangles(AD_NUM_TRIANGLES);
 
     float dist = 0.0;
     float3 hitPoint = (float3)(0.0,0.0,0.0);
@@ -287,10 +266,10 @@ of3_t raycast(float3 o, float3 r){
 
     
     for(int it=0;it<numTriangles;it++){
-        float3 A = getAdjustedTriangleA(it);
-        float3 B = getAdjustedTriangleB(it);
-        float3 C = getAdjustedTriangleC(it);
-        float3 N = getAdjustedTriangleN(it);
+        float3 A = toGlobal(getTriangleA(it,bankName));
+        float3 B = toGlobal(getTriangleB(it,bankName));
+        float3 C = toGlobal(getTriangleC(it,bankName));
+        float3 N = toGlobal(getTriangleN(it,bankName));
         Triangle3f_t tr = Triangle3fWithNormal(A,B,C,N);
         tr=vertex(tr,it);
         A = tr.A;
@@ -369,7 +348,7 @@ __kernel void  k1(
     float3 color = (float3)(1.0,1.0,1.0);
 
     of3_t intersection = raycast(
-        o,r
+        o,r,AD_TRIANGLE_DATA
     );
 
     if(intersection.hit!=-1){
@@ -383,34 +362,29 @@ __kernel void  k1(
  
 }
  
-#define R 2.2563494380952234
+#define R 3.384524157142835
 #define H 3.480871528856729
-float3 getTriangleN(int it);
-float3 toGlobal(float3 lcl){
-	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
-}
-float3 toLocal(float3 glbl){
-	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
+
+float3 reflection(float3 ray, float3 normal){
+	float normalComponent = dot(normal,ray);
+	float3 normalComponentVector = normalComponent*normal;
+	float3 orthagonalVector = ray-normalComponentVector;
+	float3 reflected = orthagonalVector-normalComponentVector;
+	return reflected;
 }
 float3 fragment(float3 gv, int it){
-#define BIAS 0.005
-	float3 lv = toLocal(gv);
-	int lights = 32;
-	int hits = lights;
-	float3 hit = Vector3f(0.0,0.0,0.0);
-	for(int i=0;i<lights;i++){
-		float t = M_PI*2.0*(float)i/(float)lights;
-		float3 L = Vector3f(R*cos(t),H,R*sin(t));
-		float3 o = gv;
-		float3 r = toGlobal(normalize(L-lv));
-		of3_t intersection = raycast(o+termProduct(r,Vector3f(BIAS,BIAS,BIAS)),r);
-		if(intersection.hit!=-1){
-			hits--;
-			hit = intersection.hitPoint;
-		}
+
+	float L = 0.0;
+	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
+	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);
+	float3 gn = toGlobal(ln);
+	float3 incident = normalize(gv-camera_g);
+	float3 reflected = reflection(incident,gn);
+	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
+	if(intersection.hit!=-1){
+		L += 1.0;
 	}
-		
-	return  f2f3((float)hits/(float)lights);
-		
+	return f2f3(L);
+	
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

@@ -119,36 +119,58 @@ for triangle in triangles:
 
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
+lightingTriangles = []
+R=max(aspect[0],aspect[2])*3.0
+segments = 256
+for I in range(segments):
+	t1 = 2.0*np.pi*I/segments
+	t2 = 2.0*np.pi*(I+1)/segments
+	dy = vec3(0.0,aspect[1]*2.5,0.0)
+	A = dy
+	B = dy + R*vec3(cos(t1),0.0,sin(t1))
+	C = dy + R*vec3(cos(t2),0.0,sin(t2))
+	lightingTriangles.append(Triangle3(A,B,C))
+	
+data_num_triangles = [len(lightingTriangles)]
+addArbitraryData("NUM_LIGHT_TRIANGLES",data_num_triangles)
+data_triangles = []
+for triangle in lightingTriangles:
+	for coord in range(3):
+		data_triangles.append(triangle.A[coord])
+	for coord in range(3):
+		data_triangles.append(triangle.B[coord])
+	for coord in range(3):
+		data_triangles.append(triangle.C[coord])
+	for coord in range(3):
+		data_triangles.append(triangle.N[coord])
+
+addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
+
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
-float3 getTriangleN(int it);
-float3 toGlobal(float3 lcl){
-	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
-}
-float3 toLocal(float3 glbl){
-	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
+
+float3 reflection(float3 ray, float3 normal){
+	float normalComponent = dot(normal,ray);
+	float3 normalComponentVector = normalComponent*normal;
+	float3 orthagonalVector = ray-normalComponentVector;
+	float3 reflected = orthagonalVector-normalComponentVector;
+	return reflected;
 }
 float3 fragment(float3 gv, int it){
-#define BIAS 0.005
-	float3 lv = toLocal(gv);
-	int lights = 32;
-	int hits = lights;
-	float3 hit = Vector3f(0.0,0.0,0.0);
-	for(int i=0;i<lights;i++){
-		float t = M_PI*2.0*(float)i/(float)lights;
-		float3 L = Vector3f(R*cos(t),H,R*sin(t));
-		float3 o = gv;
-		float3 r = toGlobal(normalize(L-lv));
-		of3_t intersection = raycast(o+termProduct(r,Vector3f(BIAS,BIAS,BIAS)),r);
-		if(intersection.hit!=-1){
-			hits--;
-			hit = intersection.hitPoint;
-		}
+
+	float L = 0.0;
+	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
+	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);
+	float3 gn = toGlobal(ln);
+	float3 incident = normalize(gv-camera_g);
+	float3 reflected = reflection(incident,gn);
+	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
+	if(intersection.hit!=-1){
+		L += 1.0;
 	}
-		
-	return  f2f3((float)hits/(float)lights);
-		
+	return f2f3(L);
+	
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """.replace("<{R}>",str(R)).replace("<{H}>",str(2.0*aspect[1])))
