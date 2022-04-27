@@ -33,7 +33,13 @@
 
 #define f2f3(f) Vector3f(f,f,f)
 
-
+float angleZeroToTwoPi(float x, float y){
+    float a = atan2(y,x);
+    if(a<0.0){
+        a = 2.0*M_PI+a;
+    }
+    return a;
+}
 
 float3 termProduct(float3 a,float3 b){
 
@@ -83,7 +89,7 @@ float rand(){
 	rand_counter_g = (rand_counter_g+1)%4096;
 	return r;
 }
-float rand2(){
+float randCoord(){
 	return -1.0+rand()*2.0;
 }
 
