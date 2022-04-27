@@ -304,13 +304,24 @@ __kernel void  k1(
 
 
     float3 color = (float3)(1.0,1.0,1.0);
+    float3 totalColor = (float3)(0.0,0.0,0.0);
 
-    of3_t intersection = raycast(
-        o,r,AD_TRIANGLE_DATA
-    );
 
-    if(intersection.hit!=-1){
-        color = fragment(intersection.hitPoint,intersection.hit);
+    int hits = 0;
+    for(int i=0;i<SAMPLES;i++){
+        of3_t intersection = raycast(
+            o,r,AD_TRIANGLE_DATA
+        );
+
+        if(intersection.hit!=-1){
+            totalColor += fragment(intersection.hitPoint,intersection.hit);
+            hits++;
+        }
+    }
+
+    color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
+    if(hits==0){
+        color=Vector3f(uv.x,uv.y,1.0);
     }
   
     outpixels[tid*3+0] = RCOMP(color);

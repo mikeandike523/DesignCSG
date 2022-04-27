@@ -28,6 +28,9 @@ addArbitraryData = compiler.addArbitraryData
 def commit(shaders):
     compiler.shaders=shaders
     compiler.commit()
+
+def setSamples(samples):
+    compiler.set_samples(samples)
     
 define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define

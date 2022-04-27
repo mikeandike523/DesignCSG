@@ -419,6 +419,9 @@ class _SceneCompiler:
 
     def add_preprocessor_define(self,define):
         self.preprocessor_defines.append(define)
+    
+    def set_samples(self,samples):
+        self.samples = samples
 
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
@@ -431,6 +434,7 @@ class _SceneCompiler:
         self.empty_brush=self.define_brush(body="return MAX_DISTANCE;")
         self.space_brush = self.define_brush(body = "return 0.0;")
         self.abs_normals=self.define_material(body = "return fabs(n);")
+        self.samples = 1
         self.basic_lighting = self.define_material(body = """
         
         double3 n_g = n.x*rgt_g+n.y*upp_g+n.z*fwd_g;
@@ -483,14 +487,15 @@ class _SceneCompiler:
 
 
         header_cl="""
-        
-{}
+#define SAMPLES {}
 
 {}
 
 {}
 
-        """.format(
+{}
+
+        """.format(int(self.samples),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
