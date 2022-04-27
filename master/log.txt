@@ -1,2 +1,4 @@
-File Assets/Mesh/Flower.stl, numtrs 3305.
+C:\Projects\DesignCSG\master\compiled.py:11: RuntimeWarning: invalid value encountered in true_divide
+  return v/np.linalg.norm(v)
+File Assets/Mesh/Untitled_34.stl, numtrs 1564.
 Instance tree compiled successfully.

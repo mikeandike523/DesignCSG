@@ -21,7 +21,7 @@ triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
-numtrs,data = readSTLData("Assets/Mesh/Flower.stl")
+numtrs,data = readSTLData("Assets/Mesh/Untitled_34.stl")
 def swapYZ(v):
 	temp=v[1]
 	v[1]=v[2]
@@ -68,8 +68,8 @@ rescaleX = lambda x: (-1.0 + 2.0 * (x-minX)/(maxX-minX))*aspect[0]
 rescaleY= lambda y: (-1.0 + 2.0 * (y-minY)/(maxY-minY))*aspect[1]
 rescaleZ = lambda z: (-1.0 + 2.0 * (z-minZ)/(maxZ-minZ))*aspect[2]
 
-#rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
-rescaleVector = lambda v: 10*v
+rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
+#rescaleVector = lambda v: 10*v
 
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
 	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))

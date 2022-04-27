@@ -29,6 +29,8 @@ void BasicDrawPane::setArbitraryData(float * data, size_t items) {
 
 }
 
+#define MAX_STORAGE 2 * 1024 * 1024 //2MB
+
 void BasicDrawPane::idled(wxIdleEvent& event)
 {
 	//Awful hack --> Purpose is to allow draw before scene is initialized, but this is incredibly hacky
@@ -68,7 +70,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 			int* testing_max_floats_p = &testing_max_floats;
 			while (*testing_max_floats_p) {
 				(* max_floats_p) *= 2;
-				if ((*max_floats_p) > 256 * 1024 * 1024 / 4) (*testing_max_floats_p) = 0; //256 MB
+				if ((*max_floats_p) >  MAX_STORAGE/ 4) (*testing_max_floats_p) = 0; 
 				DebugPrint("Attempting to create float buffer with %d elements... ", *max_floats_p);
 				float* testArray = (float*)calloc((*max_floats_p), sizeof(float));
 				cl_int max_floats_err = CL_SUCCESS;
@@ -102,17 +104,14 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		max_floats /= 2; //since last clCreateBuffer was not successful
 
-		if (max_floats > 1024 * 1024 * 256 / 4) {
-			max_floats = 1024 * 1024 * 256 / 4;
-			DebugPrint("Capped buffer at 256MB.\n");
+		if (max_floats > MAX_STORAGE / 4) {
+			max_floats = MAX_STORAGE / 4;
+			DebugPrint("Capped buffer.\n");
 		}
 
-		if (max_floats != 1024 * 1024 * 256 / 4) {
-			DebugPrint("Buffer max floats: %d\n", max_floats);
-		}
-		else
-		DebugPrint("Buffer max floats: 256 MB with 4 bytes per float = %d floats\n", max_floats);
-
+	
+		DebugPrint("Buffer max floats: %d\n", max_floats);
+	
 		FILE* deviceInfoFile = fopen("deviceInfo.txt", "w");
 		fprintf(deviceInfoFile, "%d", max_floats);
 		fclose(deviceInfoFile);
