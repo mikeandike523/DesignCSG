@@ -116,7 +116,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it, int * rand_counter);
+float3 fragment(float3 gv, int it, int * rand_counter_p);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -344,7 +344,7 @@ __kernel void  k1(
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
-    int rand_counter = tid%4096;
+    int rand_counter = (ix+iy)%4096;
 
 
 
@@ -399,7 +399,6 @@ __kernel void  k1(
 #define R 11.281747190476118
 #define H 3.480871528856729
 
-
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -407,9 +406,9 @@ float3 reflection(float3 ray, float3 normal){
 	float3 reflected = orthagonalVector-normalComponentVector;
 	return reflected;
 }
-float3 fragment(float3 gv, int it, int * rand_counter){
+float3 fragment(float3 gv, int it, int * rand_counter_p){
 
-	const float specular = 1.0;
+	const float specular = 0.0;
 	const float bias = 0.01;
 
 	float L = 0.0;
@@ -429,14 +428,14 @@ float3 fragment(float3 gv, int it, int * rand_counter){
 	float t2 = dot(reflected,vz);
 
 	float anglexy = atan2(t1,t0);
-	float d1 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	float d1 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
 	anglexy+=d1;
 	t0=cos(anglexy);
 	t1=sin(anglexy);
 	t2 = t2;
 
 	float anglezy = atan2(t1,t2);
-	float d2 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	float d2 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
 	anglezy+=d2;
 	t0=t0;
 	t1=sin(anglezy);

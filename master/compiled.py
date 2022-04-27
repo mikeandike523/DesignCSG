@@ -158,7 +158,6 @@ commit(shaders="""
 #define R <{R}>
 #define H <{H}>
 
-
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
@@ -166,9 +165,9 @@ float3 reflection(float3 ray, float3 normal){
 	float3 reflected = orthagonalVector-normalComponentVector;
 	return reflected;
 }
-float3 fragment(float3 gv, int it, int * rand_counter){
+float3 fragment(float3 gv, int it, int * rand_counter_p){
 
-	const float specular = 1.0;
+	const float specular = 0.0;
 	const float bias = 0.01;
 
 	float L = 0.0;
@@ -188,14 +187,14 @@ float3 fragment(float3 gv, int it, int * rand_counter){
 	float t2 = dot(reflected,vz);
 
 	float anglexy = atan2(t1,t0);
-	float d1 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	float d1 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
 	anglexy+=d1;
 	t0=cos(anglexy);
 	t1=sin(anglexy);
 	t2 = t2;
 
 	float anglezy = atan2(t1,t2);
-	float d2 = randCoord(rand_counter)*M_PI*(1.0-specular);
+	float d2 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
 	anglezy+=d2;
 	t0=t0;
 	t1=sin(anglezy);

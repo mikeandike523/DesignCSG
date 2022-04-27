@@ -72,7 +72,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it, int * rand_counter);
+float3 fragment(float3 gv, int it, int * rand_counter_p);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -300,7 +300,7 @@ __kernel void  k1(
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
-    int rand_counter = tid%4096;
+    int rand_counter = (ix+iy)%4096;
 
 
 
