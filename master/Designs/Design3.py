@@ -2,6 +2,7 @@ from DesignCSG import *
 import numpy as np
 import itertools
 import struct
+from math import sqrt
 
 includeCL("LinAlg.cl")
 
@@ -9,7 +10,7 @@ def vec3(x,y,z):
 	return np.array([x,y,z],dtype=float)
 
 def normalize(v):
-	return v/np.linalg.norm(v)
+	return v/sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
 
 def cross(A,B):
 	C = vec3(0.0,0.0,0.0)
