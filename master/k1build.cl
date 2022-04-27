@@ -250,10 +250,11 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
       //  return miss();
     //}
 
+
+    //Courtesy of https://math.stackexchange.com/a/51328/523713
     float p1 = dot(cross(P1,AB),N);
     float p2= dot(cross(P2,BC),N);
     float p3 = dot(cross(P3,CA),N);
-    
     int s = signum(p1)+signum(p2)+signum(p3);
     if(s!=-3&&s!=3){
         return miss();

@@ -30,7 +30,7 @@ triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
-numtrs,data = readSTLData("Assets/Mesh/suzanne.stl")
+numtrs,data = readSTLData("Assets/Mesh/Flower.stl")
 def swapYZ(v):
 	temp=v[1]
 	v[1]=v[2]
