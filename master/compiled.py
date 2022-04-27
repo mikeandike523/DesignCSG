@@ -12,12 +12,19 @@ def normalize(v):
 		print(v)
 	return v/np.linalg.norm(v)
 
+def cross(A,B):
+	C = vec3(0.0,0.0,0.0)
+	C[0] = A[1]*B[2]-A[2]*B[1]
+	C[1]=-(A[0]*B[2]-A[2]*B[0])
+	C[2]=(A[0]*B[1]-A[1]*B[0])
+	return C 
+
 class Triangle3:
 	def __init__(self,A,B,C):
 		self.A=A
 		self.B=B
 		self.C=C
-		self.N=normalize(np.cross(C-A,B-A))
+		self.N=normalize(cross(C-A,B-A))
 
 triangles = []
 def addTriangle(tr):
@@ -46,6 +53,9 @@ for it in range(numtrs):
 	Bpoints.append(B)
 	Cpoints.append(C)
 
+
+
+print(len(Apoints),len(Bpoints),len(Cpoints))
 
 
 minX = float("+inf")
