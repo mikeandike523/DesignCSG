@@ -132,7 +132,7 @@ float3 toLocal(float3 glbl){
 float3 fragment(float3 gv, int it){
 #define BIAS 0.005
 	float3 lv = toLocal(gv);
-	int lights = 64;
+	int lights = 32;
 	int hits = lights;
 	float3 hit = Vector3f(0.0,0.0,0.0);
 	for(int i=0;i<lights;i++){
