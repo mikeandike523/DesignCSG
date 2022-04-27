@@ -92,7 +92,7 @@ for A,B,C in zip(Apoints,Bpoints,Cpoints):
 
 
 R=max(aspect[0],aspect[2])*2.0
-segments = 32
+segments = 256
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
@@ -121,6 +121,7 @@ addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 commit(shaders=""" 
 #define R <{R}>
+#define H <{H}>
 float3 getTriangleN(int it);
 float3 toGlobal(float3 lcl){
 	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
@@ -131,12 +132,12 @@ float3 toLocal(float3 glbl){
 float3 fragment(float3 gv, int it){
 #define BIAS 0.005
 	float3 lv = toLocal(gv);
-	int lights = 8;
+	int lights = 64;
 	int hits = lights;
 	float3 hit = Vector3f(0.0,0.0,0.0);
 	for(int i=0;i<lights;i++){
 		float t = M_PI*2.0*(float)i/(float)lights;
-		float3 L = Vector3f(0.75*R*cos(t),4.0f,0.75*R*sin(t));
+		float3 L = Vector3f(R*cos(t),H,R*sin(t));
 		float3 o = gv;
 		float3 r = toGlobal(normalize(L-lv));
 		of3_t intersection = raycast(o+termProduct(r,Vector3f(BIAS,BIAS,BIAS)),r);
@@ -150,6 +151,6 @@ float3 fragment(float3 gv, int it){
 		
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
-""".replace("<{R}>",str(R)))
+""".replace("<{R}>",str(R)).replace("<{H}>",str(2.0*aspect[1])))
 
 			
