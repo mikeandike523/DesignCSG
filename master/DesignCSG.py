@@ -230,3 +230,6 @@ def readSTLData(filepath):
             data.append(C[coord])
     return numtrs,data
 
+def setRandomTableSize(sz):
+    compiler.set_random_table_size(sz)
+

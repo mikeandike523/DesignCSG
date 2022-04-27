@@ -8,7 +8,7 @@ from typing import List
 import struct
 
 INITIAL_SCALE = 1.0
-RANDOM_TABLE_SIZE=4096*4
+DEFAULT_RANDOM_TABLE_SIZE=4096*4
 
 with open("deviceInfo.txt","r") as fl:
     ARBITRARY_DATA_POINTS=int(int(fl.read())/4)
@@ -426,6 +426,7 @@ class _SceneCompiler:
 
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
+        self.RANDOM_TABLE_SIZE=DEFAULT_RANDOM_TABLE_SIZE
         self.adCounter = 0
         self.ad=[]
         self.brush_counter = Incrementor()
@@ -475,10 +476,13 @@ class _SceneCompiler:
     def default_material(self):
         return self.basic_lighting
 
+    def set_random_table_size(self,sz):
+        self.RANDOM_TABLE_SIZE=sz
+
     def commit(self):
 
         randomTexture = []
-        for _ in range(RANDOM_TABLE_SIZE):
+        for _ in range(self.RANDOM_TABLE_SIZE):
             randomTexture.append(np.random.uniform())
         self.addArbitraryData("RANDOM_TABLE",randomTexture)
 
@@ -499,7 +503,7 @@ class _SceneCompiler:
 
 {}
 
-        """.format(int(RANDOM_TABLE_SIZE),int(self.samples),
+        """.format(int(self.RANDOM_TABLE_SIZE),int(self.samples),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),

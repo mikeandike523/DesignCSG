@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 32
+#define SAMPLES 1
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1

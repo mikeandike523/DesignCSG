@@ -146,7 +146,8 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(32);
+setSamples(1);
+setRandomTableSize(4096*4)
 
 commit(shaders=""" 
 #define R <{R}>
