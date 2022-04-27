@@ -475,7 +475,11 @@ class _SceneCompiler:
         return self.basic_lighting
 
     def commit(self):
-
+        
+        randomTexture = []
+        for _ in range(4096):
+            randomTexture.append(np.random.uniform())
+        self.addArbitraryData("RANDOM_TABLE",randomTexture)
 
         ad_definitions = ""
         for chunk in self.ad:
@@ -483,9 +487,7 @@ class _SceneCompiler:
             start=chunk.start
             ad_definitions+=("#define AD_{} {}\n".format(name,start))
 
-        #compile scene.cl
-
-
+                 
         header_cl="""
 #define SAMPLES {}
 
@@ -500,7 +502,7 @@ class _SceneCompiler:
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
             )
-        
+
 
         Utils.fwrite("k1build.cl",header_cl+"\n"+Utils.fread("k1.cl")+"\n"+self.shaders)
 

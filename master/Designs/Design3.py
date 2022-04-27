@@ -148,12 +148,6 @@ addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)
 
 setSamples(4);
 
-randomTexture = []
-for _ in range(4096):
-	randomTexture.append(np.random.uniform())
-
-addArbitraryData("RANDOM_TABLE",randomTexture)
-
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
