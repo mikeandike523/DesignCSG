@@ -23,7 +23,7 @@ triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
-numtrs,data = readSTLData("Assets/Mesh/beto_lowpoly_flowalistik.STL")
+numtrs,data = readSTLData("Assets/Mesh/suzanne.stl")
 def swapYZ(v):
 	temp=v[1]
 	v[1]=v[2]
@@ -69,7 +69,7 @@ aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
 aspect/=minaspect
 
-S=50.0
+S=1.0
 
 rescaleX = lambda x: (-1.0*S + 2.0*S * (x-minX)/(maxX-minX))*aspect[0]
 rescaleY= lambda y: (-1.0 *S+ 2.0 *S* (y-minY)/(maxY-minY))*aspect[1]
