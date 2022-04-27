@@ -2,7 +2,7 @@ from DesignCSG import *
 import numpy as np
 import itertools
 import struct
-from math import sqrt
+from math import sqrt,cos,sin
 
 includeCL("LinAlg.cl")
 
@@ -89,6 +89,20 @@ rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
 	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))
+
+
+R=max(aspect[0],aspect[2])*2.0
+segments = 32
+for I in range(segments):
+	t1 = 2.0*np.pi*I/segments
+	t2 = 2.0*np.pi*(I+1)/segments
+	dy = vec3(0.0,-aspect[1],0.0)
+	A = dy
+	B = dy + R*vec3(cos(t1),0.0,sin(t1))
+	C = dy + R*vec3(cos(t2),0.0,sin(t2))
+	addTriangle(Triangle3(A,B,C))
+		
+	
 			
 data_num_triangles = [len(triangles)]
 addArbitraryData("NUM_TRIANGLES",data_num_triangles)
@@ -106,32 +120,28 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 commit(shaders=""" 
+#define R <{R}>
 float3 getTriangleN(int it);
-float3 fragment(float3 gv, int it){
-	return fabs(getTriangleN(it));
-	//float d = length(gv-camera_g);
-	//return f2f3(d/10.0);
-	//return gv;
+float3 toGlobal(float3 lcl){
+	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
+}
+float3 fragment(float3 lv, int it){
+	int hits = 16;
+	int lights = 16;
+	for(int i=0;i<lights;i++){
+		float t = M_PI*2.0*(float)i/(float)lights;
+		float3 L = Vector3f(0.25*R*cos(t),1.0f,0.25*R*sin(t));
+		float3 o = lv;
+		float3 r = normalize(L-lv);
+		of3_t intersection = raycast(toGLobal(o),toGlobal(r));
+		if(intersection.hit!=-1){
+			hits--;
+		}
+	}
+
+	return  f2f3((float)hits/(float)lights);
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
-""")
-
-with open("Assets/Mesh/test.stl","wb") as fl:
-	for _ in range(80):
-		fl.write(struct.pack("x"))
-	fl.write(struct.pack("<I",numtrs))
-	for triangle in triangles:
-		A=triangle.A
-		B=triangle.B
-		C=triangle.C
-		for _ in range(3):
-			fl.write(struct.pack("<f",0.0))
-		for coord in range(3):
-			fl.write(struct.pack("<f",A[coord]))
-		for coord in range(3):
-			fl.write(struct.pack("<f",B[coord]))
-		for coord in range(3):
-			fl.write(struct.pack("<f",C[coord]))
-		fl.write(struct.pack("<H",0))
+""".replace("<{R}>",str(R)))
 
 			

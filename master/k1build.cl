@@ -99,7 +99,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it);
+float3 fragment(float3 lv, int it);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
@@ -378,11 +378,25 @@ __kernel void  k1(
  
 }
  
+#define R 2.2563494380952234
 float3 getTriangleN(int it);
-float3 fragment(float3 gv, int it){
-	return fabs(getTriangleN(it));
-	//float d = length(gv-camera_g);
-	//return f2f3(d/10.0);
-	//return gv;
+float3 toGlobal(float3 lcl){
+	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
+}
+float3 fragment(float3 lv, int it){
+	int hits = 16;
+	int lights = 16;
+	for(int i=0;i<lights;i++){
+		float t = M_PI*2.0*(float)i/(float)lights;
+		float3 L = Vector3f(0.25*R*cos(t),1.0f,0.25*R*sin(t));
+		float3 o = lv;
+		float3 r = normalize(L-lv);
+		of3_t intersection = raycast(toGLobal(o),toGlobal(r));
+		if(intersection.hit!=-1){
+			hits--;
+		}
+	}
+
+	return  f2f3((float)hits/(float)lights);
 }
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

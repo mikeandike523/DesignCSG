@@ -59,7 +59,7 @@ Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
     return tr;
 }
 
-float3 fragment(float3 gv, int it);
+float3 fragment(float3 lv, int it);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 
