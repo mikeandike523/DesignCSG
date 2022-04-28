@@ -1,19 +1,18 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 256
+#define SAMPLES 8
 #define COLOR_POW 0.25
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
-#define AD_NUM_LIGHT_TRIANGLES 40045
-#define AD_LIGHT_TRIANGLE_DATA 40046
-#define AD_RANDOM_TABLE 40430
-#define AD_SHUFFLE_TABLE 44526
+#define AD_NUM_LIGHT_TRIANGLES 5689
+#define AD_LIGHT_TRIANGLE_DATA 5690
+#define AD_RANDOM_TABLE 6074
+#define AD_SHUFFLE_TABLE 10170
 
 
 
 
- 
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
 typedef struct tag_mat3_t{
@@ -411,8 +410,8 @@ __kernel void  k1(
  
 }
  
-#define R 1.1281747190476117
-#define H 3.480871528856729
+#define R 1.842323277725998
+#define H 3.9949834794364114
 
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
@@ -422,7 +421,7 @@ float3 reflection(float3 ray, float3 normal){
 	return reflected;
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-
+	return Vector3f(0.5,0.2,1.0);
 	const float bias = 0.005;
 
 	float L = 0.0;

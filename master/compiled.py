@@ -6,33 +6,11 @@ from math import sqrt,cos,sin
 
 np.random.seed(1999)
 
-includeCL("LinAlg.cl")
-
-def vec3(x,y,z):
-	return np.array([x,y,z],dtype=float)
-
-def normalize(v):
-	return v/sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
-
-def cross(A,B):
-	C = vec3(0.0,0.0,0.0)
-	C[0] = A[1]*B[2]-A[2]*B[1]
-	C[1]=-(A[0]*B[2]-A[2]*B[0])
-	C[2]=(A[0]*B[1]-A[1]*B[0])
-	return C 
-
-class Triangle3:
-	def __init__(self,A,B,C):
-		self.A=A
-		self.B=B
-		self.C=C
-		self.N=normalize(cross(C-A,B-A))
-
 triangles = []
 def addTriangle(tr):
 	triangles.append(tr)
 
-numtrs,data = readSTLData("Assets/Mesh/Flower.stl")
+numtrs,data = readSTLData("Assets/Mesh/testfile.stl")
 def swapYZ(v):
 	temp=v[1]
 	v[1]=v[2]
@@ -83,8 +61,19 @@ rescaleZ = lambda z: (-1.0 *S+ 2.0 *S* (z-minZ)/(maxZ-minZ))*aspect[2]
 rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
-	addTriangle(Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C)))
+	tr=Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C))
+	if tr.hasNan(): continue
 
+	addTriangle(tr)
+
+#print(list(zip(Apoints,Bpoints,Cpoints)))
+print(aspect)
+print(minX,maxX)
+print(rescaleX(0.5*(minX+maxX)))
+print(minY,maxY)
+print(rescaleY(0.5*(minY+maxY)))
+print(minZ,maxZ)
+print(rescaleZ(0.5*(minZ+maxZ)))
 
 R=max(aspect[0],aspect[2])*2.0
 segments =32
@@ -156,7 +145,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(256);
+setSamples(8);
 setRandomTableSize(4096)
 setColorPow(0.25)
 commit(shaders=""" 
@@ -171,7 +160,7 @@ float3 reflection(float3 ray, float3 normal){
 	return reflected;
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-
+	return Vector3f(0.5,0.2,1.0);
 	const float bias = 0.005;
 
 	float L = 0.0;

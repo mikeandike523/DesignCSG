@@ -1,1 +1,10 @@
-Instance tree compiled successfully.
+C:\Projects\DesignCSG\master\DesignCSG.py:59: RuntimeWarning: invalid value encountered in true_divide
+  return v/sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
+[1.         1.99749174 1.84232328]
+-140.5190887451172 -82.36772155761719
+0.0
+0.0 116.15687561035156
+0.0
+-27.06960678100586 80.06401062011719
+0.0
+Scene compiled successfully.
