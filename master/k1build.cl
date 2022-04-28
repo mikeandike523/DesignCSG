@@ -276,9 +276,9 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     return of;
 }
 
-of3_t raycast(float3 o, float3 r, int bankName){
+of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
-    int numTriangles = getNumTriangles(AD_NUM_TRIANGLES);
+    int numTriangles = getNumTriangles(numBankName);
 
     float dist = 0.0;
     float3 hitPoint = (float3)(0.0,0.0,0.0);
@@ -376,10 +376,9 @@ __kernel void  k1(
 
     int hits = 0;
     for(int i=0;i<SAMPLES;i++){
-     //   float3 _r = r+Vector3f(0.01*rand(),0.0,0.01*rand2());
-        float3 _r = r;
+
         of3_t intersection = raycast(
-            o,_r,AD_TRIANGLE_DATA
+            o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
         );
 
         if(intersection.hit!=-1){
@@ -391,7 +390,14 @@ __kernel void  k1(
     color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
     if(hits==0){
         color=Vector3f(uv.x,uv.y,1.0);
+        of3_t intersection = raycast(o,r,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
+        if(intersection.hit!=-1){
+            float3 ln = getTriangleN(intersection.hit,AD_LIGHT_TRIANGLE_DATA);
+            color = fabs(ln);
+        }
     }
+
+    
   
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
@@ -400,7 +406,7 @@ __kernel void  k1(
  
 }
  
-#define R 8.461310392857088
+#define R 11.845834549999923
 #define H 3.480871528856729
 
 float3 reflection(float3 ray, float3 normal){
@@ -448,10 +454,10 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	reflected = t0*vx+t1*vy+t2*vz;
 
 
-	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
+	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		gv = gv+bias*gn;
-		intersection = raycast(gv,reflected,AD_TRIANGLE_DATA);
+		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
 		if(intersection.hit==-1)
 		L += 1.0;
 	}

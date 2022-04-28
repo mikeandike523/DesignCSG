@@ -122,15 +122,26 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*7.5
+R=max(aspect[0],aspect[2])*10.5
 segments =32
+center  = 2.0*aspect
+ydir = normalize(aspect)
+r=normalize(vec3(ydir[0],0.0,ydir[2]))
+d=np.dot(ydir,r)
+h=ydir[1]
+dnew = -h
+hnew = d
+xdir = dnew*r + hnew*vec3(0.0,1.0,0.0)
+zdir = normalize(cross(xdir,ydir))
+
+def toCoordinates(v,xdir,ydir,zdir):
+	return v[0]*xdir+v[1]*ydir+v[2]*zdir
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
-	dy = vec3(0.0,aspect[1]*3.5,0.0)
-	A = dy
-	B = dy + R*vec3(cos(t1),0.0,sin(t1))
-	C = dy + R*vec3(cos(t2),0.0,sin(t2))
+	A = center
+	B = center+ toCoordinates(R*vec3(cos(t1),0.0,sin(t1)),xdir,ydir,zdir)
+	C = center+ toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
 	lightingTriangles.append(Triangle3(A,B,C))
 	
 data_num_triangles = [len(lightingTriangles)]
@@ -199,10 +210,10 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	reflected = t0*vx+t1*vy+t2*vz;
 
 
-	of3_t intersection = raycast(gv,reflected,AD_LIGHT_TRIANGLE_DATA);
+	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		gv = gv+bias*gn;
-		intersection = raycast(gv,reflected,AD_TRIANGLE_DATA);
+		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
 		if(intersection.hit==-1)
 		L += 1.0;
 	}
