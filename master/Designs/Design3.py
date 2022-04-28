@@ -4,7 +4,7 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
-np.random.seed(2022)
+np.random.seed(1999)
 
 includeCL("LinAlg.cl")
 
@@ -87,7 +87,7 @@ for A,B,C in zip(Apoints,Bpoints,Cpoints):
 
 
 R=max(aspect[0],aspect[2])*2.0
-segments = 256
+segments = 32
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
@@ -113,7 +113,7 @@ for triangle in triangles:
 addArbitraryData("TRIANGLE_DATA",data_triangles)
 
 lightingTriangles = []
-R=max(aspect[0],aspect[2])*10.5
+R=max(aspect[0],aspect[2])*1.0
 segments =32
 center  = 2.0*aspect
 ydir = normalize(aspect)
@@ -150,8 +150,8 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(32);
-setRandomTableSize(4096)
+setSamples(256);
+setRandomTableSize(4096*8)
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
@@ -165,7 +165,6 @@ float3 reflection(float3 ray, float3 normal){
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
 
-	const float specular = 0.0;
 	const float bias = 0.01;
 
 	float L = 0.0;
@@ -180,33 +179,41 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,vy);
+//	if(dot(incident,vy)<0.0)
+	//{
+	//	vy=-vy;
+	//	reflected=reflection(incident,vy);
+	//}
+
+
 	float t0 = dot(reflected,vx);
 	float t1 = dot(reflected,vy);
 	float t2 = dot(reflected,vz);
 
 	float anglexy = atan2(t1,t0);
-	float d1 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
+	float d1 = randCoord(rand_counter_p)*M_PI/2.0;
 	anglexy+=d1;
 	t0=cos(anglexy);
 	t1=sin(anglexy);
 	t2 = t2;
 
 	float anglezy = atan2(t1,t2);
-	float d2 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
+	float d2 = randCoord(rand_counter_p)*M_PI/2.0;
 	anglezy+=d2;
 	t0=t0;
 	t1=sin(anglezy);
 	t2=cos(anglezy);
 
 	reflected = t0*vx+t1*vy+t2*vz;
-
+	float lightIntensity=SAMPLES*0.25;
 
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		gv = gv+bias*gn;
 		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1)
-		L += 1.0;
+		if(intersection.hit==-1){
+		L += lightIntensity;
+		}
 	}
 	return f2f3(L);
 	

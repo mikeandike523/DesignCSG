@@ -1,13 +1,13 @@
 
-#define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 32
+#define RANDOM_TABLE_SIZE 32768
+#define SAMPLES 256
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
-#define AD_NUM_LIGHT_TRIANGLES 42733
-#define AD_LIGHT_TRIANGLE_DATA 42734
-#define AD_RANDOM_TABLE 43118
-#define AD_SHUFFLE_TABLE 47214
+#define AD_NUM_LIGHT_TRIANGLES 40045
+#define AD_LIGHT_TRIANGLE_DATA 40046
+#define AD_RANDOM_TABLE 40430
+#define AD_SHUFFLE_TABLE 73198
 
 
 
@@ -407,7 +407,7 @@ __kernel void  k1(
  
 }
  
-#define R 11.845834549999923
+#define R 1.1281747190476117
 #define H 3.480871528856729
 
 float3 reflection(float3 ray, float3 normal){
@@ -419,7 +419,6 @@ float3 reflection(float3 ray, float3 normal){
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
 
-	const float specular = 0.0;
 	const float bias = 0.01;
 
 	float L = 0.0;
@@ -434,33 +433,41 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 	float3 incident = normalize(gv-camera_g);
 	float3 reflected = reflection(incident,vy);
+//	if(dot(incident,vy)<0.0)
+	//{
+	//	vy=-vy;
+	//	reflected=reflection(incident,vy);
+	//}
+
+
 	float t0 = dot(reflected,vx);
 	float t1 = dot(reflected,vy);
 	float t2 = dot(reflected,vz);
 
 	float anglexy = atan2(t1,t0);
-	float d1 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
+	float d1 = randCoord(rand_counter_p)*M_PI/2.0;
 	anglexy+=d1;
 	t0=cos(anglexy);
 	t1=sin(anglexy);
 	t2 = t2;
 
 	float anglezy = atan2(t1,t2);
-	float d2 = randCoord(rand_counter_p)*M_PI*(1.0-specular);
+	float d2 = randCoord(rand_counter_p)*M_PI/2.0;
 	anglezy+=d2;
 	t0=t0;
 	t1=sin(anglezy);
 	t2=cos(anglezy);
 
 	reflected = t0*vx+t1*vy+t2*vz;
-
+	float lightIntensity=SAMPLES*0.25;
 
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		gv = gv+bias*gn;
 		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1)
-		L += 1.0;
+		if(intersection.hit==-1){
+		L += lightIntensity;
+		}
 	}
 	return f2f3(L);
 	
