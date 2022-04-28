@@ -279,7 +279,6 @@ of3_t raycast(float3 o, float3 r, int bankName){
 }
 
 
-                           
 
 __kernel void  k1(
 
@@ -300,7 +299,10 @@ __kernel void  k1(
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
-    int rand_counter = tid % RANDOM_TABLE_SIZE;
+
+    int rand_counter = getAD(AD_SHUFFLE_TABLE,tid%RANDOM_TABLE_SIZE);                    
+
+
 
 
 

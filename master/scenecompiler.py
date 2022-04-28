@@ -485,6 +485,9 @@ class _SceneCompiler:
         for _ in range(self.RANDOM_TABLE_SIZE):
             randomTexture.append(np.random.uniform())
         self.addArbitraryData("RANDOM_TABLE",randomTexture)
+        shuffleTable = list(range(len(randomTexture)))
+        np.random.shuffle(shuffleTable)
+        self.addArbitraryData("SHUFFLE_TABLE",shuffleTable)
 
         ad_definitions = ""
         for chunk in self.ad:

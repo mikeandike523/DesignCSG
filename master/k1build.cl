@@ -7,6 +7,7 @@
 #define AD_NUM_LIGHT_TRIANGLES 42733
 #define AD_LIGHT_TRIANGLE_DATA 42734
 #define AD_RANDOM_TABLE 43118
+#define AD_SHUFFLE_TABLE 47214
 
 
 
@@ -324,7 +325,6 @@ of3_t raycast(float3 o, float3 r, int bankName){
 }
 
 
-                           
 
 __kernel void  k1(
 
@@ -345,7 +345,10 @@ __kernel void  k1(
     int iy = get_global_id(1);
 
     int tid = iy*640+ix;
-    int rand_counter = tid % RANDOM_TABLE_SIZE;
+
+    int rand_counter = getAD(AD_SHUFFLE_TABLE,tid%RANDOM_TABLE_SIZE);                    
+
+
 
 
 
