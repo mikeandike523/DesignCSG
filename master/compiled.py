@@ -4,6 +4,8 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
+np.random.seed(2022)
+
 includeCL("LinAlg.cl")
 
 def vec3(x,y,z):
