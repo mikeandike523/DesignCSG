@@ -8,7 +8,7 @@ from typing import List
 import struct
 
 INITIAL_SCALE = 1.0
-DEFAULT_RANDOM_TABLE_SIZE=4096*4
+DEFAULT_RANDOM_TABLE_SIZE=4096
 
 with open("deviceInfo.txt","r") as fl:
     ARBITRARY_DATA_POINTS=int(int(fl.read())/4)
