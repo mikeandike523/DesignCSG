@@ -45,3 +45,5 @@ Intel OpenCL SDK
 Stack Overflow Posts -- https://creativecommons.org/licenses/by-sa/4.0/ -- CC-By-SA 4.0
 Microsoft Windows API Documentation
 
+## Acknowledgements
+* The cubical marching squares algorithm used to export models was inspired by G. Rassovski's Cubical Marching Squares implementation. https://bitbucket.org/GRassovsky/cubical-marching-squares/src/master/
