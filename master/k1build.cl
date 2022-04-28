@@ -1,6 +1,7 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 32
+#define SAMPLES 256
+#define COLOR_POW 0.25
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
@@ -396,6 +397,9 @@ __kernel void  k1(
           //  color = fabs(ln);
             color=Vector3f(1.0,1.0,1.0);
         }
+    }else{
+
+        color=pow(color,(float3)(COLOR_POW,COLOR_POW,COLOR_POW));
     }
 
     
@@ -446,7 +450,7 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	//return vy;
 //	return toLocal(reflected);
 
-	float lightIntensity=0.25*SAMPLES;
+	float lightIntensity=1.0;
 
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){

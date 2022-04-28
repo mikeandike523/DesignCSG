@@ -350,6 +350,9 @@ __kernel void  k1(
           //  color = fabs(ln);
             color=Vector3f(1.0,1.0,1.0);
         }
+    }else{
+
+        color=pow(color,(float3)(COLOR_POW,COLOR_POW,COLOR_POW));
     }
 
     

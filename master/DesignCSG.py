@@ -233,3 +233,6 @@ def readSTLData(filepath):
 def setRandomTableSize(sz):
     compiler.set_random_table_size(sz)
 
+def setColorPow(colorPow):
+    compiler.set_color_pow(colorPow)
+

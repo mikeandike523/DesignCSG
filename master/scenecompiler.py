@@ -423,9 +423,12 @@ class _SceneCompiler:
     
     def set_samples(self,samples):
         self.samples = samples
+    def set_color_pow(self,color_pow):
+        self.color_pow = color_pow
 
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
+        self.color_pow=1.0
         self.RANDOM_TABLE_SIZE=DEFAULT_RANDOM_TABLE_SIZE
         self.adCounter = 0
         self.ad=[]
@@ -499,6 +502,7 @@ class _SceneCompiler:
         header_cl="""
 #define RANDOM_TABLE_SIZE {}
 #define SAMPLES {}
+#define COLOR_POW {}
 
 {}
 
@@ -506,7 +510,7 @@ class _SceneCompiler:
 
 {}
 
-        """.format(int(self.RANDOM_TABLE_SIZE),int(self.samples),
+        """.format(int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),

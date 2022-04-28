@@ -156,8 +156,9 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(32);
+setSamples(256);
 setRandomTableSize(4096)
+setColorPow(0.25)
 commit(shaders=""" 
 #define R <{R}>
 #define H <{H}>
@@ -198,7 +199,7 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	//return vy;
 //	return toLocal(reflected);
 
-	float lightIntensity=0.25*SAMPLES;
+	float lightIntensity=1.0;
 
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
