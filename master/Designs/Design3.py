@@ -126,10 +126,10 @@ xdir = dnew*r + hnew*vec3(0.0,1.0,0.0)
 zdir = normalize(cross(xdir,ydir))
 
 
-center=vec3(0.0,aspect[1]*2.0,0.0)
-xdir=vec3(1.0,0.0,0.0)
-ydir=vec3(0.0,1.0,0.0)
-zdir=vec3(0.0,0.0,1.0)
+#center=vec3(0.0,aspect[1]*2.0,0.0)
+#xdir=vec3(1.0,0.0,0.0)
+#ydir=vec3(0.0,1.0,0.0)
+#zdir=vec3(0.0,0.0,1.0)
 
 def toCoordinates(v,xdir,ydir,zdir):
 	return v[0]*xdir+v[1]*ydir+v[2]*zdir
@@ -156,7 +156,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(8);
+setSamples(32);
 setRandomTableSize(4096)
 commit(shaders=""" 
 #define R <{R}>
@@ -198,17 +198,17 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	//return vy;
 //	return toLocal(reflected);
 
-	float lightIntensity=SAMPLES*4.0;
+	float lightIntensity=0.25*SAMPLES;
 
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
 		//float3 hitPoint = intersection.hitPoint;
 		gv = gv+bias*gn;
 		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		//if(intersection.hit==-1){
+		if(intersection.hit==-1){
 		//L += lightIntensity/d2;
 		L+=lightIntensity;
-		//}
+		}
 	}
 	return f2f3(L);
 	
