@@ -96,8 +96,6 @@ for I in range(segments):
 	B = dy + R*vec3(cos(t1),0.0,sin(t1))
 	C = dy + R*vec3(cos(t2),0.0,sin(t2))
 	addTriangle(Triangle3(A,B,C))
-		
-	
 			
 data_num_triangles = [len(triangles)]
 addArbitraryData("NUM_TRIANGLES",data_num_triangles)

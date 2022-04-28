@@ -55,11 +55,6 @@ for it in range(numtrs):
 	Bpoints.append(B)
 	Cpoints.append(C)
 
-
-
-print(len(Apoints),len(Bpoints),len(Cpoints))
-
-
 minX = float("+inf")
 maxX = float("-inf")
 minY =float("+inf")
@@ -74,8 +69,6 @@ for point in itertools.chain(Apoints,Bpoints,Cpoints):
 	maxY = max(maxY,point[1])
 	minZ = min(minZ,point[2])
 	maxZ = max(maxZ,point[2])
-
-print(minX,maxX,minY,maxY,minZ,maxZ)
 
 aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
@@ -103,8 +96,6 @@ for I in range(segments):
 	B = dy + R*vec3(cos(t1),0.0,sin(t1))
 	C = dy + R*vec3(cos(t2),0.0,sin(t2))
 	addTriangle(Triangle3(A,B,C))
-		
-	
 			
 data_num_triangles = [len(triangles)]
 addArbitraryData("NUM_TRIANGLES",data_num_triangles)
