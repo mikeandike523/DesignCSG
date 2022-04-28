@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 16
+#define SAMPLES 8
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
@@ -442,8 +442,9 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 	float axz = rand(rand_counter_p)*M_PI*2.0;
 	float ary = rand(rand_counter_p)*M_PI/2.0;
-	float3 reflected = normalize(cos(axz)*vx+sin(axz)*vz+sin(ary)*vy);
-	
+	float3 reflected = cos(axz)*cos(ary)*vx+sin(axz)*cos(ary)*vz+sin(ary)*vy;
+	//return vy;
+//	return toLocal(reflected);
 
 	float lightIntensity=SAMPLES*4.0;
 
@@ -452,12 +453,10 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 		//float3 hitPoint = intersection.hitPoint;
 		gv = gv+bias*gn;
 		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1){
-	//	float3 diff = hitPoint-gv;
-		//float d2 = diff.x*diff.x+diff.y*diff.y+diff.z*diff.z;
+		//if(intersection.hit==-1){
 		//L += lightIntensity/d2;
 		L+=lightIntensity;
-		}
+		//}
 	}
 	return f2f3(L);
 	
