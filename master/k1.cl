@@ -346,8 +346,9 @@ __kernel void  k1(
         color=Vector3f(uv.x,uv.y,1.0);
         of3_t intersection = raycast(o,r,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
         if(intersection.hit!=-1){
-            float3 ln = getTriangleN(intersection.hit,AD_LIGHT_TRIANGLE_DATA);
-            color = fabs(ln);
+          //  float3 ln = getTriangleN(intersection.hit,AD_LIGHT_TRIANGLE_DATA);
+          //  color = fabs(ln);
+            color=Vector3f(1.0,1.0,1.0);
         }
     }
 

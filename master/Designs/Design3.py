@@ -55,11 +55,6 @@ for it in range(numtrs):
 	Bpoints.append(B)
 	Cpoints.append(C)
 
-
-
-print(len(Apoints),len(Bpoints),len(Cpoints))
-
-
 minX = float("+inf")
 maxX = float("-inf")
 minY =float("+inf")
@@ -74,8 +69,6 @@ for point in itertools.chain(Apoints,Bpoints,Cpoints):
 	maxY = max(maxY,point[1])
 	minZ = min(minZ,point[2])
 	maxZ = max(maxZ,point[2])
-
-print(minX,maxX,minY,maxY,minZ,maxZ)
 
 aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
 minaspect = np.min(aspect)
@@ -159,7 +152,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(8);
+setSamples(32);
 setRandomTableSize(4096)
 commit(shaders=""" 
 #define R <{R}>
