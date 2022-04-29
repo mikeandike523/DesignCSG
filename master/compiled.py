@@ -12,20 +12,12 @@ for tr in trs:
 	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*2.0
-segments =32
-for I in range(segments):
-	t1 = 2.0*np.pi*I/segments
-	t2 = 2.0*np.pi*(I+1)/segments
-	dy = vec3(0.0,-aspect[1],0.0)
-	A = dy
-	B = dy + R*vec3(cos(t1),0.0,sin(t1))
-	C = dy + R*vec3(cos(t2),0.0,sin(t2))
-	addTriangle(Triangle3(A,B,C))
-			
+trs = getCircleTriangles(vec3(0.0,-aspect[1],0.0),R,vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),64)
+for tr in trs:
+	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*1.0
-segments =32
-center  = 2.0*aspect
+center = 2.0*aspect
 ydir = normalize(aspect)
 r=normalize(vec3(ydir[0],0.0,ydir[2]))
 d=np.dot(ydir,r)
@@ -35,13 +27,9 @@ hnew = d
 xdir = dnew*r + hnew*vec3(0.0,1.0,0.0)
 zdir = normalize(cross(xdir,ydir))
 
-for I in range(segments):
-	t1 = 2.0*np.pi*I/segments
-	t2 = 2.0*np.pi*(I+1)/segments
-	A = center
-	B = center+ toCoordinates(R*vec3(cos(t1),0.0,sin(t1)),xdir,ydir,zdir)
-	C = center+ toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
-	addLightingTriangle(Triangle3(A,B,C))
+trs = getCircleTriangles(center,R,xdir,ydir,zdir,64)
+for tr in trs:
+	addLightingTriangle(tr)
 	
 
 setSamples(16);

@@ -157,6 +157,19 @@ def loadTrianglesFromSTL(filepath):
 
     return trs, aspect
 
+def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
+    R=radius
+    segments =32
+    trs=[]
+    for I in range(segments):
+        t1 = 2.0*np.pi*I/segments
+        t2 = 2.0*np.pi*(I+1)/segments
+        A = center
+        B = center + toCoordinates(R*vec3(cos(t1),0.0,sin(t1)),xdir,ydir,zdir)
+        C = center + toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
+        trs.append(Triangle3(A,B,C))
+    return trs
+                
 def commit():
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
