@@ -10,10 +10,6 @@ compiler = scenecompiler.SceneCompiler()
 
 addArbitraryData = compiler.addArbitraryData
 
-def commit(shaders):
-    compiler.shaders=shaders
-    compiler.commit()
-
 def setSamples(samples):
     compiler.set_samples(samples)
     
@@ -81,7 +77,47 @@ class Triangle3:
     def hasNan(self):
         return vectorHasNaN(self.A) or vectorHasNaN(self.B) or vectorHasNaN(self.C) or vectorHasNaN(self.N)
 
+triangles = []
+lightingTriangles = []
+
+def addTriangle(tr):
+    triangles.append(tr)
+def addLightingTriangle(tr):
+    lightingTriangles.append(tr)
+
+shaders_g = ""
+def setShaders(shaders):
+    global shaders_g
+    shaders_g = shaders
+
+def commit():
+
+    addArbitraryData("NUM_TRIANGLES",[len(triangles)])
+    addArbitraryData("NUM_LIGHT_TRIANGLES",[len(lightingTriangles)])
+    triangleData=[]
+    lightingTriangleData=[]
+    for triangle in triangles:
+        triangleData.extend(list(triangle.A))
+        triangleData.extend(list(triangle.B))
+        triangleData.extend(list(triangle.C))
+        triangleData.extend(list(triangle.N))
+    for triangle in lightingTriangles:
+        lightingTriangleData.extend(list(triangle.A))
+        lightingTriangleData.extend(list(triangle.B))
+        lightingTriangleData.extend(list(triangle.C))
+        lightingTriangleData.extend(list(triangle.N))
+    addArbitraryData("TRIANGLE_DATA",triangleData)
+    addArbitraryData("LIGHT_TRIANGLE_DATA",lightingTriangleData)
+    compiler.shaders=shaders_g
+    compiler.commit()
 
 
+def toCoordinates(v,xdir,ydir,zdir):
+	return v[0]*xdir+v[1]*ydir+v[2]*zdir
 
+def swapYZ(v):
+	temp=v[1]
+	v[1]=v[2]
+	v[2]=temp
+	return v
 

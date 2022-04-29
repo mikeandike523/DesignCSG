@@ -6,16 +6,8 @@ from math import sqrt,cos,sin
 
 np.random.seed(1999)
 
-triangles = []
-def addTriangle(tr):
-	triangles.append(tr)
-
 numtrs,data = readSTLData("Assets/Mesh/testfile.stl")
-def swapYZ(v):
-	temp=v[1]
-	v[1]=v[2]
-	v[2]=temp
-	return v
+
 
 Apoints = []
 Bpoints = []
@@ -63,17 +55,8 @@ rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 for A,B,C in zip(Apoints,Bpoints,Cpoints):
 	tr=Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C))
 	if tr.hasNan(): continue
-
 	addTriangle(tr)
 
-#print(list(zip(Apoints,Bpoints,Cpoints)))
-print(aspect)
-print(minX,maxX)
-print(rescaleX(0.5*(minX+maxX)))
-print(minY,maxY)
-print(rescaleY(0.5*(minY+maxY)))
-print(minZ,maxZ)
-print(rescaleZ(0.5*(minZ+maxZ)))
 
 R=max(aspect[0],aspect[2])*2.0
 segments =32
@@ -86,22 +69,7 @@ for I in range(segments):
 	C = dy + R*vec3(cos(t2),0.0,sin(t2))
 	addTriangle(Triangle3(A,B,C))
 			
-data_num_triangles = [len(triangles)]
-addArbitraryData("NUM_TRIANGLES",data_num_triangles)
-data_triangles = []
-for triangle in triangles:
-	for coord in range(3):
-		data_triangles.append(triangle.A[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.B[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.C[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.N[coord])
 
-addArbitraryData("TRIANGLE_DATA",data_triangles)
-
-lightingTriangles = []
 R=max(aspect[0],aspect[2])*1.0
 segments =32
 center  = 2.0*aspect
@@ -114,41 +82,19 @@ hnew = d
 xdir = dnew*r + hnew*vec3(0.0,1.0,0.0)
 zdir = normalize(cross(xdir,ydir))
 
-
-#center=vec3(0.0,aspect[1]*2.0,0.0)
-#xdir=vec3(1.0,0.0,0.0)
-#ydir=vec3(0.0,1.0,0.0)
-#zdir=vec3(0.0,0.0,1.0)
-
-def toCoordinates(v,xdir,ydir,zdir):
-	return v[0]*xdir+v[1]*ydir+v[2]*zdir
 for I in range(segments):
 	t1 = 2.0*np.pi*I/segments
 	t2 = 2.0*np.pi*(I+1)/segments
 	A = center
 	B = center+ toCoordinates(R*vec3(cos(t1),0.0,sin(t1)),xdir,ydir,zdir)
 	C = center+ toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
-	lightingTriangles.append(Triangle3(A,B,C))
+	addLightingTriangle(Triangle3(A,B,C))
 	
-data_num_triangles = [len(lightingTriangles)]
-addArbitraryData("NUM_LIGHT_TRIANGLES",data_num_triangles)
-data_triangles = []
-for triangle in lightingTriangles:
-	for coord in range(3):
-		data_triangles.append(triangle.A[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.B[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.C[coord])
-	for coord in range(3):
-		data_triangles.append(triangle.N[coord])
-
-addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
 setSamples(16);
 setRandomTableSize(4096)
 setColorPow(0.25)
-commit(shaders=""" 
+setShaders(""" 
 #define R <{R}>
 #define H <{H}>
 
@@ -206,4 +152,4 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """.replace("<{R}>",str(R)).replace("<{H}>",str(2.0*aspect[1])))
 
-			
+commit()
