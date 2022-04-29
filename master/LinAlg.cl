@@ -24,5 +24,18 @@ float3 fastcross(float3 a, float3 b){
 
 }
 
+float3 scaledVector3f(float s, float3 v){
+
+    return Vector3f(s*v.x,s*v.y,s*v.z);
+
+}
+
+float3 vectorProjection(float3 target, float3 base){
+
+    float f = dot(target,base)/dot(base,base);
+    return scaledVector3f(f,base);
+
+}
+
 
 

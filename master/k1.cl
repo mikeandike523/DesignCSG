@@ -103,9 +103,6 @@ typedef struct tag_of3_t{
 
     float3 hitPoint;
     int hit;
-    float p1;
-    float p2;
-    float p3;
 
 } of3_t;
 
@@ -207,9 +204,6 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 AB = B-A;
     float3 BC = C-B;
     float3 CA = A-C;
-    float L1 = length(AB);
-    float L2 = length(BC);
-    float L3 = length(CA);
 
     float rDotN = dot(r,N);
 
@@ -228,21 +222,34 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 P2 = intersectionPoint - B;
     float3 P3 = intersectionPoint - C;
 
+    /*
     //Courtesy of https://math.stackexchange.com/a/51328/523713
-    float p1 = dot(cross(P1,AB),N);
-    float p2= dot(cross(P2,BC),N);
-    float p3 = dot(cross(P3,CA),N);
     int s = signum(p1)+signum(p2)+signum(p3);
     if(s!=-3&&s!=3){
         return miss();
     }
 
-    of3_t of= of3(intersectionPoint,0);
-    of.p1 = p1;
-    of.p2 = p2;
-    of.p3 = p3;
-    return of;
+*/
 
+    int insideAB = 0;
+    int insideBC = 0;
+    int insideCA = 0;
+
+    float3 orthogonalC = (C-A)-vectorProjection(C-A,AB);
+    float3 orthogonalA = (A-B)-vectorProjection(A-B,BC);
+    float3 orthogonalB = (B-C)-vectorProjection(B-C,CA);
+
+    insideAB = dot(P1,orthogonalC) >= 0.0 ? 1 : 0;
+    insideBC = dot(P2,orthogonalA) >= 0.0 ? 1 : 0;
+    insideCA = dot(P3,orthogonalB) >= 0.0 ? 1 : 0;
+
+    if(insideAB+insideBC+insideCA!=3){
+        return miss();
+    }
+
+    of3_t of= of3(intersectionPoint,0);
+    return of;
+    
 }
 
 of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
@@ -274,9 +281,6 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
                 dist=d;
                 itHit = it;
                 hitPoint=cast.hitPoint; //global hitpoint
-                ret.p1 = cast.p1;
-                ret.p2 = cast.p2;
-                ret.p3 = cast.p3;
             }
         }
 
