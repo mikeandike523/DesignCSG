@@ -6,57 +6,10 @@ from math import sqrt,cos,sin
 
 np.random.seed(1999)
 
-numtrs,data = readSTLData("Assets/Mesh/testfile.stl")
+trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
 
-
-Apoints = []
-Bpoints = []
-Cpoints = []
-
-
-for it in range(numtrs):
-	A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
-	B=vec3(data[it*12+6+0],data[it*12+6+1],data[it*12+6+2])
-	C=vec3(data[it*12+9+0],data[it*12+9+1],data[it*12+9+2])
-	A=swapYZ(A)
-	B=swapYZ(B)
-	C=swapYZ(C)
-	Apoints.append(A)
-	Bpoints.append(B)
-	Cpoints.append(C)
-
-minX = float("+inf")
-maxX = float("-inf")
-minY =float("+inf")
-maxY=float("-inf")
-minZ=float("+inf")
-maxZ=float("-inf")
-
-for point in itertools.chain(Apoints,Bpoints,Cpoints):
-	minX = min(minX,point[0])
-	maxX = max(maxX,point[0])
-	minY = min(minY,point[1])
-	maxY = max(maxY,point[1])
-	minZ = min(minZ,point[2])
-	maxZ = max(maxZ,point[2])
-
-aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
-minaspect = np.min(aspect)
-aspect/=minaspect
-
-S=1.0
-
-rescaleX = lambda x: (-1.0*S + 2.0*S * (x-minX)/(maxX-minX))*aspect[0]
-rescaleY= lambda y: (-1.0 *S+ 2.0 *S* (y-minY)/(maxY-minY))*aspect[1]
-rescaleZ = lambda z: (-1.0 *S+ 2.0 *S* (z-minZ)/(maxZ-minZ))*aspect[2]
-
-rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
-
-for A,B,C in zip(Apoints,Bpoints,Cpoints):
-	tr=Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C))
-	if tr.hasNan(): continue
+for tr in trs:
 	addTriangle(tr)
-
 
 R=max(aspect[0],aspect[2])*2.0
 segments =32

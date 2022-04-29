@@ -5,6 +5,7 @@ import scenecompiler
 import numpy as np
 import struct
 from math import *
+import itertools
 
 compiler = scenecompiler.SceneCompiler()
 
@@ -90,6 +91,72 @@ def setShaders(shaders):
     global shaders_g
     shaders_g = shaders
 
+def toCoordinates(v,xdir,ydir,zdir):
+	return v[0]*xdir+v[1]*ydir+v[2]*zdir
+
+def swapYZ(v):
+	temp=v[1]
+	v[1]=v[2]
+	v[2]=temp
+	return v
+
+def loadTrianglesFromSTL(filepath):
+
+    trs=[]
+
+    numtrs,data = readSTLData(filepath)
+
+
+    Apoints = []
+    Bpoints = []
+    Cpoints = []
+
+
+    for it in range(numtrs):
+        A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
+        B=vec3(data[it*12+6+0],data[it*12+6+1],data[it*12+6+2])
+        C=vec3(data[it*12+9+0],data[it*12+9+1],data[it*12+9+2])
+        A=swapYZ(A)
+        B=swapYZ(B)
+        C=swapYZ(C)
+        Apoints.append(A)
+        Bpoints.append(B)
+        Cpoints.append(C)
+
+    minX = float("+inf")
+    maxX = float("-inf")
+    minY =float("+inf")
+    maxY=float("-inf")
+    minZ=float("+inf")
+    maxZ=float("-inf")
+
+    for point in itertools.chain(Apoints,Bpoints,Cpoints):
+        minX = min(minX,point[0])
+        maxX = max(maxX,point[0])
+        minY = min(minY,point[1])
+        maxY = max(maxY,point[1])
+        minZ = min(minZ,point[2])
+        maxZ = max(maxZ,point[2])
+
+    aspect = np.array([maxX-minX,maxY-minY,maxZ-minZ],dtype=float)
+    minaspect = np.min(aspect)
+    aspect/=minaspect
+
+    S=1.0
+
+    rescaleX = lambda x: (-1.0*S + 2.0*S * (x-minX)/(maxX-minX))*aspect[0]
+    rescaleY= lambda y: (-1.0 *S+ 2.0 *S* (y-minY)/(maxY-minY))*aspect[1]
+    rescaleZ = lambda z: (-1.0 *S+ 2.0 *S* (z-minZ)/(maxZ-minZ))*aspect[2]
+
+    rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
+
+    for A,B,C in zip(Apoints,Bpoints,Cpoints):
+        tr=Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C))
+        if tr.hasNan(): continue
+        trs.append(tr)
+
+    return trs, aspect
+
 def commit():
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
@@ -111,13 +178,4 @@ def commit():
     compiler.shaders=shaders_g
     compiler.commit()
 
-
-def toCoordinates(v,xdir,ydir,zdir):
-	return v[0]*xdir+v[1]*ydir+v[2]*zdir
-
-def swapYZ(v):
-	temp=v[1]
-	v[1]=v[2]
-	v[2]=temp
-	return v
 
