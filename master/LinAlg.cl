@@ -14,8 +14,8 @@ mat3_t mat3(float3 v0, float3 v1, float3 v2){
     return mat;
 }
 
-
 float3 fastcross(float3 a, float3 b){
+
     float3 c = Vector3f(0.0,0.0,0.0);
     c.x = a.y*b.z-a.z*b.y;
     c.y = -(a.x*b.z-a.z*b.x);

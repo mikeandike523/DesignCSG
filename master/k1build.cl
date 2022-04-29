@@ -29,8 +29,8 @@ mat3_t mat3(float3 v0, float3 v1, float3 v2){
     return mat;
 }
 
-
 float3 fastcross(float3 a, float3 b){
+
     float3 c = Vector3f(0.0,0.0,0.0);
     c.x = a.y*b.z-a.z*b.y;
     c.y = -(a.x*b.z-a.z*b.x);
@@ -46,7 +46,6 @@ float3 fastcross(float3 a, float3 b){
         
 #define APPLICATION_STATE_TIME_MILLISECONDS 0
 #define nowMillis() (getAS(APPLICATION_STATE_TIME_MILLISECONDS,0))
-
 
 #define EPSILON_DENOMINATOR_MISS 0.000001
 #define EPSILON_INTERSECTION_TOLERANCE 0.001
@@ -80,19 +79,23 @@ float3 fastcross(float3 a, float3 b){
 #define f2f3(f) Vector3f(f,f,f)
 
 float angleZeroToTwoPi(float x, float y){
+
     float a = atan2(y,x);
     if(a<0.0){
         a = 2.0*M_PI+a;
     }
     return a;
+
 }
 
 float3 termProduct(float3 a,float3 b){
 
     return Vector3f(a.x*b.x,a.y*b.y,a.z*b.z);
+
 }
 
 typedef struct tag_Triangle3f {
+
     float3 A;
     float3 B;
     float3 C;
@@ -101,26 +104,29 @@ typedef struct tag_Triangle3f {
 } Triangle3f_t;
 
 Triangle3f_t Triangle3f(float3 A, float3 B, float3 C){
+
     Triangle3f_t tr;
     tr.A = A;
     tr.B = B;
     tr.C = C;
     tr.N = cross(C-A,B-A);
     return tr;
+
 }
 
 Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
+
     Triangle3f_t tr;
     tr.A = A;
     tr.B = B;
     tr.C = C;
     tr.N = N;
     return tr;
+
 }
 
 float3 fragment(float3 gv, int it, int * rand_counter_p);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
-
 
 __global float * arbitrary_data;
 __global float * application_state;
@@ -134,90 +140,114 @@ float rand(int * counter){
 	(*counter) = ((*counter)+1)%RANDOM_TABLE_SIZE;
 	return r;
 }
+
 float randCoord(int * counter){
 	return -1.0+rand(counter)*2.0;
 }
 
-//optional float3
 typedef struct tag_of3_t{
+
     float3 hitPoint;
     int hit;
     float p1;
     float p2;
     float p3;
+
 } of3_t;
 
 of3_t of3(float3 hitPoint,int hit){
+
     of3_t intersection;
     intersection.hitPoint=hitPoint;
     intersection.hit = hit;
     return intersection;
+
 }
 
 of3_t miss(){
+
     return of3((float3)(0.0,0.0,0.0),-1);
+
 }
 
 float3 toGlobal(float3 lcl){
+
 	return lcl.x*rgt_g+lcl.y*upp_g+lcl.z*fwd_g;
+
 }
 float3 toLocal(float3 glbl){
+
 	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
+
 }
 
 float3 getTriangleA(int it,int bankName){
+
     return (float3)(
     getAD(bankName,it*12+0*3+0),
     getAD(bankName,it*12+0*3+1),
     getAD(bankName,it*12+0*3+2)
     );
+
 }
 float3 getTriangleB(int it,int bankName){
+
     return (float3)(
     getAD(bankName,it*12+1*3+0),
     getAD(bankName,it*12+1*3+1),
     getAD(bankName,it*12+1*3+2)
     );
+
 }
 float3 getTriangleC(int it, int bankName){
+
     return (float3)(
     getAD(bankName,it*12+2*3+0),
     getAD(bankName,it*12+2*3+1),
     getAD(bankName,it*12+2*3+2)
     );
+
 }
 float3 getTriangleN(int it, int bankName){
+
     return (float3)(
     getAD(bankName,it*12+3*3+0),
     getAD(bankName,it*12+3*3+1),
     getAD(bankName,it*12+3*3+2)
     );
+
 }
 
 
 float3 adjust(float3 v){
+
     return v.x*rgt_g+v.y*upp_g+v.z*fwd_g;
+
 }
 
 
 int getNumTriangles(int bankName){
-    return (int)getAD(bankName,0);    
+
+    return (int)getAD(bankName,0);  
+
 }
 
 float scalarProject(float3 subject, float3 base){
 
     float3 n = base/length(base);
     return dot(subject,n);
+
 }
 
 int signum(float f){
+
     if(f==0.0) return 0;
     if(f>0.0) return 1;
     return -1;
+
 }
 
 of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N ){
-
 
     float3 offset=A-o;
     float3 AB = B-A;
@@ -227,14 +257,14 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float L2 = length(BC);
     float L3 = length(CA);
 
-    //(o+t*r).N = 0
-    //o.N+t*r.N = 0
-    //t=-o.N/r.N
     float rDotN = dot(r,N);
+
     if(fabs(rDotN)<EPSILON_DENOMINATOR_MISS){
         return miss();
     }
+
     float t = dot(offset,N)/dot(r,N);
+
     if(t<-EPSILON_INTERSECTION_TOLERANCE){
         return miss();
     }
@@ -243,19 +273,6 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 P1 = intersectionPoint - A;
     float3 P2 = intersectionPoint - B;
     float3 P3 = intersectionPoint - C;
-
- //   float p1 = scalarProject(P1,AB);
-   // float p2 = scalarProject(P2,BC);
-   // float p3 = scalarProject(P3,CA);
-
-
-
-
-
-    //if(p1<0.0||p1>L1||p2<0.0||p2>L2||p3<0.0||p3>L3){
-      //  return miss();
-    //}
-
 
     //Courtesy of https://math.stackexchange.com/a/51328/523713
     float p1 = dot(cross(P1,AB),N);
@@ -266,14 +283,12 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
         return miss();
     }
 
-
-
-
     of3_t of= of3(intersectionPoint,0);
     of.p1 = p1;
     of.p2 = p2;
     of.p3 = p3;
     return of;
+
 }
 
 of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
@@ -285,8 +300,8 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
     int itHit = -1;
     of3_t ret;
 
-    
     for(int it=0;it<numTriangles;it++){
+
         float3 A = toGlobal(getTriangleA(it,bankName));
         float3 B = toGlobal(getTriangleB(it,bankName));
         float3 C = toGlobal(getTriangleC(it,bankName));
@@ -297,7 +312,6 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
         B = tr.B;
         C = tr.C;
         N = tr.N;
-
 
         of3_t cast= raycastTriangle(o,r,A,B,C,N);
         if(cast.hit!=-1){
@@ -311,20 +325,20 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
                 ret.p3 = cast.p3;
             }
         }
+
     }
 
     if(itHit!=-1){
+
         ret.hitPoint = hitPoint;
         ret.hit= itHit;
         return ret;
+
     }
 
     return miss();
 
-
 }
-
-
 
 __kernel void  k1(
 
@@ -335,12 +349,12 @@ __kernel void  k1(
     __global float * forward,
     __global float * _arbitrary_data,
     __global float * _application_state
+
 ){
 
     arbitrary_data = _arbitrary_data;
     application_state = _application_state;
     
-
     int ix = get_global_id(0);
     int iy = get_global_id(1);
 
@@ -348,13 +362,8 @@ __kernel void  k1(
 
     int rand_counter = getAD(AD_SHUFFLE_TABLE,tid%RANDOM_TABLE_SIZE);                    
 
-
-
-
-
     float3 o = (float3)(campos[0],campos[1],campos[2]);
     camera_g = o;
-
 
     float2 uv = (float2)((float)(ix-640/2),-(float)(iy-480/2))/(float2)(640.0/2.0,640.0/2.0);
 
@@ -368,11 +377,8 @@ __kernel void  k1(
 
     float3 r = (float3)(uv.x,uv.y,IFOV);
 
-
-
     float3 color = (float3)(1.0,1.0,1.0);
     float3 totalColor = (float3)(0.0,0.0,0.0);
-
 
     int hits = 0;
     for(int i=0;i<SAMPLES;i++){
@@ -392,38 +398,34 @@ __kernel void  k1(
         color=Vector3f(uv.x,uv.y,1.0);
         of3_t intersection = raycast(o,r,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
         if(intersection.hit!=-1){
-          //  float3 ln = getTriangleN(intersection.hit,AD_LIGHT_TRIANGLE_DATA);
-          //  color = fabs(ln);
             color=Vector3f(1.0,1.0,1.0);
         }
     }else{
-
         color=pow(color,(float3)(COLOR_POW,COLOR_POW,COLOR_POW));
     }
 
-    
-  
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
     outpixels[tid*3+2] = BCOMP(color);
     
- 
 }
  
+
 #define R 1.6055045871559632
 #define H 2.311926605504587
 
 float3 reflection(float3 ray, float3 normal){
+
 	float normalComponent = dot(normal,ray);
 	float3 normalComponentVector = normalComponent*normal;
 	float3 orthagonalVector = ray-normalComponentVector;
 	float3 reflected = orthagonalVector-normalComponentVector;
 	return reflected;
 }
-float3 fragment(float3 gv, int it, int * rand_counter_p){
-//	return Vector3f(0.5,0.2,1.0);
-	const float bias = 0.005;
 
+float3 fragment(float3 gv, int it, int * rand_counter_p){
+
+	const float bias = 0.005;
 	float L = 0.0;
 	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
 	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);	
@@ -435,33 +437,22 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 	float3 incident=normalize(gv-camera_g);
 	if(dot(vy,incident)>=0.0)
 		vy=normalize(toGlobal(-ln));
-
-
 	float3 vz =normalize(-cross(vx,vy));
-
-
-
-
-
 	float axz = rand(rand_counter_p)*M_PI*2.0;
 	float ary = rand(rand_counter_p)*M_PI/2.0;
 	float3 reflected = cos(axz)*cos(ary)*vx+sin(axz)*cos(ary)*vz+sin(ary)*vy;
-	//return vy;
-//	return toLocal(reflected);
-
 	float lightIntensity=1.0;
-
 	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
 	if(intersection.hit!=-1){
-		//float3 hitPoint = intersection.hitPoint;
 		gv = gv+bias*gn;
 		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
 		if(intersection.hit==-1){
-		//L += lightIntensity/d2;
 		L+=lightIntensity;
 		}
 	}
 	return f2f3(L);
 	
 }
+
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
+

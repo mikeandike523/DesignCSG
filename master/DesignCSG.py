@@ -1,6 +1,3 @@
-#To make a capsule, we can unscale different dimensions by a value known before building the final object
-#This system of unscaling may eventually be baked into the scenecompiler, but will first test it manually before incorporating it
-
 import scenecompiler
 import numpy as np
 import struct
@@ -18,7 +15,6 @@ define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define
 Transform = scenecompiler.Transform
 PI=np.pi
-
 
 def includeCL(filename):
     with open(filename,"r") as fl:
@@ -106,11 +102,9 @@ def loadTrianglesFromSTL(filepath):
 
     numtrs,data = readSTLData(filepath)
 
-
     Apoints = []
     Bpoints = []
     Cpoints = []
-
 
     for it in range(numtrs):
         A=vec3(data[it*12+3+0],data[it*12+3+1],data[it*12+3+2])
@@ -190,5 +184,3 @@ def commit():
     addArbitraryData("LIGHT_TRIANGLE_DATA",lightingTriangleData)
     compiler.shaders=shaders_g
     compiler.commit()
-
-

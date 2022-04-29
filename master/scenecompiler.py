@@ -34,7 +34,6 @@ COMMAND_VALUES = {
     "IDENTITY":5
 }
 
-
 class Utils:
 
     @staticmethod
@@ -98,7 +97,6 @@ class Transform:
         
         ],dtype=float).T
 
-    
     @staticmethod
     def eulerX(pitch):
         return np.array([
@@ -150,7 +148,6 @@ class Transform:
     def identity():
         return Transform.axes([1,0,0],[0,1,0],[0,0,1])
 
-
 class ArbitraryDataChunk:
 
     def __init__(self,name,start,data):
@@ -168,6 +165,7 @@ class _SceneCompiler:
     
     def set_samples(self,samples):
         self.samples = samples
+
     def set_color_pow(self,color_pow):
         self.color_pow = color_pow
 
@@ -219,7 +217,6 @@ class _SceneCompiler:
             "\n".join(self.auxillary_functions),
             )
 
-
         Utils.fwrite("k1build.cl",header_cl+"\n"+Utils.fread("k1.cl")+"\n"+self.shaders)
 
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
@@ -247,9 +244,10 @@ class _SceneCompiler:
             raise Exception(f"Arbitrary data limit exceed. Maximum is {ARBITRARY_DATA_POINTS} data points = {ARBITRARY_DATA_POINTS*4} bytes.");
         self.ad.append(ArbitraryDataChunk(name,start,data))
         
-        
 compiler = _SceneCompiler()
+
 def SceneCompiler():
     return compiler
+
 def IntersectionComponent(**kwargs):
     return _IntersectionComponent(compiler,**kwargs)
