@@ -211,7 +211,7 @@ float putConnector(float3 v, int largeI, int largeJ, int largeK, int i, int j, i
 
 	);
 
-	return putShaft((v-center)*3.0,lineWidth,0.5,direction);
+	return putShaft(scaleFloat3(3.0,v-center),lineWidth,0.5,direction);
 
 }
 

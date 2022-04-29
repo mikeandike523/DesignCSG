@@ -42,6 +42,10 @@ float axes_cylinderSDF(float r, float h, float halfLength, float radius){
     return T_max((fabs(h)-halfLength),r-radius);
 }
 
+float3 scaleFloat3(float s, float3 v){
+    return (float3)(s*v.x,s*v.y,s*v.z);
+}
+
 
 void matmul(float * A, float * B, float * AB){
 
