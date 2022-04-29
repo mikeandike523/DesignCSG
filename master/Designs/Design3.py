@@ -145,7 +145,7 @@ for triangle in lightingTriangles:
 
 addArbitraryData("LIGHT_TRIANGLE_DATA",data_triangles)	
 
-setSamples(8);
+setSamples(16);
 setRandomTableSize(4096)
 setColorPow(0.25)
 commit(shaders=""" 
@@ -160,7 +160,7 @@ float3 reflection(float3 ray, float3 normal){
 	return reflected;
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-	return Vector3f(0.5,0.2,1.0);
+//	return Vector3f(0.5,0.2,1.0);
 	const float bias = 0.005;
 
 	float L = 0.0;

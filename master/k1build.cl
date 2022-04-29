@@ -1,14 +1,14 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 8
+#define SAMPLES 16
 #define COLOR_POW 0.25
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
-#define AD_NUM_LIGHT_TRIANGLES 5689
-#define AD_LIGHT_TRIANGLE_DATA 5690
-#define AD_RANDOM_TABLE 6074
-#define AD_SHUFFLE_TABLE 10170
+#define AD_NUM_LIGHT_TRIANGLES 12001
+#define AD_LIGHT_TRIANGLE_DATA 12002
+#define AD_RANDOM_TABLE 12386
+#define AD_SHUFFLE_TABLE 16482
 
 
 
@@ -410,8 +410,8 @@ __kernel void  k1(
  
 }
  
-#define R 1.842323277725998
-#define H 3.9949834794364114
+#define R 1.6055045871559632
+#define H 2.311926605504587
 
 float3 reflection(float3 ray, float3 normal){
 	float normalComponent = dot(normal,ray);
@@ -421,7 +421,7 @@ float3 reflection(float3 ray, float3 normal){
 	return reflected;
 }
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-	return Vector3f(0.5,0.2,1.0);
+//	return Vector3f(0.5,0.2,1.0);
 	const float bias = 0.005;
 
 	float L = 0.0;
