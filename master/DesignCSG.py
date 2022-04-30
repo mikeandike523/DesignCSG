@@ -68,10 +68,15 @@ def null_float(): return 0.0
 def null_vec3(): return vec3(0.0,0.0,0.0)
 
 class Triangle3f:
+
     A=null_vec3()
     B=null_vec3()
     C=null_vec3()
     N=null_vec3()
+    Color=null_vec3()
+    Specular=null_float()
+    Emmissive=null_float()
+
     def __init__(self,A,B,C):
         self.A=A
         self.B=B
@@ -87,12 +92,9 @@ def addClass(clss):
 addClass(Triangle3f)
 
 triangles = []
-lightingTriangles = []
 
 def addTriangle(tr):
     triangles.append(tr)
-def addLightingTriangle(tr):
-    lightingTriangles.append(tr)
 
 shaders_g = ""
 def setShaders(shaders):
@@ -179,20 +181,18 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
 def commit():
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
-    addArbitraryData("NUM_LIGHT_TRIANGLES",[len(lightingTriangles)])
     triangleData=[]
-    lightingTriangleData=[]
     for triangle in triangles:
         triangleData.extend(list(triangle.A))
         triangleData.extend(list(triangle.B))
         triangleData.extend(list(triangle.C))
+        triangleData.extend(list(triangle.Color))
+        triangleData.append(triangle.Emmissive)
         triangleData.extend(list(triangle.N))
-    for triangle in lightingTriangles:
-        lightingTriangleData.extend(list(triangle.A))
-        lightingTriangleData.extend(list(triangle.B))
-        lightingTriangleData.extend(list(triangle.C))
-        lightingTriangleData.extend(list(triangle.N))
+        triangleData.append(triangle.Specular)
+
+
     addArbitraryData("TRIANGLE_DATA",triangleData)
-    addArbitraryData("LIGHT_TRIANGLE_DATA",lightingTriangleData)
+
     compiler.shaders=shaders_g
     compiler.commit()

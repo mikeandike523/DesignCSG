@@ -14,11 +14,9 @@ __global float3 fwd_g;
 __global float3 camera_g;
 
 #define AD_NUM_TRIANGLES 0
-#define AD_NUM_LIGHT_TRIANGLES 1
-#define AD_TRIANGLE_DATA 2
-#define AD_LIGHT_TRIANGLE_DATA 12386
-#define AD_RANDOM_TABLE 12386
-#define AD_SHUFFLE_TABLE 16482
+#define AD_TRIANGLE_DATA 1
+#define AD_RANDOM_TABLE 17545
+#define AD_SHUFFLE_TABLE 21641
 
 
 
@@ -71,23 +69,29 @@ typedef struct tag_Triangle3f_t {
 float3 A;
 float3 B;
 float3 C;
+float3 Color;
+float Emmissive;
 float3 N;
+float Specular;
 } Triangle3f_t;
     
 
-Triangle3f_t Triangle3f(float3 A,float3 B,float3 C,float3 N){
+Triangle3f_t Triangle3f(float3 A,float3 B,float3 C,float3 Color,float Emmissive,float3 N,float Specular){
 Triangle3f_t obj;
 obj.A=A;
 obj.B=B;
 obj.C=C;
+obj.Color=Color;
+obj.Emmissive=Emmissive;
 obj.N=N;
+obj.Specular=Specular;
 return obj;
 }
     
 
 Triangle3f_t getTriangle3f(int bankName,int index){
 
-    return Triangle3f((float3)(getAD(bankName,index*12+0),getAD(bankName,index*12+1),getAD(bankName,index*12+2)),(float3)(getAD(bankName,index*12+3),getAD(bankName,index*12+4),getAD(bankName,index*12+5)),(float3)(getAD(bankName,index*12+6),getAD(bankName,index*12+7),getAD(bankName,index*12+8)),(float3)(getAD(bankName,index*12+9),getAD(bankName,index*12+10),getAD(bankName,index*12+11)));
+    return Triangle3f((float3)(getAD(bankName,index*17+0),getAD(bankName,index*17+1),getAD(bankName,index*17+2)),(float3)(getAD(bankName,index*17+3),getAD(bankName,index*17+4),getAD(bankName,index*17+5)),(float3)(getAD(bankName,index*17+6),getAD(bankName,index*17+7),getAD(bankName,index*17+8)),(float3)(getAD(bankName,index*17+9),getAD(bankName,index*17+10),getAD(bankName,index*17+11)),getAD(bankName,index*17+12),(float3)(getAD(bankName,index*17+13),getAD(bankName,index*17+14),getAD(bankName,index*17+15)),getAD(bankName,index*17+16));
 
 }
     
