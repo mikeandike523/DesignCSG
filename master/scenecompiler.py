@@ -155,11 +155,11 @@ class ArbitraryDataChunk:
         self.start=start
         self.data=data
 
-def createOpenCLClass(cls,constructedMembers = None):
-    className = cls.__name__
+def createOpenCLClass(clss,constructedMembers = None):
+    className = clss.__name__
 
     ## --- https://stackoverflow.com/a/1939279/5166365
-    members = [member for member in dir(cls) if (not callable(member) and not member.startswith("__"))]
+    members = [member for member in dir(clss) if (not callable(member) and not member.startswith("__"))]
     ## ---
 
     structCode = """
@@ -187,8 +187,16 @@ return obj;
     "\n".join(["obj.{}={};".format(member,member) for member in constructorList])
     )
 
+    getterCode="""
+{}_t get{}(int bankName){{
 
-    return structCode + "\n" + constructorCode
+    return {}({});
+
+}}
+    """.format(className,className,className,",".join(["getAD(bankName,{})".format(memberNumber) for memberNumber in range(len(constructorList))]))
+
+
+    return structCode + "\n" + constructorCode + "\n" + getterCode
 
     
 class _SceneCompiler:
@@ -214,7 +222,10 @@ class _SceneCompiler:
         self.samples = 1
         self.auxillary_functions=[]
         self.preprocessor_defines=[]
+        self.classes = []
 
+    def add_class(self,clss):
+        self.classes.append(cls)
 
     def set_random_table_size(self,sz):
         self.RANDOM_TABLE_SIZE=sz
@@ -247,10 +258,13 @@ class _SceneCompiler:
 
 {}
 
+{}
+
         """.format(int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
+            "\n".join([createOpenCLClass(clss) for clss in self.classes])
             )
 
         Utils.fwrite("k1build.cl",header_cl+"\n"+Utils.fread("k1.cl")+"\n"+self.shaders)

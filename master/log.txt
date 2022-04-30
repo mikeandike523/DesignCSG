@@ -16,4 +16,11 @@ obj.N=N;
 return obj;
 }
     
+
+TT_t getTT(int bankName){
+
+    return TT(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2),getAD(bankName,3));
+
+}
+    
 Scene compiled successfully.
