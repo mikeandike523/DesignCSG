@@ -43,7 +43,7 @@ for tr in trs:
 	tr.Color = vec3(0.0,0.0,1.0)
 	addTriangle(tr)
 
-setSamples(256);
+setSamples(512);
 setRandomTableSize(4096)
 setColorPow(0.25)
 

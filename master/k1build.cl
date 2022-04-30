@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 256
+#define SAMPLES 512
 #define COLOR_POW 0.25
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
