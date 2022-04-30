@@ -11,13 +11,15 @@ xmax = float("-inf")
 ymin = float("inf")
 ymax = float("-inf")
 
+cropColor = (255,255,255,255) if input("Crop color black (B) or white: ") == "W" else (0,0,0,255)
+
 img = Image.open(filename)
 
 sz1=img.size
 
 for x,y in np.ndindex(img.size):
     data=img.getpixel((x,y))
-    if data != (255,255,255,255):
+    if data != cropColor:
         xmin=min(x,xmin)
         ymin=min(y,ymin)
         xmax=max(x,xmax)
