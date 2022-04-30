@@ -64,7 +64,11 @@ def vectorHasNaN(v):
     if isnan(v[2]): return True
     return False
 
-class Triangle3:
+class Triangle3f:
+    A=None
+    B=None
+    C=None
+    N=None
     def __init__(self,A,B,C):
         self.A=A
         self.B=B
@@ -73,6 +77,11 @@ class Triangle3:
         
     def hasNan(self):
         return vectorHasNaN(self.A) or vectorHasNaN(self.B) or vectorHasNaN(self.C) or vectorHasNaN(self.N)
+
+def addClass(clss):
+    compiler.add_class(clss)
+
+addClass(Triangle3f)
 
 triangles = []
 lightingTriangles = []
@@ -145,7 +154,7 @@ def loadTrianglesFromSTL(filepath):
     rescaleVector  = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
 
     for A,B,C in zip(Apoints,Bpoints,Cpoints):
-        tr=Triangle3(rescaleVector(A),rescaleVector(B),rescaleVector(C))
+        tr=Triangle3f(rescaleVector(A),rescaleVector(B),rescaleVector(C))
         if tr.hasNan(): continue
         trs.append(tr)
 
@@ -161,7 +170,7 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
         A = center
         B = center + toCoordinates(R*vec3(cos(t1),0.0,sin(t1)),xdir,ydir,zdir)
         C = center + toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
-        trs.append(Triangle3(A,B,C))
+        trs.append(Triangle3f(A,B,C))
     return trs
                 
 def commit():

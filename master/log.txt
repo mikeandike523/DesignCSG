@@ -1,9 +1,9 @@
 
 typedef struct tag_TT_t {
-float A
-float B
-float C
-float N
+float A;
+float B;
+float C;
+float N;
 } TT_t;
     
 

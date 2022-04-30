@@ -3,6 +3,16 @@
 #define SAMPLES 16
 #define COLOR_POW 0.25
 
+#define getAD(name,offset) (arbitrary_data[name+offset])
+#define getAS(name,offset) (arbitrary_data[name+offset])
+
+__global float * arbitrary_data;
+__global float * application_state;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
+__global float3 camera_g;
+
 #define AD_NUM_TRIANGLES 0
 #define AD_NUM_LIGHT_TRIANGLES 1
 #define AD_TRIANGLE_DATA 2
@@ -57,6 +67,32 @@ float3 vectorProjection(float3 target, float3 base){
 
 
 
+typedef struct tag_Triangle3f_t {
+float A;
+float B;
+float C;
+float N;
+float hasNan;
+} Triangle3f_t;
+    
+
+Triangle3f_t Triangle3f(float A,float B,float C,float N,float hasNan){
+Triangle3f_t obj;
+obj.A=A;
+obj.B=B;
+obj.C=C;
+obj.N=N;
+obj.hasNan=hasNan;
+return obj;
+}
+    
+
+Triangle3f_t getTriangle3f(int bankName){
+
+    return Triangle3f(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2),getAD(bankName,3),getAD(bankName,4));
+
+}
+    
 
         
 #define APPLICATION_STATE_TIME_MILLISECONDS 0
@@ -86,9 +122,6 @@ float3 vectorProjection(float3 target, float3 base){
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
-#define getAD(name,offset) (arbitrary_data[name+offset])
-#define getAS(name,offset) (arbitrary_data[name+offset])
-
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
 #define f2f3(f) Vector3f(f,f,f)
@@ -109,46 +142,8 @@ float3 termProduct(float3 a,float3 b){
 
 }
 
-typedef struct tag_Triangle3f {
-
-    float3 A;
-    float3 B;
-    float3 C;
-    float3 N;
-
-} Triangle3f_t;
-
-Triangle3f_t Triangle3f(float3 A, float3 B, float3 C){
-
-    Triangle3f_t tr;
-    tr.A = A;
-    tr.B = B;
-    tr.C = C;
-    tr.N = cross(C-A,B-A);
-    return tr;
-
-}
-
-Triangle3f_t Triangle3fWithNormal(float3 A, float3 B, float3 C,float3 N){
-
-    Triangle3f_t tr;
-    tr.A = A;
-    tr.B = B;
-    tr.C = C;
-    tr.N = N;
-    return tr;
-
-}
-
 float3 fragment(float3 gv, int it, int * rand_counter_p);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
-
-__global float * arbitrary_data;
-__global float * application_state;
-__global float3 rgt_g;
-__global float3 upp_g;
-__global float3 fwd_g;
-__global float3 camera_g;
 
 float rand(int * counter){
 	float r = getAD(AD_RANDOM_TABLE,*counter);
@@ -190,43 +185,6 @@ float3 toGlobal(float3 lcl){
 float3 toLocal(float3 glbl){
 
 	return Vector3f(dot(glbl,rgt_g),dot(glbl,upp_g),dot(glbl,fwd_g));
-
-}
-
-float3 getTriangleA(int it,int bankName){
-
-    return (float3)(
-    getAD(bankName,it*12+0*3+0),
-    getAD(bankName,it*12+0*3+1),
-    getAD(bankName,it*12+0*3+2)
-    );
-
-}
-float3 getTriangleB(int it,int bankName){
-
-    return (float3)(
-    getAD(bankName,it*12+1*3+0),
-    getAD(bankName,it*12+1*3+1),
-    getAD(bankName,it*12+1*3+2)
-    );
-
-}
-float3 getTriangleC(int it, int bankName){
-
-    return (float3)(
-    getAD(bankName,it*12+2*3+0),
-    getAD(bankName,it*12+2*3+1),
-    getAD(bankName,it*12+2*3+2)
-    );
-
-}
-float3 getTriangleN(int it, int bankName){
-
-    return (float3)(
-    getAD(bankName,it*12+3*3+0),
-    getAD(bankName,it*12+3*3+1),
-    getAD(bankName,it*12+3*3+2)
-    );
 
 }
 

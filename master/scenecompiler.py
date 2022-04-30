@@ -166,7 +166,7 @@ def createOpenCLClass(clss,constructedMembers = None):
 typedef struct tag_{}_t {{
 {}
 }} {}_t;
-    """.format(className,"\n".join(["float {}".format(member) for member in members]),className)
+    """.format(className,"\n".join(["float {};".format(member) for member in members]),className)
 
 
     constructorList = [member for member in members]
@@ -225,7 +225,7 @@ class _SceneCompiler:
         self.classes = []
 
     def add_class(self,clss):
-        self.classes.append(cls)
+        self.classes.append(clss)
 
     def set_random_table_size(self,sz):
         self.RANDOM_TABLE_SIZE=sz
@@ -251,6 +251,16 @@ class _SceneCompiler:
 #define RANDOM_TABLE_SIZE {}
 #define SAMPLES {}
 #define COLOR_POW {}
+
+#define getAD(name,offset) (arbitrary_data[name+offset])
+#define getAS(name,offset) (arbitrary_data[name+offset])
+
+__global float * arbitrary_data;
+__global float * application_state;
+__global float3 rgt_g;
+__global float3 upp_g;
+__global float3 fwd_g;
+__global float3 camera_g;
 
 {}
 
