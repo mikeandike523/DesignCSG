@@ -285,15 +285,23 @@ void MyFrame::OnNew(wxCommandEvent& event) {
 
 }
 
-void MyFrame::OnIdle(wxIdleEvent& event) {
+void IdleRoutine(MyFrame * ctx) {
 
 	std::lock_guard<std::mutex> guard(logStringMutex);
 
+	if (std::string(ctx->debugConsole->GetValue().c_str()) != logString) {
 
-	if (std::string(debugConsole->GetValue().c_str()) != logString) {
-		debugConsole->SetValue(wxString(logString));
-		event.RequestMore();
+		ctx->debugConsole->SetValue(wxString(logString));
+		
 	}
+
+}
+
+void MyFrame::OnIdle(wxIdleEvent& event) {
+
+	IdleRoutine(this);
+
+	event.RequestMore();
 
 }
 
@@ -522,6 +530,8 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 	hasModel = 1;
 
 	updateArbitraryData(this);
+
+	IdleRoutine(this);
 
 }
 

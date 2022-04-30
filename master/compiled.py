@@ -11,9 +11,8 @@ trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
 
 for tr in trs:
 
-	tr.Specular = 1.0
-	tr.Color =vec3(np.random.uniform(),np.random.uniform(),np.random.uniform())
-	tr.Emmisive= 0.0
+	tr.Specular = 0.0
+	tr.Color =vec3(1,1,1)
 
 	addTriangle(tr)
 
@@ -21,13 +20,13 @@ R=max(aspect[0],aspect[2])*2.0
 trs = getCircleTriangles(vec3(0.0,-aspect[1],0.0),R,vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),64)
 for tr in trs:
 
-	tr.Color = vec3(np.random.uniform(),np.random.uniform(),np.random.uniform())
-	tr.Specular=0.0
-	tr.Emmisive = 0.0
+	tr.Specular=1.0
+	tr.Color = vec3(0.0,0.0,0.0)
+
 
 	addTriangle(tr)
 
-R=max(aspect[0],aspect[2])*1.0
+R=max(aspect[0],aspect[2])*1.5
 center = 2.0*aspect
 ydir = normalize(aspect)
 r=normalize(vec3(ydir[0],0.0,ydir[2]))
@@ -41,14 +40,12 @@ zdir = normalize(cross(xdir,ydir))
 trs = getCircleTriangles(center,R,xdir,ydir,zdir,64)
 for tr in trs:
 	tr.Emmissive = 1.0
-	tr.Specular = 0.0
-	tr.Color = vec3(1.0,1.0,1.0)
-
+	tr.Color = vec3(0.0,0.0,1.0)
 	addTriangle(tr)
 
-setSamples(16);
+setSamples(256);
 setRandomTableSize(4096)
-setColorPow(0.1)
+setColorPow(0.25)
 
 setShaders(""" 
 

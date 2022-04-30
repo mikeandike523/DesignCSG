@@ -1,7 +1,7 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 16
-#define COLOR_POW 0.1
+#define SAMPLES 256
+#define COLOR_POW 0.25
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
 #define getAS(name,offset) (arbitrary_data[name+offset])
@@ -372,7 +372,7 @@ __kernel void  k1(
 }
  
 
-#define R 1.6055045871559632
+#define R 2.408256880733945
 #define H 2.311926605504587
 
 float3 reflection(float3 ray, float3 normal){
