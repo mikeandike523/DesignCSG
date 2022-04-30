@@ -1,14 +1,14 @@
 
-typedef struct tag_TT_t {
-float A;
-float B;
-float C;
-float N;
-} TT_t;
+typedef struct tag_Triangle3f_t {
+float3 A;
+float3 B;
+float3 C;
+float3 N;
+} Triangle3f_t;
     
 
-TT_t TT(float A,float B,float C,float N){
-TT_t obj;
+Triangle3f_t Triangle3f(float3 A,float3 B,float3 C,float3 N){
+Triangle3f_t obj;
 obj.A=A;
 obj.B=B;
 obj.C=C;
@@ -17,9 +17,9 @@ return obj;
 }
     
 
-TT_t getTT(int bankName){
+Triangle3f_t getTriangle3f(int bankName){
 
-    return TT(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2),getAD(bankName,3));
+    return Triangle3f((float3)(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2)),(float3)(getAD(bankName,3),getAD(bankName,4),getAD(bankName,5)),(float3)(getAD(bankName,6),getAD(bankName,7),getAD(bankName,8)),(float3)(getAD(bankName,9),getAD(bankName,10),getAD(bankName,11)));
 
 }
     

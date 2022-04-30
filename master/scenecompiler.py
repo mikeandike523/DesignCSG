@@ -159,14 +159,16 @@ def createOpenCLClass(clss,constructedMembers = None):
     className = clss.__name__
 
     ## --- https://stackoverflow.com/a/1939279/5166365
-    members = [member for member in dir(clss) if (not callable(member) and not member.startswith("__"))]
+    members = [member for member in dir(clss) if (not callable(getattr(clss,member)) and not member.startswith("__"))]
     ## ---
+
+    tName = lambda obj,member: "float" if (isinstance(getattr(obj,member),float) or np.array([getattr(obj,member)],dtype=float).shape==(1,)) else "float3"
 
     structCode = """
 typedef struct tag_{}_t {{
 {}
 }} {}_t;
-    """.format(className,"\n".join(["float {};".format(member) for member in members]),className)
+    """.format(className,"\n".join(["{} {};".format(tName(clss,member),member) for member in members]),className)
 
 
     constructorList = [member for member in members]
@@ -182,10 +184,21 @@ return obj;
 }}
     """.format(
     className,className,
-    ",".join(["float {}".format(member) for member in constructorList]),
+    ",".join(["{} {}".format(tName(clss,member),member) for member in constructorList]),
     className,
     "\n".join(["obj.{}={};".format(member,member) for member in constructorList])
     )
+
+    adCounter = 0
+    ADCalls = {}
+    for member in constructorList:
+        ADCalls[member] = ""
+        if tName(clss,member) == "float":
+            ADCalls[member]+="getAD(bankName,{})".format(adCounter)
+            adCounter+=1
+        else:
+            ADCalls[member]+="(float3)(getAD(bankName,{}),getAD(bankName,{}),getAD(bankName,{}))".format(adCounter,adCounter+1,adCounter+2)
+            adCounter+=3
 
     getterCode="""
 {}_t get{}(int bankName){{
@@ -193,7 +206,7 @@ return obj;
     return {}({});
 
 }}
-    """.format(className,className,className,",".join(["getAD(bankName,{})".format(memberNumber) for memberNumber in range(len(constructorList))]))
+    """.format(className,className,className,",".join([ADCalls[member] for member in constructorList]))
 
 
     return structCode + "\n" + constructorCode + "\n" + getterCode

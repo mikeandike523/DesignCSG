@@ -68,28 +68,26 @@ float3 vectorProjection(float3 target, float3 base){
 
 
 typedef struct tag_Triangle3f_t {
-float A;
-float B;
-float C;
-float N;
-float hasNan;
+float3 A;
+float3 B;
+float3 C;
+float3 N;
 } Triangle3f_t;
     
 
-Triangle3f_t Triangle3f(float A,float B,float C,float N,float hasNan){
+Triangle3f_t Triangle3f(float3 A,float3 B,float3 C,float3 N){
 Triangle3f_t obj;
 obj.A=A;
 obj.B=B;
 obj.C=C;
 obj.N=N;
-obj.hasNan=hasNan;
 return obj;
 }
     
 
 Triangle3f_t getTriangle3f(int bankName){
 
-    return Triangle3f(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2),getAD(bankName,3),getAD(bankName,4));
+    return Triangle3f((float3)(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2)),(float3)(getAD(bankName,3),getAD(bankName,4),getAD(bankName,5)),(float3)(getAD(bankName,6),getAD(bankName,7),getAD(bankName,8)),(float3)(getAD(bankName,9),getAD(bankName,10),getAD(bankName,11)));
 
 }
     
@@ -241,15 +239,6 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 P2 = intersectionPoint - B;
     float3 P3 = intersectionPoint - C;
 
-    /*
-    //Courtesy of https://math.stackexchange.com/a/51328/523713
-    int s = signum(p1)+signum(p2)+signum(p3);
-    if(s!=-3&&s!=3){
-        return miss();
-    }
-
-*/
-
     int insideAB = 0;
     int insideBC = 0;
     int insideCA = 0;
@@ -282,18 +271,16 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
     for(int it=0;it<numTriangles;it++){
 
-        float3 A = toGlobal(getTriangleA(it,bankName));
-        float3 B = toGlobal(getTriangleB(it,bankName));
-        float3 C = toGlobal(getTriangleC(it,bankName));
-        float3 N = toGlobal(getTriangleN(it,bankName));
-        Triangle3f_t tr = Triangle3fWithNormal(A,B,C,N);
-        tr=vertex(tr,it);
-        A = tr.A;
-        B = tr.B;
-        C = tr.C;
-        N = tr.N;
+        Triangle3f_t tr = getTriangle3f(bankName);
 
-        of3_t cast= raycastTriangle(o,r,A,B,C,N);
+        tr.A=toGlobal(tr.A);
+        tr.B=toGlobal(tr.B);
+        tr.C=toGlobal(tr.C);
+        tr.N=toGlobal(tr.N);
+
+        tr=vertex(tr,it);
+
+        of3_t cast= raycastTriangle(o,r,tr.A,tr.B,tr.C,tr.N);
         if(cast.hit!=-1){
             float d = length(cast.hitPoint-o); //global hitpoint
             if(itHit==-1||d<dist){
@@ -401,34 +388,7 @@ float3 reflection(float3 ray, float3 normal){
 }
 
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-
-	const float bias = 0.005;
-	float L = 0.0;
-	int numLightingTriangles = (int)getNumTriangles(AD_NUM_LIGHT_TRIANGLES);
-	float3 ln = getTriangleN(it,AD_TRIANGLE_DATA);	
-	float3 gn = toGlobal(ln);
-	float3 lAB = normalize(getTriangleB(it,AD_TRIANGLE_DATA)-getTriangleA(it,AD_TRIANGLE_DATA));
-	float3 gAB = toGlobal(lAB);
-	float3 vx = gAB;
-	float3 vy=normalize(gn);
-	float3 incident=normalize(gv-camera_g);
-	if(dot(vy,incident)>=0.0)
-		vy=normalize(toGlobal(-ln));
-	float3 vz =normalize(-cross(vx,vy));
-	float axz = rand(rand_counter_p)*M_PI*2.0;
-	float ary = rand(rand_counter_p)*M_PI/2.0;
-	float3 reflected = cos(axz)*cos(ary)*vx+sin(axz)*cos(ary)*vz+sin(ary)*vy;
-	float lightIntensity=1.0;
-	of3_t intersection = raycast(gv,reflected,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
-	if(intersection.hit!=-1){
-		gv = gv+bias*gn;
-		intersection = raycast(gv,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1){
-		L+=lightIntensity;
-		}
-	}
-	return f2f3(L);
-	
+	return Vector3f(1.0,0.0,0.86);
 }
 
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

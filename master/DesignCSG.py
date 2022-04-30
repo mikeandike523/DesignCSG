@@ -64,11 +64,14 @@ def vectorHasNaN(v):
     if isnan(v[2]): return True
     return False
 
+def null_float(): return 0.0
+def null_vec3(): return vec3(0.0,0.0,0.0)
+
 class Triangle3f:
-    A=None
-    B=None
-    C=None
-    N=None
+    A=null_vec3()
+    B=null_vec3()
+    C=null_vec3()
+    N=null_vec3()
     def __init__(self,A,B,C):
         self.A=A
         self.B=B

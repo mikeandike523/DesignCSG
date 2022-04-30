@@ -144,15 +144,6 @@ of3_t raycastTriangle(float3 o, float3 r,float3 A, float3 B, float3 C, float3 N 
     float3 P2 = intersectionPoint - B;
     float3 P3 = intersectionPoint - C;
 
-    /*
-    //Courtesy of https://math.stackexchange.com/a/51328/523713
-    int s = signum(p1)+signum(p2)+signum(p3);
-    if(s!=-3&&s!=3){
-        return miss();
-    }
-
-*/
-
     int insideAB = 0;
     int insideBC = 0;
     int insideCA = 0;
@@ -185,18 +176,16 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
     for(int it=0;it<numTriangles;it++){
 
-        float3 A = toGlobal(getTriangleA(it,bankName));
-        float3 B = toGlobal(getTriangleB(it,bankName));
-        float3 C = toGlobal(getTriangleC(it,bankName));
-        float3 N = toGlobal(getTriangleN(it,bankName));
-        Triangle3f_t tr = Triangle3fWithNormal(A,B,C,N);
-        tr=vertex(tr,it);
-        A = tr.A;
-        B = tr.B;
-        C = tr.C;
-        N = tr.N;
+        Triangle3f_t tr = getTriangle3f(bankName);
 
-        of3_t cast= raycastTriangle(o,r,A,B,C,N);
+        tr.A=toGlobal(tr.A);
+        tr.B=toGlobal(tr.B);
+        tr.C=toGlobal(tr.C);
+        tr.N=toGlobal(tr.N);
+
+        tr=vertex(tr,it);
+
+        of3_t cast= raycastTriangle(o,r,tr.A,tr.B,tr.C,tr.N);
         if(cast.hit!=-1){
             float d = length(cast.hitPoint-o); //global hitpoint
             if(itHit==-1||d<dist){
