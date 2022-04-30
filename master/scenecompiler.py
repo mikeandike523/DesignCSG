@@ -189,19 +189,20 @@ return obj;
     "\n".join(["obj.{}={};".format(member,member) for member in constructorList])
     )
 
+    totalFloats = sum([(3 if tName(clss,member)=="float3" else 1) for member in constructorList])
     adCounter = 0
     ADCalls = {}
     for member in constructorList:
         ADCalls[member] = ""
         if tName(clss,member) == "float":
-            ADCalls[member]+="getAD(bankName,{})".format(adCounter)
+            ADCalls[member]+="getAD(bankName,index*{}+{})".format(totalFloats,adCounter)
             adCounter+=1
         else:
-            ADCalls[member]+="(float3)(getAD(bankName,{}),getAD(bankName,{}),getAD(bankName,{}))".format(adCounter,adCounter+1,adCounter+2)
+            ADCalls[member]+="(float3)(getAD(bankName,index*{}+{}),getAD(bankName,index*{}+{}),getAD(bankName,index*{}+{}))".format(totalFloats,adCounter,totalFloats,adCounter+1,totalFloats,adCounter+2)
             adCounter+=3
 
     getterCode="""
-{}_t get{}(int bankName){{
+{}_t get{}(int bankName,int index){{
 
     return {}({});
 

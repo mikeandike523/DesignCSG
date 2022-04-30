@@ -32,7 +32,7 @@ zdir = normalize(cross(xdir,ydir))
 
 trs = getCircleTriangles(center,R,xdir,ydir,zdir,64)
 for tr in trs:
-	addLightingTriangle(tr)
+	addTriangle(tr)
 
 setSamples(16);
 setRandomTableSize(4096)

@@ -176,7 +176,7 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
     for(int it=0;it<numTriangles;it++){
 
-        Triangle3f_t tr = getTriangle3f(bankName);
+        Triangle3f_t tr = getTriangle3f(bankName,it);
 
         tr.A=toGlobal(tr.A);
         tr.B=toGlobal(tr.B);
@@ -263,16 +263,7 @@ __kernel void  k1(
     }
 
     color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
-    if(hits==0){
-        color=Vector3f(uv.x,uv.y,1.0);
-        of3_t intersection = raycast(o,r,AD_NUM_LIGHT_TRIANGLES,AD_LIGHT_TRIANGLE_DATA);
-        if(intersection.hit!=-1){
-            color=Vector3f(1.0,1.0,1.0);
-        }
-    }else{
-        color=pow(color,(float3)(COLOR_POW,COLOR_POW,COLOR_POW));
-    }
-
+    
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
     outpixels[tid*3+2] = BCOMP(color);

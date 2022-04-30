@@ -17,9 +17,9 @@ return obj;
 }
     
 
-Triangle3f_t getTriangle3f(int bankName){
+Triangle3f_t getTriangle3f(int bankName,int index){
 
-    return Triangle3f((float3)(getAD(bankName,0),getAD(bankName,1),getAD(bankName,2)),(float3)(getAD(bankName,3),getAD(bankName,4),getAD(bankName,5)),(float3)(getAD(bankName,6),getAD(bankName,7),getAD(bankName,8)),(float3)(getAD(bankName,9),getAD(bankName,10),getAD(bankName,11)));
+    return Triangle3f((float3)(getAD(bankName,index*12+0),getAD(bankName,index*12+1),getAD(bankName,index*12+2)),(float3)(getAD(bankName,index*12+3),getAD(bankName,index*12+4),getAD(bankName,index*12+5)),(float3)(getAD(bankName,index*12+6),getAD(bankName,index*12+7),getAD(bankName,index*12+8)),(float3)(getAD(bankName,index*12+9),getAD(bankName,index*12+10),getAD(bankName,index*12+11)));
 
 }
     
