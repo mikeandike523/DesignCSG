@@ -10,6 +10,7 @@ np.random.seed(1999)
 trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
 
 for tr in trs:
+	tr.Specular = 1.0
 	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*2.0
@@ -33,9 +34,9 @@ for tr in trs:
 	tr.Emmissive = 1.0
 	addTriangle(tr)
 
-setSamples(4);
+setSamples(16);
 setRandomTableSize(4096)
-setColorPow(0.25)
+setColorPow(0.1)
 
 setShaders(""" 
 

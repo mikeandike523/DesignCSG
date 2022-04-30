@@ -1,7 +1,7 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 4
-#define COLOR_POW 0.25
+#define SAMPLES 16
+#define COLOR_POW 0.1
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
 #define getAS(name,offset) (arbitrary_data[name+offset])
@@ -362,6 +362,8 @@ __kernel void  k1(
     }
 
     color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
+
+    color=pow(color,COLOR_POW);
     
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);

@@ -263,6 +263,8 @@ __kernel void  k1(
     }
 
     color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
+
+    color=pow(color,COLOR_POW);
     
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);
