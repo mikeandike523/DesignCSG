@@ -5,8 +5,6 @@ import struct
 from math import sqrt,cos,sin
 from scenecompiler import createOpenCLClass
 
-print(createOpenCLClass(Triangle3f))
-
 np.random.seed(1999)
 
 trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
@@ -32,9 +30,10 @@ zdir = normalize(cross(xdir,ydir))
 
 trs = getCircleTriangles(center,R,xdir,ydir,zdir,64)
 for tr in trs:
+	tr.Emmissive = 1.0
 	addTriangle(tr)
 
-setSamples(16);
+setSamples(4);
 setRandomTableSize(4096)
 setColorPow(0.25)
 
@@ -53,7 +52,53 @@ float3 reflection(float3 ray, float3 normal){
 }
 
 float3 fragment(float3 gv, int it, int * rand_counter_p){
-	return Vector3f(1.0,0.0,0.86);
+
+	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
+
+	const int maxBounces = 3;
+	const float bias = 0.005;
+
+
+	int bounces = 0;
+	float3 bounced = (float3)(0.0,0.0,0.0);
+	float3 hitPoint = gv;
+	float3 oldPoint = camera_g;
+
+
+
+	while(bounces<maxBounces){
+
+		if(tr.Emmissive){ return (float3)(1.0,1.0,1.0); }
+		
+		float3 n = toGlobal(tr.N);
+		float3 AB = toGlobal(tr.B-tr.A);
+		
+		float3 xdir=normalize(AB);
+		float3 ydir=n;
+		float3 zdir = normalize(-cross(xdir,ydir));
+
+		float3 incident = normalize(hitPoint-oldPoint);
+		if(dot(incident,ydir)>0.0) ydir = -ydir;
+
+		float t1 = rand(rand_counter_p)*M_PI*2.0;
+		float t2= rand(rand_counter_p)*M_PI/2.0;
+		float3 diffuseReflection = scaledVector3f(cos(t2)*cos(t1),xdir) + scaledVector3f(cos(t2)*sin(t1),zdir) + scaledVector3f(sin(t2),ydir);
+		float3 specularReflection = reflection(incident,ydir);
+		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
+
+		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
+		if(intersection.hit==-1) return (float3)(0.0,0.0,0.0);
+		else{
+			oldPoint=hitPoint;
+			hitPoint = intersection.hitPoint;
+			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
+			
+		}
+		bounces++;
+	}
+
+
+	return bounced;
 }
 
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
