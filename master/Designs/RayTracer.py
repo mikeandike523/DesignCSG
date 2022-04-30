@@ -10,12 +10,21 @@ np.random.seed(1999)
 trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
 
 for tr in trs:
+
 	tr.Specular = 1.0
+	tr.Color =vec3(np.random.uniform(),np.random.uniform(),np.random.uniform())
+	tr.Emmisive= 0.0
+
 	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*2.0
 trs = getCircleTriangles(vec3(0.0,-aspect[1],0.0),R,vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),64)
 for tr in trs:
+
+	tr.Color = vec3(np.random.uniform(),np.random.uniform(),np.random.uniform())
+	tr.Specular=0.0
+	tr.Emmisive = 0.0
+
 	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*1.0
@@ -32,6 +41,9 @@ zdir = normalize(cross(xdir,ydir))
 trs = getCircleTriangles(center,R,xdir,ydir,zdir,64)
 for tr in trs:
 	tr.Emmissive = 1.0
+	tr.Specular = 0.0
+	tr.Color = vec3(1.0,1.0,1.0)
+
 	addTriangle(tr)
 
 setSamples(16);
@@ -61,15 +73,18 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 
 	int bounces = 0;
-	float3 bounced = (float3)(0.0,0.0,0.0);
+	float3 bounced = (float3)(1.0,1.0,1.0);
 	float3 hitPoint = gv;
 	float3 oldPoint = camera_g;
-
+	int hitLightSource = 0;
 
 
 	while(bounces<maxBounces){
 
-		if(tr.Emmissive){ return (float3)(1.0,1.0,1.0); }
+		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
+		else{
+			bounced = termProduct(bounced,scaledVector3f(1.0-tr.Specular,tr.Color)+scaledVector3f(tr.Specular,Vector3f(1.0,1.0,1.0)));
+		}
 		
 		float3 n = toGlobal(tr.N);
 		float3 AB = toGlobal(tr.B-tr.A);
@@ -88,18 +103,19 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
 		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1) return (float3)(0.0,0.0,0.0);
+		if(intersection.hit==-1) bounces = maxBounces;
 		else{
+			
 			oldPoint=hitPoint;
 			hitPoint = intersection.hitPoint;
 			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
-			
+			bounces++;
 		}
-		bounces++;
+	
 	}
 
 
-	return bounced;
+	return (float3)(0.0,0.0,0.0);
 }
 
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}

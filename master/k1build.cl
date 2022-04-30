@@ -393,15 +393,18 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 
 	int bounces = 0;
-	float3 bounced = (float3)(0.0,0.0,0.0);
+	float3 bounced = (float3)(1.0,1.0,1.0);
 	float3 hitPoint = gv;
 	float3 oldPoint = camera_g;
-
+	int hitLightSource = 0;
 
 
 	while(bounces<maxBounces){
 
-		if(tr.Emmissive){ return (float3)(1.0,1.0,1.0); }
+		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
+		else{
+			bounced = termProduct(bounced,scaledVector3f(1.0-tr.Specular,tr.Color)+scaledVector3f(tr.Specular,Vector3f(1.0,1.0,1.0)));
+		}
 		
 		float3 n = toGlobal(tr.N);
 		float3 AB = toGlobal(tr.B-tr.A);
@@ -420,18 +423,19 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
 		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1) return (float3)(0.0,0.0,0.0);
+		if(intersection.hit==-1) bounces = maxBounces;
 		else{
+			
 			oldPoint=hitPoint;
 			hitPoint = intersection.hitPoint;
 			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
-			
+			bounces++;
 		}
-		bounces++;
+	
 	}
 
 
-	return bounced;
+	return (float3)(0.0,0.0,0.0);
 }
 
 Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
