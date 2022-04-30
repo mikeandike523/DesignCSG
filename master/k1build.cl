@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 512
+#define SAMPLES 64
 #define COLOR_POW 0.25
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -15,8 +15,8 @@ __global float3 camera_g;
 
 #define AD_NUM_TRIANGLES 0
 #define AD_TRIANGLE_DATA 1
-#define AD_RANDOM_TABLE 17545
-#define AD_SHUFFLE_TABLE 21641
+#define AD_RANDOM_TABLE 68001
+#define AD_SHUFFLE_TABLE 72097
 
 
 
@@ -372,8 +372,8 @@ __kernel void  k1(
 }
  
 
-#define R 2.408256880733945
-#define H 2.311926605504587
+#define R 2.485217521415089
+#define H 2.386278911119528
 
 float3 reflection(float3 ray, float3 normal){
 
