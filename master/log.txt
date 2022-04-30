@@ -1,1 +1,19 @@
+
+typedef struct tag_TT_t {
+float A
+float B
+float C
+float N
+} TT_t;
+    
+
+TT_t TT(float A,float B,float C,float N){
+TT_t obj;
+obj.A=A;
+obj.B=B;
+obj.C=C;
+obj.N=N;
+return obj;
+}
+    
 Scene compiled successfully.

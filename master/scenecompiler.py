@@ -154,6 +154,42 @@ class ArbitraryDataChunk:
         self.name=name
         self.start=start
         self.data=data
+
+def createOpenCLClass(cls,constructedMembers = None):
+    className = cls.__name__
+
+    ## --- https://stackoverflow.com/a/1939279/5166365
+    members = [member for member in dir(cls) if (not callable(member) and not member.startswith("__"))]
+    ## ---
+
+    structCode = """
+typedef struct tag_{}_t {{
+{}
+}} {}_t;
+    """.format(className,"\n".join(["float {}".format(member) for member in members]),className)
+
+
+    constructorList = [member for member in members]
+
+    if constructedMembers != None:
+        constructorList = list(filter(lambda m: m in constructedMembers,constructorList))
+
+    constructorCode = """
+{}_t {}({}){{
+{}_t obj;
+{}
+return obj;
+}}
+    """.format(
+    className,className,
+    ",".join(["float {}".format(member) for member in constructorList]),
+    className,
+    "\n".join(["obj.{}={};".format(member,member) for member in constructorList])
+    )
+
+
+    return structCode + "\n" + constructorCode
+
     
 class _SceneCompiler:
 

@@ -3,6 +3,18 @@ import numpy as np
 import itertools
 import struct
 from math import sqrt,cos,sin
+from scenecompiler import createOpenCLClass
+
+
+class TT:
+	A=None
+	B=None
+	C=None
+	N=None
+	def __init__(self):
+		pass
+
+print(createOpenCLClass(TT))
 
 np.random.seed(1999)
 
