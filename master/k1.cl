@@ -250,16 +250,14 @@ __kernel void  k1(
     float3 totalColor = (float3)(0.0,0.0,0.0);
 
 
-#define BLURCOUNT 5
-#define BLURPIXELS 2
 
-    float blurRadius = BLURPIXELS*1.0/480.0;
+    float blurRadius = BLUR_PIXELS*1.0/480.0;
     float3 br = r;
 
     int samplesTaken = 0;
 
 
-    for(int bc=0;bc<BLURCOUNT;bc++){
+    for(int bc=0;bc<BLUR_COUNT;bc++){
 
         r= br + termProduct(Vector3f(randCoord(&rand_counter),randCoord(&rand_counter),0.0),Vector3f(blurRadius,blurRadius,0.0));
 

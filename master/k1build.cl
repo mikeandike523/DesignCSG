@@ -1,7 +1,13 @@
 
+
 #define RANDOM_TABLE_SIZE 16384
 #define SAMPLES 64
 #define COLOR_POW 0.25
+#define MAX_BOUNCES 3
+#define BIAS 0.005
+#define BLUR_COUNT 4
+#define BLUR_PIXELS 2
+
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
 #define getAS(name,offset) (arbitrary_data[name+offset])
@@ -349,16 +355,14 @@ __kernel void  k1(
     float3 totalColor = (float3)(0.0,0.0,0.0);
 
 
-#define BLURCOUNT 5
-#define BLURPIXELS 2
 
-    float blurRadius = BLURPIXELS*1.0/480.0;
+    float blurRadius = BLUR_PIXELS*1.0/480.0;
     float3 br = r;
 
     int samplesTaken = 0;
 
 
-    for(int bc=0;bc<BLURCOUNT;bc++){
+    for(int bc=0;bc<BLUR_COUNT;bc++){
 
         r= br + termProduct(Vector3f(randCoord(&rand_counter),randCoord(&rand_counter),0.0),Vector3f(blurRadius,blurRadius,0.0));
 
@@ -399,9 +403,6 @@ __kernel void  k1(
 }
  
 
-#define R 2.485217521415089
-#define H 2.386278911119528
-
 float3 reflection(float3 ray, float3 normal){
 
 	float normalComponent = dot(normal,ray);
@@ -415,8 +416,8 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
 
-	const int maxBounces = 3;
-	const float bias = 0.005;
+	const int maxBounces = MAX_BOUNCES;
+	const float bias = BIAS;
 
 
 	int bounces = 0;

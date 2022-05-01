@@ -101,6 +101,18 @@ def setShaders(shaders):
     global shaders_g
     shaders_g = shaders
 
+def setBlurCount(BLUR_COUNT):
+    compiler.set_blur_count(BLUR_COUNT)
+
+def setBlurPixels(BLUR_PIXELS):
+    compiler.set_blur_pixels(BLUR_PIXELS)
+
+def setMaxBounces(MAX_BOUNCES):
+    compiler.set_max_bounces(MAX_BOUNCES)
+
+def setBias(BIAS):
+    compiler.set_bias(BIAS)
+
 def toCoordinates(v,xdir,ydir,zdir):
 	return v[0]*xdir+v[1]*ydir+v[2]*zdir
 
@@ -177,7 +189,83 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
         C = center + toCoordinates(R*vec3(cos(t2),0.0,sin(t2)),xdir,ydir,zdir)
         trs.append(Triangle3f(A,B,C))
     return trs
-                
+
+
+setShaders(""" 
+
+float3 reflection(float3 ray, float3 normal){
+
+	float normalComponent = dot(normal,ray);
+	float3 normalComponentVector = normalComponent*normal;
+	float3 orthagonalVector = ray-normalComponentVector;
+	float3 reflected = orthagonalVector-normalComponentVector;
+	return reflected;
+}
+
+float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
+
+	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
+
+	const int maxBounces = MAX_BOUNCES;
+	const float bias = BIAS;
+
+
+	int bounces = 0;
+	float3 bounced = (float3)(1.0,1.0,1.0);
+	float3 hitPoint = gv;
+	float3 oldPoint = camera_g;
+	int hitLightSource = 0;
+
+
+	while(bounces<maxBounces){
+
+		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
+		else{
+			
+			bounced = termProduct(bounced,scaledVector3f(1.0-tr.Specular,tr.Color)+scaledVector3f(tr.Specular,Vector3f(1.0,1.0,1.0)));
+		}
+		
+		float3 n = toGlobal(tr.N);
+		float3 AB = toGlobal(tr.B-tr.A);
+		
+		float3 xdir=normalize(AB);
+		float3 ydir=n;
+		float3 zdir = normalize(-cross(xdir,ydir));
+
+		float3 incident = normalize(hitPoint-oldPoint);
+		if(dot(incident,ydir)>0.0) ydir = -ydir;
+
+		float t1 = rand(rand_counter_p)*M_PI*2.0;
+		float t2= rand(rand_counter_p)*M_PI/2.0;
+		float3 diffuseReflection = scaledVector3f(cos(t2)*cos(t1),xdir) + scaledVector3f(cos(t2)*sin(t1),zdir) + scaledVector3f(sin(t2),ydir);
+		float3 specularReflection = reflection(incident,ydir);
+		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
+
+		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
+		if(intersection.hit==-1) {
+			bounces++;
+			*bounces_p=bounces;
+			return (float3)(0.0,0.0,0.0);
+		}
+		else{
+			
+			oldPoint=hitPoint;
+			hitPoint = intersection.hitPoint;
+			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
+			bounces++;
+			*bounces_p=bounces;
+		}
+	
+	}
+
+
+	return (float3)(0.0,0.0,0.0);
+}
+
+Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
+
+""")
+
 def commit():
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])

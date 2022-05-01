@@ -227,6 +227,19 @@ class _SceneCompiler:
     def set_color_pow(self,color_pow):
         self.color_pow = color_pow
 
+    def set_max_bounces(self,MAX_BOUNCES):
+        self.MAX_BOUNCES = MAX_BOUNCES
+    
+    def set_bias(self,BIAS):
+        self.BIAS = BIAS
+
+    def set_blur_pixels(self,BLUR_PIXELS):
+        self.BLUR_PIXELS=BLUR_PIXELS
+
+    def set_blur_count(self,BLUR_COUNT):
+        self.BLUR_COUNT = BLUR_COUNT
+
+    
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
         self.color_pow=1.0
@@ -237,6 +250,10 @@ class _SceneCompiler:
         self.auxillary_functions=[]
         self.preprocessor_defines=[]
         self.classes = []
+        self.MAX_BOUNCES = 3
+        self.BIAS = 0.005
+        self.BLUR_PIXELS = 2
+        self.BLUR_COUNT = 4
 
     def add_class(self,clss):
         self.classes.append(clss)
@@ -262,9 +279,15 @@ class _SceneCompiler:
 
                  
         header_cl="""
+
 #define RANDOM_TABLE_SIZE {}
 #define SAMPLES {}
 #define COLOR_POW {}
+#define MAX_BOUNCES {}
+#define BIAS {}
+#define BLUR_COUNT {}
+#define BLUR_PIXELS {}
+
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
 #define getAS(name,offset) (arbitrary_data[name+offset])
@@ -284,7 +307,8 @@ __global float3 camera_g;
 
 {}
 
-        """.format(int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),
+        """.format(
+            int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),int(self.MAX_BOUNCES),float(self.BIAS),int(self.BLUR_COUNT),int(self.BLUR_PIXELS),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),
