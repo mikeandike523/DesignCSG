@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 64
+#define SAMPLES 12
 #define COLOR_POW 0.25
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -144,7 +144,7 @@ float3 termProduct(float3 a,float3 b){
 
 }
 
-float3 fragment(float3 gv, int it, int * rand_counter_p);
+float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p);
 Triangle3f_t vertex(Triangle3f_t tr, int it);
 
 float rand(int * counter){
@@ -349,19 +349,32 @@ __kernel void  k1(
     float3 totalColor = (float3)(0.0,0.0,0.0);
 
     int hits = 0;
-    for(int i=0;i<SAMPLES;i++){
+    int bounces = 0; //represents one less than the true number of bounces
+    int samplesTaken = 0;
+
+    while(samplesTaken<SAMPLES){
 
         of3_t intersection = raycast(
             o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
         );
 
+        samplesTaken++;
+
         if(intersection.hit!=-1){
-            totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter);
+            int bounces = 0;
+
+            totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
             hits++;
+
+            if(bounces==0)break;
+        }else{
+            break;
         }
+
+     
     }
 
-    color = termProduct(f2f3((1.0/SAMPLES)),totalColor);
+    color = termProduct(f2f3((1.0/samplesTaken)),totalColor);
 
     color=pow(color,COLOR_POW);
     
@@ -384,7 +397,7 @@ float3 reflection(float3 ray, float3 normal){
 	return reflected;
 }
 
-float3 fragment(float3 gv, int it, int * rand_counter_p){
+float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
 
@@ -401,8 +414,11 @@ float3 fragment(float3 gv, int it, int * rand_counter_p){
 
 	while(bounces<maxBounces){
 
+		*bounces_p = bounces;
+
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
 		else{
+			
 			bounced = termProduct(bounced,scaledVector3f(1.0-tr.Specular,tr.Color)+scaledVector3f(tr.Specular,Vector3f(1.0,1.0,1.0)));
 		}
 		
