@@ -3,17 +3,13 @@ import numpy as np
 import itertools
 import struct
 from math import sqrt,cos,sin
-from scenecompiler import createOpenCLClass
 
 np.random.seed(1999)
 
 trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
-
 for tr in trs:
-
 	tr.Specular = 0.0
 	tr.Color =vec3(1,1,1)
-
 	addTriangle(tr)
 
 R=max(aspect[0],aspect[2])*2.0
@@ -22,14 +18,9 @@ for tr in trs:
 
 	tr.Specular=1.0
 	tr.Color = vec3(0.0,0.0,0.0)
-
-
 	addTriangle(tr)
 
-
 for I in range(3):
-
-	
 
 	angle = 2.0*np.pi*I/3
 	rx = vec3(cos(angle),0.0,sin(angle))
@@ -59,11 +50,12 @@ for I in range(3):
 		addTriangle(tr)
 
 
-
-setSamples(64);
-setRandomTableSize(4096*4)
+setSamples(16);
+setRandomTableSize(16384)
 setColorPow(0.25)
-
-
+setMaxBounces(5)
+setBlurCount(5)
+setBlurPixels(2)
+setBias(0.005)
 
 commit()

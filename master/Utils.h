@@ -6,11 +6,7 @@
 #include <string>
 #include <cstdio>
 
-
-
 #include <CL/cl.h>
-
-
 
 #include <vector>
 

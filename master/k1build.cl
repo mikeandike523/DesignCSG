@@ -1,11 +1,11 @@
 
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 64
+#define SAMPLES 16
 #define COLOR_POW 0.25
-#define MAX_BOUNCES 3
+#define MAX_BOUNCES 5
 #define BIAS 0.005
-#define BLUR_COUNT 4
+#define BLUR_COUNT 5
 #define BLUR_PIXELS 2
 
 
