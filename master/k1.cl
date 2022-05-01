@@ -249,30 +249,44 @@ __kernel void  k1(
     float3 color = (float3)(1.0,1.0,1.0);
     float3 totalColor = (float3)(0.0,0.0,0.0);
 
-    int hits = 0;
-    int bounces = 0; //represents one less than the true number of bounces
+
+#define BLURCOUNT 5
+#define BLURPIXELS 2
+
+    float blurRadius = BLURPIXELS*1.0/480.0;
+    float3 br = r;
+
     int samplesTaken = 0;
 
-    while(samplesTaken<SAMPLES){
 
-        of3_t intersection = raycast(
-            o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
-        );
+    for(int bc=0;bc<BLURCOUNT;bc++){
 
-        samplesTaken++;
+        r= br + termProduct(Vector3f(randCoord(&rand_counter),randCoord(&rand_counter),0.0),Vector3f(blurRadius,blurRadius,0.0));
 
-        if(intersection.hit!=-1){
-            int bounces = 0;
+        int hits = 0;
+        int bounces = 0; //represents one less than the true number of bounces
 
-            totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
-            hits++;
+        for(int i=0;i<SAMPLES;i++){
 
-            if(bounces==0) break;
-        }else{
-            break;
+            of3_t intersection = raycast(
+                o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
+            );
+
+            samplesTaken++;
+
+            if(intersection.hit!=-1){
+                int bounces = 0;
+
+                totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
+                hits++;
+
+                if(bounces==0) break;
+            }else{
+                break;
+            }
+
+        
         }
-
-     
     }
 
     color = termProduct(f2f3((1.0/samplesTaken)),totalColor);
