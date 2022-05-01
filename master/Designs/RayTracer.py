@@ -43,7 +43,7 @@ for tr in trs:
 	tr.Color = vec3(0.0,0.0,1.0)
 	addTriangle(tr)
 
-setSamples(12);
+setSamples(16);
 setRandomTableSize(4096)
 setColorPow(0.25)
 
@@ -78,8 +78,6 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	while(bounces<maxBounces){
 
-		*bounces_p = bounces;
-
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
 		else{
 			
@@ -103,13 +101,18 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
 		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1) bounces = maxBounces;
+		if(intersection.hit==-1) {
+			bounces++;
+			*bounces_p=bounces;
+			return (float3)(0.0,0.0,0.0);
+		}
 		else{
 			
 			oldPoint=hitPoint;
 			hitPoint = intersection.hitPoint;
 			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
 			bounces++;
+			*bounces_p=bounces;
 		}
 	
 	}

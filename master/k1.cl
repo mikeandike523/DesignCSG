@@ -267,7 +267,7 @@ __kernel void  k1(
             totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
             hits++;
 
-            if(bounces==0)break;
+            if(bounces==0) break;
         }else{
             break;
         }

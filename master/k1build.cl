@@ -1,6 +1,6 @@
 
 #define RANDOM_TABLE_SIZE 4096
-#define SAMPLES 12
+#define SAMPLES 16
 #define COLOR_POW 0.25
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -366,7 +366,7 @@ __kernel void  k1(
             totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
             hits++;
 
-            if(bounces==0)break;
+            if(bounces==0) break;
         }else{
             break;
         }
@@ -414,8 +414,6 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	while(bounces<maxBounces){
 
-		*bounces_p = bounces;
-
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
 		else{
 			
@@ -439,13 +437,18 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
 		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
-		if(intersection.hit==-1) bounces = maxBounces;
+		if(intersection.hit==-1) {
+			bounces++;
+			*bounces_p=bounces;
+			return (float3)(0.0,0.0,0.0);
+		}
 		else{
 			
 			oldPoint=hitPoint;
 			hitPoint = intersection.hitPoint;
 			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
 			bounces++;
+			*bounces_p=bounces;
 		}
 	
 	}
