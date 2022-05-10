@@ -268,7 +268,7 @@ __kernel void  k1(
         int hits = 0;
         int bounces = 0; //represents one less than the true number of bounces
 
-        //for(int i=0;i<SAMPLES;i++){
+        for(int i=0;i<VIEWPORT_SAMPLES;i++){
 
             of3_t intersection = raycast(
                 o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
@@ -289,7 +289,7 @@ __kernel void  k1(
             }
 
         
-       // }
+        }
     }
 
 

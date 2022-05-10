@@ -239,6 +239,8 @@ class _SceneCompiler:
     def set_blur_count(self,BLUR_COUNT):
         self.BLUR_COUNT = BLUR_COUNT
 
+    def set_viewport_samples(self,VIEWPORT_SAMPLES):
+        self.VIEWPORT_SAMPLES=VIEWPORT_SAMPLES
     
     """Scene Compiler Class -- Singleton Pattern"""
     def __init__(self, **kwargs):
@@ -254,6 +256,7 @@ class _SceneCompiler:
         self.BIAS = 0.005
         self.BLUR_PIXELS = 2
         self.BLUR_COUNT = 4
+        self.VIEWPORT_SAMPLES = 1
 
     def add_class(self,clss):
         self.classes.append(clss)
@@ -287,6 +290,7 @@ class _SceneCompiler:
 #define BIAS {}
 #define BLUR_COUNT {}
 #define BLUR_PIXELS {}
+#define VIEWPORT_SAMPLES {}
 
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -308,7 +312,7 @@ __global float3 camera_g;
 {}
 
         """.format(
-            int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),int(self.MAX_BOUNCES),float(self.BIAS),int(self.BLUR_COUNT),int(self.BLUR_PIXELS),
+            int(self.RANDOM_TABLE_SIZE),int(self.samples),float(self.color_pow),int(self.MAX_BOUNCES),float(self.BIAS),int(self.BLUR_COUNT),int(self.BLUR_PIXELS),int(self.VIEWPORT_SAMPLES),
             ad_definitions,
             "\n".join(self.preprocessor_defines),
             "\n".join(self.auxillary_functions),

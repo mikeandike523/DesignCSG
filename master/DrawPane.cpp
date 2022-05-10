@@ -234,7 +234,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		{
 			std::lock_guard<std::mutex> lock(sampleMutex);
 
-			if (sampleCount < maxSamples) {
+			if (sampleCount < maxSamples/viewportSamples) {
 				for (int row = 0; row < 480; row++) {
 					for (int col = 0; col < 640; col++) {
 						int tid = row * 640 + col;
@@ -244,7 +244,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 					}
 				}
 
-				sampleCount++;
+				sampleCount+=1;
 			}
 
 		}
@@ -467,14 +467,20 @@ int BasicDrawPane::initialized()
 	return is_init;
 }
 
+void BasicDrawPane::loadParameters() {
+	maxSamples = std::stoi(Utils::readFile("maxSamples.txt"));
+	viewportSamples  = std::stoi(Utils::readFile("viewportSamples.txt"));
+	colorPow = std::stof(Utils::readFile("colorPow.txt"));
+}
+
 BasicDrawPane::BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console) :
 	wxPanel(parent, wxID_ANY, wxDefaultPosition, s), console(_console)
 {
 	this->SetBackgroundColour(wxColor(*wxWHITE));
 	is_init = 0;
 	std::string st = Utils::readFile("colorPow.txt");
-	maxSamples = std::stoi(Utils::readFile("maxSamples.txt"));
-	colorPow = std::stof(Utils::readFile("colorPow.txt"));
+	loadParameters();
+
 }
 
 

@@ -46,6 +46,7 @@ public:
 	void idled(wxIdleEvent& event);
 	LoadSceneResult loadScene();
 	void setArbitraryData(float* data, size_t items);
+	void loadParameters();
 
 
 
@@ -100,6 +101,7 @@ public:
 
 	int sampleCount = 0;
 	int maxSamples;
+	int viewportSamples;
 	float colorPow;
 	std::mutex sampleMutex;
 

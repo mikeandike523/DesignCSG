@@ -1,12 +1,13 @@
 
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 128
+#define SAMPLES 256
 #define COLOR_POW 0.25
 #define MAX_BOUNCES 5
 #define BIAS 0.005
 #define BLUR_COUNT 1
 #define BLUR_PIXELS 0
+#define VIEWPORT_SAMPLES 4
 
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -376,7 +377,7 @@ __kernel void  k1(
         int hits = 0;
         int bounces = 0; //represents one less than the true number of bounces
 
-        //for(int i=0;i<SAMPLES;i++){
+        for(int i=0;i<VIEWPORT_SAMPLES;i++){
 
             of3_t intersection = raycast(
                 o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
@@ -397,7 +398,7 @@ __kernel void  k1(
             }
 
         
-       // }
+        }
     }
 
 

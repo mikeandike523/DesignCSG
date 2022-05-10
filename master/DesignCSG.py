@@ -117,6 +117,11 @@ def setMaxBounces(MAX_BOUNCES):
 def setBias(BIAS):
     compiler.set_bias(BIAS)
 
+def setViewportSamples(samples):
+    compiler.set_viewport_samples(samples)
+    with open("viewportSamples","w") as fl:
+        fl.write(str(int(samples)))
+
 def toCoordinates(v,xdir,ydir,zdir):
 	return v[0]*xdir+v[1]*ydir+v[2]*zdir
 
