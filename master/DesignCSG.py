@@ -44,6 +44,8 @@ def setRandomTableSize(sz):
 
 def setColorPow(colorPow):
     compiler.set_color_pow(colorPow)
+    with open("colorPow.txt","w") as fl:
+        fl.write(str(float(colorPow)))
 
 includeCL("LinAlg.cl")
 

@@ -100,6 +100,7 @@ public:
 
 	int sampleCount = 0;
 	int maxSamples;
+	float colorPow;
 	std::mutex sampleMutex;
 
 	DECLARE_EVENT_TABLE()

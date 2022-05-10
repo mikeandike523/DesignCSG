@@ -279,9 +279,15 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 					if (x < 640 && y < 480) {
 						int tid = y * 640 + x;
-						p.Red() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 0])/(float)sampleCount);
-						p.Green() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 1])/(float)sampleCount);
-						p.Blue() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 2] / (float)sampleCount));
+						float R = (float)(acc_pixel_data[tid * 3 + 0]) / (255.0*(float)sampleCount);
+						float G = (float)(acc_pixel_data[tid * 3 + 1]) / (255.0 * (float)sampleCount);
+						float B = (float)(acc_pixel_data[tid * 3 + 2]) / (255.0 * (float)sampleCount);
+						R = pow(R, colorPow);
+						G = pow(G, colorPow);
+						B = pow(B, colorPow);
+						p.Red() = CLIP8((int)(255*R));
+						p.Green() = CLIP8((int)(255 * G));
+						p.Blue() = CLIP8((int)(255 * B));
 						p.Alpha() = 255;
 
 					}
@@ -466,7 +472,9 @@ BasicDrawPane::BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console) :
 {
 	this->SetBackgroundColour(wxColor(*wxWHITE));
 	is_init = 0;
+	std::string st = Utils::readFile("colorPow.txt");
 	maxSamples = std::stoi(Utils::readFile("maxSamples.txt"));
+	colorPow = std::stof(Utils::readFile("colorPow.txt"));
 }
 
 

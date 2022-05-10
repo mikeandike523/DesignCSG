@@ -298,11 +298,11 @@ __kernel void  k1(
 
     if(!hasHit){
 
-    //    color = skybox(r);
-        color=f2f3(_application_state[1]/SAMPLES);
+        color = skybox(r);
+        //color=f2f3(_application_state[1]/SAMPLES);
     }
 
-    color=pow(color,COLOR_POW);
+   // color=pow(color,COLOR_POW);
     
     outpixels[tid*3+0] = RCOMP(color);
     outpixels[tid*3+1] = GCOMP(color);

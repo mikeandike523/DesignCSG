@@ -531,6 +531,8 @@ void MyFrame::OnRun(wxCommandEvent& event) {
 
 	updateArbitraryData(this);
 
+	this->sbmp->colorPow = std::stof(Utils::readFile("colorPow.txt"));
+
 	IdleRoutine(this);
 
 }
