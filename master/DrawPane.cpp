@@ -120,7 +120,8 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		ARBITRARY_DATA_POINTS = std::stoi(Utils::readFile("deviceInfo.txt")) / 4;
 
-		pixel_data = (BYTE*)malloc(3 * 640 * 480);
+		pixel_data = (BYTE*)malloc(3 * 640 * 480 * sizeof(uint8_t));
+		acc_pixel_data = (uint32_t*)calloc(3*640*480, sizeof(uint32_t));
 		arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
 		application_state = (float*)calloc(APPLICATION_STATE_POINTS, sizeof(float));
 
@@ -160,7 +161,10 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		
 		constexpr uint64_t twelve_seconds = 1000 * 12;
 		application_state[APPLICATION_STATE_TIME_MILLISECONDS] = (float)(millis%twelve_seconds);
-
+		{
+			std::lock_guard<std::mutex> lock(sampleMutex);
+			application_state[1] = (float)sampleCount;
+		}
 		//todo, only copy teh right buffers each frame, these are design choices
 
 		clEnqueueWriteBuffer(queue,
@@ -211,7 +215,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 			application_state_buffer,
 			CL_TRUE,
 			0,
-			ARBITRARY_DATA_POINTS * sizeof(float),
+			APPLICATION_STATE_POINTS * sizeof(float),
 			application_state,
 			0,
 			NULL,
@@ -227,64 +231,82 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		err = clEnqueueReadBuffer(queue, pixdataout_buffer, CL_TRUE, 0,
 			3 * 640 * 480, pixel_data, 0, NULL, NULL);
 
+		{
+			std::lock_guard<std::mutex> lock(sampleMutex);
 
+			if (sampleCount < maxSamples) {
+				for (int row = 0; row < 480; row++) {
+					for (int col = 0; col < 640; col++) {
+						int tid = row * 640 + col;
+						acc_pixel_data[tid * 3 + 0] += pixel_data[tid * 3 + 0];
+						acc_pixel_data[tid * 3 + 1] += pixel_data[tid * 3 + 1];
+						acc_pixel_data[tid * 3 + 2] += pixel_data[tid * 3 + 2];
+					}
+				}
 
+				sampleCount++;
+			}
 
+		}
 
 		int time_ms = Utils::time_ms();
 
-		wxSize size = this->GetSize();
-		int w = size.x;
-		int h = size.y;
-		wxBitmap bmp = wxBitmap(w, h, 32);
-
-		wxAlphaPixelData data(bmp, wxPoint(0, 0),
-			wxSize(w, h));
-
-		if (!data)
 		{
-			wxLogError("Failed to gain raw access to bitmap data");
-			return;
-		}
+			std::lock_guard <std::mutex> lock(sampleMutex);
 
-		wxAlphaPixelData::Iterator p(data);
+			wxSize size = this->GetSize();
+			int w = size.x;
+			int h = size.y;
+			wxBitmap bmp = wxBitmap(w, h, 32);
 
-		for (int y = 0; y < h; ++y)
-		{
-			wxAlphaPixelData::Iterator rowStart = p;
+			wxAlphaPixelData data(bmp, wxPoint(0, 0),
+				wxSize(w, h));
 
-			for (int x = 0; x < w; ++x)
+			if (!data)
 			{
-
-				if (x < 640 && y < 480) {
-					int tid = y * 640 + x;
-					p.Red() = CLIP8(pixel_data[tid * 3 + 0]);
-					p.Green() = CLIP8(pixel_data[tid * 3 + 1]);
-					p.Blue() = CLIP8(pixel_data[tid * 3 + 2]);
-					p.Alpha() = 255;
-
-				}
-				else {
-
-					float uvx = Utils::wrap((float)(x - w * (float)(time_ms % 2000) / 2000.0) / (float)w);
-					float uvy = (float)(y) / (float)h;
-
-					p.Red() = Utils::clip((int)(255.0 * uvx));
-					p.Green() = Utils::clip((int)(255.0 * uvy));
-					p.Blue() = 0;
-					p.Alpha() = 255;
-				}
-
-
-				++p;
+				wxLogError("Failed to gain raw access to bitmap data");
+				return;
 			}
 
-			p = rowStart;
-			p.OffsetY(data, 1);
-		}
+			wxAlphaPixelData::Iterator p(data);
 
-		wxClientDC dc(this);
-		dc.DrawBitmap(bmp, wxPoint(0, 0));
+			for (int y = 0; y < h; ++y)
+			{
+				wxAlphaPixelData::Iterator rowStart = p;
+
+				for (int x = 0; x < w; ++x)
+				{
+
+					if (x < 640 && y < 480) {
+						int tid = y * 640 + x;
+						p.Red() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 0])/(float)sampleCount);
+						p.Green() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 1])/(float)sampleCount);
+						p.Blue() = CLIP8((int)((float)acc_pixel_data[tid * 3 + 2] / (float)sampleCount));
+						p.Alpha() = 255;
+
+					}
+					else {
+
+						float uvx = Utils::wrap((float)(x - w * (float)(time_ms % 2000) / 2000.0) / (float)w);
+						float uvy = (float)(y) / (float)h;
+
+						p.Red() = Utils::clip((int)(255.0 * uvx));
+						p.Green() = Utils::clip((int)(255.0 * uvy));
+						p.Blue() = 0;
+						p.Alpha() = 255;
+					}
+
+
+					++p;
+				}
+
+				p = rowStart;
+				p.OffsetY(data, 1);
+			}
+
+			wxClientDC dc(this);
+			dc.DrawBitmap(bmp, wxPoint(0, 0));
+		}
 		event.RequestMore();
 	}
 }
@@ -404,6 +426,7 @@ void BasicDrawPane::mouseMoved(wxMouseEvent& event) {
 
 
 	if (dragging) {
+		std::lock_guard<std::mutex> lock(sampleMutex);
 		wxGetMousePosition(&cMX, &cMY);
 		float da = -(float)(pMX - cMX) / 15.0 * yawspeed;
 		float db = -(float)(pMY - cMY) / 15.0 * yawspeed;
@@ -414,6 +437,8 @@ void BasicDrawPane::mouseMoved(wxMouseEvent& event) {
 		v_forward = mul_Matrix3f_Vector3f(rMatrix, v_forward);
 		pMX = cMX;
 		pMY = cMY;
+		memset(acc_pixel_data, 0, sizeof(uint32_t) * 3 * 640 * 480);
+		sampleCount = 0;
 	}
 
 }
@@ -422,6 +447,8 @@ void BasicDrawPane::mouseDown(wxMouseEvent& event) {
 }
 void BasicDrawPane::mouseWheelMoved(wxMouseEvent& event) {
 	campos[2] += (float)event.GetWheelRotation() / event.GetWheelDelta();
+	memset(acc_pixel_data, 0, sizeof(uint32_t) * 3 * 640 * 480);
+	sampleCount = 0;
 }
 void BasicDrawPane::mouseReleased(wxMouseEvent& event) { dragging = 0; }
 void BasicDrawPane::rightClick(wxMouseEvent& event) {}
@@ -439,6 +466,7 @@ BasicDrawPane::BasicDrawPane(wxFrame* parent, wxSize s, wxTextCtrl* _console) :
 {
 	this->SetBackgroundColour(wxColor(*wxWHITE));
 	is_init = 0;
+	maxSamples = std::stoi(Utils::readFile("maxSamples.txt"));
 }
 
 

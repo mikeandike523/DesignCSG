@@ -10,6 +10,8 @@ addArbitraryData = compiler.addArbitraryData
 
 def setSamples(samples):
     compiler.set_samples(samples)
+    with open("maxSamples.txt","w") as fl:
+        fl.write(str(int(samples)))
     
 define_auxillary_function=compiler.define_auxillary_function
 add_preprocessor_define = compiler.add_preprocessor_define

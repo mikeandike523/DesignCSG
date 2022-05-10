@@ -4,6 +4,8 @@
 #include <wx/wx.h>
 #include <CL/cl.h>
 
+#include <mutex>
+
 #include "CVector.h"
 
 
@@ -62,6 +64,7 @@ public:
 	float* object_up_bank;
 	float* object_forward_bank;
 	uint8_t* pixel_data;
+	uint32_t* acc_pixel_data;
 	int* build_procedure_data;
 	float* arbitrary_data;
 	int num_objects = 0;
@@ -94,6 +97,10 @@ public:
 
 	wxTextCtrl* console;
 	int pvalid = 0;
+
+	int sampleCount = 0;
+	int maxSamples;
+	std::mutex sampleMutex;
 
 	DECLARE_EVENT_TABLE()
 

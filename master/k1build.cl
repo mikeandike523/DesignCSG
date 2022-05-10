@@ -1,7 +1,7 @@
 
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 32
+#define SAMPLES 128
 #define COLOR_POW 0.25
 #define MAX_BOUNCES 5
 #define BIAS 0.005
@@ -339,7 +339,7 @@ __kernel void  k1(
 
     int tid = iy*640+ix;
 
-    int rand_counter = getAD(AD_SHUFFLE_TABLE,tid%RANDOM_TABLE_SIZE);                    
+    int rand_counter = ((int)getAD(AD_SHUFFLE_TABLE,(tid+(int)getAD(AD_SHUFFLE_TABLE,(int)_application_state[1]))%RANDOM_TABLE_SIZE))%RANDOM_TABLE_SIZE;                    
 
     float3 o = (float3)(campos[0],campos[1],campos[2]);
     camera_g = o;
@@ -376,7 +376,7 @@ __kernel void  k1(
         int hits = 0;
         int bounces = 0; //represents one less than the true number of bounces
 
-        for(int i=0;i<SAMPLES;i++){
+        //for(int i=0;i<SAMPLES;i++){
 
             of3_t intersection = raycast(
                 o,r,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA
@@ -397,7 +397,7 @@ __kernel void  k1(
             }
 
         
-        }
+       // }
     }
 
 
@@ -406,7 +406,8 @@ __kernel void  k1(
 
     if(!hasHit){
 
-        color = skybox(r);
+    //    color = skybox(r);
+        color=f2f3(_application_state[1]/SAMPLES);
     }
 
     color=pow(color,COLOR_POW);

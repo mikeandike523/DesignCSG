@@ -50,7 +50,7 @@ for I in range(3):
 		addTriangle(tr)
 
 
-setSamples(32);
+setSamples(128);
 setRandomTableSize(16384)
 setColorPow(0.25)
 setMaxBounces(5)
