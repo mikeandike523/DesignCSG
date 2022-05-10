@@ -209,6 +209,8 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
 }
 
+float3 skybox(float3 ray);
+
 __kernel void  k1(
 
     __global unsigned char * outpixels,
@@ -256,6 +258,8 @@ __kernel void  k1(
 
     int samplesTaken = 0;
 
+    int hasHit = 0;
+
 
     for(int bc=0;bc<BLUR_COUNT;bc++){
 
@@ -273,6 +277,7 @@ __kernel void  k1(
             samplesTaken++;
 
             if(intersection.hit!=-1){
+                hasHit = 1;
                 int bounces = 0;
 
                 totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
@@ -287,7 +292,14 @@ __kernel void  k1(
         }
     }
 
+
+
     color = termProduct(f2f3((1.0/samplesTaken)),totalColor);
+
+    if(!hasHit){
+
+        color = skybox(r);
+    }
 
     color=pow(color,COLOR_POW);
     

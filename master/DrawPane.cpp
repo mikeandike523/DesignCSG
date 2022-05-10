@@ -13,6 +13,7 @@
 
 #define CLIP8(x) ((x>255) ? 255 : ((x < 0 )? 0: x))
 
+#define APPLICATION_STATE_POINTS 2048
 #define APPLICATION_STATE_TIME_MILLISECONDS 0
 
 void BasicDrawPane::setArbitraryData(float * data, size_t items) {
@@ -29,7 +30,7 @@ void BasicDrawPane::setArbitraryData(float * data, size_t items) {
 
 }
 
-#define MAX_STORAGE 2 * 1024 * 1024 //2MB
+#define MAX_STORAGE 128 * 1024 * 1024 //128MB
 
 void BasicDrawPane::idled(wxIdleEvent& event)
 {
@@ -121,7 +122,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		pixel_data = (BYTE*)malloc(3 * 640 * 480);
 		arbitrary_data = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
-		application_state = (float*)calloc(ARBITRARY_DATA_POINTS, sizeof(float));
+		application_state = (float*)calloc(APPLICATION_STATE_POINTS, sizeof(float));
 
 		pixdataout_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE |
 			CL_MEM_COPY_HOST_PTR, 3 * 640 * 480 * sizeof(uint8_t), pixel_data, &err);
@@ -141,7 +142,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		arbitrary_data_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, arbitrary_data, &err);
 
 
-		application_state_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * ARBITRARY_DATA_POINTS, application_state, &err);
+		application_state_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * APPLICATION_STATE_POINTS, application_state, &err);
 
 
 		is_init = 1;

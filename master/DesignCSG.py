@@ -190,8 +190,42 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
         trs.append(Triangle3f(A,B,C))
     return trs
 
+import imageio
+def addSkybox(path,downscale = 1):
+    img = imageio.imread(path)
+    if downscale > 1:
+        img=np.resize(img,[int(img.shape[0]/downscale),int(img.shape[1]/downscale),img.shape[2]])
+    addArbitraryData("SKYBOX_W",[img.shape[0]/downscale])
+    addArbitraryData("SKYBOX_H",[img.shape[1]/downscale])
+    texture = []
+    for row in range(img.shape[1]):
+        for col in range(img.shape[0]):
+            for channel in range(img.shape[2]):
+                texture.append(float(img[col,row,channel]))
+    addArbitraryData("SKYBOX_DATA",texture)
+    print(img.shape,np.amin(img),np.amax(img))
+
+
 
 setShaders(""" 
+
+float3 skybox(float3 ray){
+
+    ray=toLocal(normalize(ray));
+    int skyW = (int)(getAD(AD_SKYBOX_W,0));
+    int skyH = (int)(getAD(AD_SKYBOX_H,0));
+    float angleXZ = (atan2(ray.z,ray.x)+2.0*M_PI)/(2.0*M_PI);
+    float r = length((float2)(ray.x,ray.z));
+    float angleRY = (atan2(ray.y,r)+M_PI/2.0)/(M_PI);
+    int pixelX = (int)(skyW*(1.0-angleRY)) % skyW;
+    int pixelY = (int)(skyH*angleXZ) % skyH;
+    int tid = pixelY*skyW + pixelX;
+    float R =getAD(AD_SKYBOX_DATA,tid*3+0)/255.0;
+    float G =getAD(AD_SKYBOX_DATA,tid*3+1)/255.0;
+    float B =getAD(AD_SKYBOX_DATA,tid*3+2)/255.0;
+    return Vector3f(R,G,B);
+
+}
 
 float3 reflection(float3 ray, float3 normal){
 
@@ -239,13 +273,13 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 		float t2= rand(rand_counter_p)*M_PI/2.0;
 		float3 diffuseReflection = scaledVector3f(cos(t2)*cos(t1),xdir) + scaledVector3f(cos(t2)*sin(t1),zdir) + scaledVector3f(sin(t2),ydir);
 		float3 specularReflection = reflection(incident,ydir);
-		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
+		float3 reflected = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
-		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
+		of3_t intersection=raycast(hitPoint+bias*n,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
 		if(intersection.hit==-1) {
 			bounces++;
 			*bounces_p=bounces;
-			return (float3)(0.0,0.0,0.0);
+			return skybox(reflected);
 		}
 		else{
 			

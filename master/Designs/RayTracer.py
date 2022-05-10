@@ -50,12 +50,13 @@ for I in range(3):
 		addTriangle(tr)
 
 
-setSamples(16);
+setSamples(32);
 setRandomTableSize(16384)
 setColorPow(0.25)
 setMaxBounces(5)
-setBlurCount(5)
-setBlurPixels(2)
+setBlurCount(1)
+setBlurPixels(0)
 setBias(0.005)
+addSkybox("Assets/Skybox/skybox.jpg",1)
 
 commit()

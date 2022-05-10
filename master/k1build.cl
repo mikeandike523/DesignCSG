@@ -1,12 +1,12 @@
 
 
 #define RANDOM_TABLE_SIZE 16384
-#define SAMPLES 16
+#define SAMPLES 32
 #define COLOR_POW 0.25
 #define MAX_BOUNCES 5
 #define BIAS 0.005
-#define BLUR_COUNT 5
-#define BLUR_PIXELS 2
+#define BLUR_COUNT 1
+#define BLUR_PIXELS 0
 
 
 #define getAD(name,offset) (arbitrary_data[name+offset])
@@ -19,10 +19,13 @@ __global float3 upp_g;
 __global float3 fwd_g;
 __global float3 camera_g;
 
-#define AD_NUM_TRIANGLES 0
-#define AD_TRIANGLE_DATA 1
-#define AD_RANDOM_TABLE 69089
-#define AD_SHUFFLE_TABLE 85473
+#define AD_SKYBOX_W 0
+#define AD_SKYBOX_H 1
+#define AD_SKYBOX_DATA 2
+#define AD_NUM_TRIANGLES 2457602
+#define AD_TRIANGLE_DATA 2457603
+#define AD_RANDOM_TABLE 2476235
+#define AD_SHUFFLE_TABLE 2492619
 
 
 
@@ -314,6 +317,8 @@ of3_t raycast(float3 o, float3 r, int numBankName, int bankName){
 
 }
 
+float3 skybox(float3 ray);
+
 __kernel void  k1(
 
     __global unsigned char * outpixels,
@@ -361,6 +366,8 @@ __kernel void  k1(
 
     int samplesTaken = 0;
 
+    int hasHit = 0;
+
 
     for(int bc=0;bc<BLUR_COUNT;bc++){
 
@@ -378,6 +385,7 @@ __kernel void  k1(
             samplesTaken++;
 
             if(intersection.hit!=-1){
+                hasHit = 1;
                 int bounces = 0;
 
                 totalColor += fragment(intersection.hitPoint,intersection.hit,&rand_counter,&bounces);
@@ -392,7 +400,14 @@ __kernel void  k1(
         }
     }
 
+
+
     color = termProduct(f2f3((1.0/samplesTaken)),totalColor);
+
+    if(!hasHit){
+
+        color = skybox(r);
+    }
 
     color=pow(color,COLOR_POW);
     
@@ -402,6 +417,24 @@ __kernel void  k1(
     
 }
  
+
+float3 skybox(float3 ray){
+
+    ray=toLocal(normalize(ray));
+    int skyW = (int)(getAD(AD_SKYBOX_W,0));
+    int skyH = (int)(getAD(AD_SKYBOX_H,0));
+    float angleXZ = (atan2(ray.z,ray.x)+2.0*M_PI)/(2.0*M_PI);
+    float r = length((float2)(ray.x,ray.z));
+    float angleRY = (atan2(ray.y,r)+M_PI/2.0)/(M_PI);
+    int pixelX = (int)(skyW*(1.0-angleRY)) % skyW;
+    int pixelY = (int)(skyH*angleXZ) % skyH;
+    int tid = pixelY*skyW + pixelX;
+    float R =getAD(AD_SKYBOX_DATA,tid*3+0)/255.0;
+    float G =getAD(AD_SKYBOX_DATA,tid*3+1)/255.0;
+    float B =getAD(AD_SKYBOX_DATA,tid*3+2)/255.0;
+    return Vector3f(R,G,B);
+
+}
 
 float3 reflection(float3 ray, float3 normal){
 
@@ -449,13 +482,13 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 		float t2= rand(rand_counter_p)*M_PI/2.0;
 		float3 diffuseReflection = scaledVector3f(cos(t2)*cos(t1),xdir) + scaledVector3f(cos(t2)*sin(t1),zdir) + scaledVector3f(sin(t2),ydir);
 		float3 specularReflection = reflection(incident,ydir);
-		float3 reflection = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
+		float3 reflected = normalize(scaledVector3f(tr.Specular,specularReflection)+scaledVector3f(1.0-tr.Specular,diffuseReflection));
 
-		of3_t intersection=raycast(hitPoint+bias*n,reflection,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
+		of3_t intersection=raycast(hitPoint+bias*n,reflected,AD_NUM_TRIANGLES,AD_TRIANGLE_DATA);
 		if(intersection.hit==-1) {
 			bounces++;
 			*bounces_p=bounces;
-			return (float3)(0.0,0.0,0.0);
+			return skybox(reflected);
 		}
 		else{
 			
