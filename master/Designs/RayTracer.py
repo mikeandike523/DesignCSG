@@ -4,6 +4,12 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
+import pywavefront
+from pywavefront import visualization
+
+scene = pywavefront.Wavefront("Assets/Model/13466_Canaan_Dog_v1_L3.obj",strict=True)
+visualization.draw(scene)
+
 np.random.seed(1999)
 
 trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
@@ -51,7 +57,7 @@ for I in range(3):
 
 
 setSamples(256);
-setViewportSamples(4);
+setViewportSamples(1);
 setRandomTableSize(16384)
 setColorPow(0.25)
 setMaxBounces(5)

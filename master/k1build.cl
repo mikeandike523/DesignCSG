@@ -7,7 +7,7 @@
 #define BIAS 0.005
 #define BLUR_COUNT 1
 #define BLUR_PIXELS 0
-#define VIEWPORT_SAMPLES 4
+#define VIEWPORT_SAMPLES 1
 
 
 #define getAD(name,offset) (arbitrary_data[name+offset])

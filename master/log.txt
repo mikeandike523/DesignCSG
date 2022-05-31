@@ -1,2 +1,24 @@
-(640, 1280, 3) 0 255
-Scene compiled successfully.
+Traceback (most recent call last):
+  File "C:\Projects\DesignCSG -- Raytracer\master\compiled.py", line 10, in <module>
+    scene = pywavefront.Wavefront("Assets/Model/13466_Canaan_Dog_v1_L3.obj",strict=True)
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\wavefront.py", line 72, in __init__
+    self.parser = self.parser_cls(
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\obj.py", line 80, in __init__
+    self.parse()
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\obj.py", line 90, in parse
+    super(ObjParser, self).parse()
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\parser.py", line 129, in parse
+    self.dispatcher.get(self.values[0], self.parse_fallback)()
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\parser.py", line 47, in inner
+    func(*args, **kwargs)
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\obj.py", line 215, in parse_mtllib
+    materials = self.material_parser_cls(
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\material.py", line 175, in __init__
+    self.parse()
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\parser.py", line 129, in parse
+    self.dispatcher.get(self.values[0], self.parse_fallback)()
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\parser.py", line 47, in inner
+    func(*args, **kwargs)
+  File "C:\Projects\DesignCSG -- Raytracer\master\Python310\lib\site-packages\pywavefront\parser.py", line 144, in parse_fallback
+    raise PywavefrontException("Unimplemented OBJ format statement '%s' on line '%s'"
+pywavefront.exceptions.PywavefrontException: Unimplemented OBJ format statement 'Tf' on line '	Tf 1.0000 1.0000 1.0000'
