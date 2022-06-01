@@ -1,122 +1,257 @@
 
         
-#define AD_LETTER_OFFS_C 0
-#define AD_NUMCURVES_C 265
-#define AD_CURVEDATA_C 266
-#define AD_LETTER_OFFS_S 618
-#define AD_NUMCURVES_S 883
-#define AD_CURVEDATA_S 884
-#define AD_LETTER_OFFS_G 1456
-#define AD_NUMCURVES_G 1721
-#define AD_CURVEDATA_G 1722
 
 
         
 
+#define union(a,b) T_min(a,b)
+#define intersection(a,b) T_max(a,b)
+#define subtraction(a,b) T_max(a,-b)
+#define Vector3d(x,y,z) ((float3)((float)(x),(float)(y),(float)(z)))
+#define signOfInt(i) (i>0?1:(i<0?-1:(0)))
+#define upperClampVector3d(v) (Vector3d(T_max(v.x,0.0),T_max(v.y,0.0),T_max(v.z,0.0)))
+
+#define DIRECTION_X 0
+#define DIRECTION_Y 1
+#define DIRECTION_Z 2
+
+
+
+
+#define lineWidth 0.1
+
+
+
          
 
 
-__global int LETTER_AD_OFFS = -1;
+__constant float quadrantMatrices[27*9] = {
 
-#define AXES_XYZ -1
-#define AXES_XY 0
-#define AXES_YZ 1
-#define AXES_ZX 2
+0,1,0, 0,0,1, 1,0,0, 
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,-1,0, 0,0,-1, 
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+0,0,1, 1,0,0, 0,1,0, 
+1,0,0, 0,1,0, 0,0,1,
+0,0,1, 1,0,0, 0,1,0, 
 
-#define LETTER_RESOLUTION 64
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
 
-#define Vector3f(x,y,z) ((float3)(x,y,z))
-#define toVector3f(v) (Vector3f(v.x,v.y,v.z))
+0,1,0, 0,0,1, -1,0,0, 
+1,0,0, 0,1,0, 0,0,1,
+-1,0,0, 0,-1,0, 0,0,-1, 
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+1,0,0, 0,1,0, 0,0,1,
+0,0,-1, -1,0,0, 0,1,0, 
+1,0,0, 0,1,0, 0,0,1,
+0,0,-1, -1,0,0, 0,1,0, 
 
-#define SUBSEGMENTS 64
+};
 
-float arg(float x, float y){
-	float angle = atan2(y,x);
-	if(angle<0.0){
-		return 2.0*M_PI+angle;
+float max3(float a, float b, float c){
+
+	return T_max(a,T_max(b,c));
+
+}
+
+
+float maxComponent(float3 v){
+
+	return T_max(v.x,T_max(v.y,v.z));
+
+}
+
+float box(float3 point, float3 center, float3 halfDiameter ){
+
+	point=fabs(point-center);
+	float3 q = point-halfDiameter;
+	return maxComponent(q);
+
+}
+
+float getComponent(float3 v, int component){
+
+	if(component==0) return v.x;
+	if(component==1) return v.y;
+	if(component==2) return v.z;
+	return HUGE_VALF;
+
+}
+
+float3 termProduct(float3 a, float3 b){
+
+	return Vector3d(a.x*b.x,a.y*b.y,a.z*b.z);
+
+}
+
+float3 swizzle(float3 v, int a, int b, int c){
+
+	return Vector3d(getComponent(v,a),getComponent(v,b),getComponent(v,c));
+
+}
+
+
+
+
+float _hilbertUnitCell(float3 v){
+
+	float d1 = box(v,Vector3d(-0.5,-0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
+	float d2 = box(v,Vector3d(0.5,-0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
+	float d3 = box(v,Vector3d(0.0,-0.5,-0.5),Vector3d(0.5+lineWidth,lineWidth,lineWidth));
+
+	float d4 = box(v,Vector3d(-0.5,0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
+	float d5 = box(v,Vector3d(0.5,0.5,0.0),Vector3d(lineWidth,lineWidth,0.5+lineWidth));
+	float d6 = box(v,Vector3d(0.0,0.5,-0.5),Vector3d(0.5+lineWidth,lineWidth,lineWidth));
+
+	float d7 = box(v,Vector3d(0.5,0.0,0.5),Vector3d(lineWidth,0.5+lineWidth,lineWidth));
+
+	return union(
+
+		union(
+
+		union(d1,union(d2,d3)),
+
+		union(d4,union(d5,d6))
+
+		),
+
+		d7
+
+	);
+
+}
+
+
+float hilbertUnitCell(float3 v){
+
+	v=termProduct(swizzle(v,1,0,2),Vector3d(1,-1,1));
+	v=termProduct(swizzle(v,2,1,0),Vector3d(1,1,-1));
+	return _hilbertUnitCell(v);
+
+}
+
+
+float putHilbert(float3 v,int x, int y, int z)
+{
+
+	float3 c = Vector3d(x/3.0,y/3.0,z/3.0);
+	v=Vector3d(v.x-c.x,v.y-c.y,v.z-c.z);
+	v=Vector3d(3.0*v.x,3.0*v.y,3.0*v.z);
+
+	int xp1 = x+1;
+	int yp1= y+1;
+	int zp1 = z+1;
+	int matrixOffset = (xp1*9+yp1*3+zp1)*9;
+
+	float m00=quadrantMatrices[matrixOffset+0];
+	float m01=quadrantMatrices[matrixOffset+1];
+	float m02=quadrantMatrices[matrixOffset+2];
+
+	float m10=quadrantMatrices[matrixOffset+3];
+	float m11=quadrantMatrices[matrixOffset+4];
+	float m12=quadrantMatrices[matrixOffset+5];
+
+	float m20=quadrantMatrices[matrixOffset+6];
+	float m21=quadrantMatrices[matrixOffset+7];
+	float m22=quadrantMatrices[matrixOffset+8];
+
+	float3 mc0 = Vector3d(m00,m01,m02);
+	float3 mc1 = Vector3d(m10,m11,m12);
+	float3 mc2 = Vector3d(m20,m21,m22); 
+
+	float A = dot(v,mc0);
+	float B = dot(v,mc1);
+	float C = dot(v,mc2);
+
+	return hilbertUnitCell(Vector3d(A,B,C));
+
+}
+
+float putShaft(float3 v, float halfWidth, float halfLength, int direction){
+
+	float d = MAX_DISTANCE;
+	float3 center = Vector3d(0.0,0.0,0.0);
+	switch(direction){
+		case DIRECTION_X:
+
+			d=box(v,center,Vector3d(halfLength+halfWidth,halfWidth,halfWidth));
+		break;
+		case DIRECTION_Y: 
+
+			d=box(v,center,Vector3d(halfWidth,halfLength+halfWidth,halfWidth));
+		break;
+		case DIRECTION_Z:
+
+			d=box(v,center,Vector3d(halfWidth,halfWidth,halfLength+halfWidth));
+		break;
+
 	}
-	return angle;
+
+	return d;
 }
 
-int getADBit(int name, int offs){
-	int foffs = offs/16;
-	int soffs = offs % 16;
-	float fval = getAD(name, foffs);
-	int shortval = (int)fval;
-	return (shortval  >> (15-soffs) ) & 0x1;
-}
+float putConnector(float3 v, int largeI, int largeJ, int largeK, int i, int j, int k, int direction){
 
+	float3 center = Vector3d(
 
-float3 scaledVector3f(float s,float3 v) {
-	return Vector3f(s*v.x,s*v.y,s*v.z);
-}
-float box(float3 v){
-	
-	return T_max(fabs(v.x)-0.5,T_max(fabs(v.y)-0.5,fabs(v.z)-0.5));
+(largeI*1.0+i/2.0)*1/3.0,
+(largeJ*1.0+j/2.0)*1/3.0,
+(largeK*1.0+k/2.0)*1/3.0
+
+	);
+
+	return putShaft(scaleFloat3(3.0,v-center),lineWidth,0.5,direction);
 
 }
 
-float box3(float3 v, float3 c, float3 r){
-	
-	return T_max(fabs(v.x-c.x)-r.x,T_max(fabs(v.y-c.y)-r.y,fabs(v.z-c.z)-r.z));
-
-}
-
-float3 quadraticBezierCurve(float3 A, float3 B, float3 C, float t){
-		return scaledVector3f(1.0-t,scaledVector3f(1.0-t,A)+scaledVector3f(t,B)) + scaledVector3f(t,scaledVector3f(1.0-t,B)+scaledVector3f(t,C));
-
-
-}
-
-float ipow(float f, int n){
-	float r = 1.0;
-	for(int i=0;i<n;i++){
-		r*=f;
-	}
-	return r;
-}
-
-float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,int axesTag,int N){
+float putConnectors(float3 v){
 
 	float d = MAX_DISTANCE;
 
-	for(int i=0;i < N;i++){
+	d=union(d,putConnector(v,0,-1,1,0,1,1,DIRECTION_X));
 
-		float t = (float)i/(float)N;
-		float3 p = quadraticBezierCurve(A,B,C,t);
-		//assume axesTag = AXES_XY
-		p.z=0;
-		v.z = 0;
-
-		float dist = length(p-toVector3f(v));
-
-		if(dist<d){
-				d = dist;
-		}
-
-	}
-
-	int queryCol = (int)(LETTER_RESOLUTION*(v.x+1.0)/2.0);
-	int queryRow = LETTER_RESOLUTION-(int)(LETTER_RESOLUTION*(v.y+1.0)/2.0);
-	int bitPosition = queryRow*(LETTER_RESOLUTION+1) + queryCol;
+	d=union(d,putConnector(v,1,0,-1,1,0,-1,DIRECTION_Y));
+	d=union(d,putConnector(v,-1,0,-1,-1,0,-1,DIRECTION_Y));
 	
-	int val = 0 ;
-	if(queryCol>=0&&queryCol<=LETTER_RESOLUTION&&queryRow>=0&&queryRow<=LETTER_RESOLUTION)
-	{
-		val=getADBit(LETTER_AD_OFFS,bitPosition);
-	}
-	if(val){
-		return -d;
-	}
-
-
+	d=union(d,putConnector(v,1,0,1,1,0,1,DIRECTION_Y));
+	d=union(d,putConnector(v,-1,0,1,-1,0,1,DIRECTION_Y));
 	
-	
-	return d-thickness;
+	d=union(d,putConnector(v,1,1,0,1,-1,0,DIRECTION_Z));
+	d=union(d,putConnector(v,-1,1,0,-1,-1,0,DIRECTION_Z));
+
+	return d;
 
 }
 
 
+float hilbert_sdf(float3 v){
+	
+	float m = MAX_DISTANCE;
+	for(int i=-1;i<=1;i++)
+	for(int j=-1;j<=1;j++)
+	for(int k=-1;k<=1;k++)
+	{
+		if(abs(i)+abs(j)+abs(k)!=3) continue;
+		float d = putHilbert(v,i,j,k);
+		if ( d < m)
+		{
+			m=d;
+		}
+	}
+
+	return T_min(m,putConnectors(v));
+}
 
 
 
@@ -168,32 +303,11 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
         float sd5( float3 v){
 
-            
+             
 
-	LETTER_AD_OFFS = AD_LETTER_OFFS_C;
-
-	v=(float3)(2.0*v.x,2.0*v.y,2.0*v.z);
-
-	int numCurves = (int)getAD(AD_NUMCURVES_C,0);
-	float d = MAX_DISTANCE;
+	return hilbert_sdf(v);
 
 
-	for(int i=0;i<numCurves;i++){
-
-		int offs = i*(9+2);
-		d = T_min(d,quadraticBezierSDF(toVector3f(v),
-			Vector3f(getAD(AD_CURVEDATA_C,offs+0),getAD(AD_CURVEDATA_C,offs+1),getAD(AD_CURVEDATA_C,offs+2)),
-			Vector3f(getAD(AD_CURVEDATA_C,offs+3),getAD(AD_CURVEDATA_C,offs+4),getAD(AD_CURVEDATA_C,offs+5)),
-			Vector3f(getAD(AD_CURVEDATA_C,offs+6),getAD(AD_CURVEDATA_C,offs+7),getAD(AD_CURVEDATA_C,offs+8)),
-			getAD(AD_CURVEDATA_C,offs+9),(int)getAD(AD_CURVEDATA_C,offs+10),SUBSEGMENTS
-		));
-
-
-	}
-
-	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
-
-	
 
         }
         
@@ -202,62 +316,20 @@ float quadraticBezierSDF(float3 v,float3 A, float3 B, float3 C, float thickness,
 
             
 
-	LETTER_AD_OFFS = AD_LETTER_OFFS_S;
+	const float outerRadius = 0.5;
+	const float innerRadius = 0.45;
+	const float height = 0.05;
 
-	v=(float3)(2.0*v.x,2.0*v.y,2.0*v.z);
-
-	int numCurves = (int)getAD(AD_NUMCURVES_S,0);
-	float d = MAX_DISTANCE;
-
-
-	for(int i=0;i<numCurves;i++){
-
-		int offs = i*(9+2);
-		d = T_min(d,quadraticBezierSDF(toVector3f(v),
-			Vector3f(getAD(AD_CURVEDATA_S,offs+0),getAD(AD_CURVEDATA_S,offs+1),getAD(AD_CURVEDATA_S,offs+2)),
-			Vector3f(getAD(AD_CURVEDATA_S,offs+3),getAD(AD_CURVEDATA_S,offs+4),getAD(AD_CURVEDATA_S,offs+5)),
-			Vector3f(getAD(AD_CURVEDATA_S,offs+6),getAD(AD_CURVEDATA_S,offs+7),getAD(AD_CURVEDATA_S,offs+8)),
-			getAD(AD_CURVEDATA_S,offs+9),(int)getAD(AD_CURVEDATA_S,offs+10),SUBSEGMENTS
-		));
-
-
+	float r = sqrt(v.x*v.x+v.z*v.z);
+	float d = r-outerRadius;
+	if(v.y>0){
+		float newRadius = innerRadius+(outerRadius-innerRadius)*(1.0-v.y/height);
+		d=r-newRadius;
 	}
 
-	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
-
+	return intersection(d,fabs(v.y)-height);
 	
 
-        }
-        
-
-        float sd7( float3 v){
-
-            
-
-	LETTER_AD_OFFS = AD_LETTER_OFFS_G;
-
-	v=(float3)(2.0*v.x,2.0*v.y,2.0*v.z);
-
-	int numCurves = (int)getAD(AD_NUMCURVES_G,0);
-	float d = MAX_DISTANCE;
-
-
-	for(int i=0;i<numCurves;i++){
-
-		int offs = i*(9+2);
-		d = T_min(d,quadraticBezierSDF(toVector3f(v),
-			Vector3f(getAD(AD_CURVEDATA_G,offs+0),getAD(AD_CURVEDATA_G,offs+1),getAD(AD_CURVEDATA_G,offs+2)),
-			Vector3f(getAD(AD_CURVEDATA_G,offs+3),getAD(AD_CURVEDATA_G,offs+4),getAD(AD_CURVEDATA_G,offs+5)),
-			Vector3f(getAD(AD_CURVEDATA_G,offs+6),getAD(AD_CURVEDATA_G,offs+7),getAD(AD_CURVEDATA_G,offs+8)),
-			getAD(AD_CURVEDATA_G,offs+9),(int)getAD(AD_CURVEDATA_G,offs+10),SUBSEGMENTS
-		));
-
-
-	}
-
-	return T_max(T_max(d,box3(toVector3f(v),Vector3f(0.0,0.0,0.0),Vector3f(1.25,1.25,1.25))),fabs(v.z-1.25)-0.125);
-
-	
 
         }
         
@@ -310,9 +382,6 @@ case 5: return sd5(v); break;
 
 
 case 6: return sd6(v); break;
-
-
-case 7: return sd7(v); break;
 
 
             }

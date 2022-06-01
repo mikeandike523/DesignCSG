@@ -23,13 +23,15 @@
 
 
 #define standard_arg_list shape_id_bank,object_position_bank,object_right_bank,object_up_bank,object_forward_bank,num_objects,build_procedure_data,num_build_steps
-
  
 #define print_float3(f3) printf("%f,%f,%f\n",f3.x,f3.y,f3.z);
 
 #define T_min(a,b) (a<b?a:b)
 #define T_max(a,b) (a>b?a:b)
 
+float3 scaleFloat3(float s, float3 v){
+    return (float3)(s*v.x,s*v.y,s*v.z);
+}
 
 float sdf_bank(float3 v, unsigned char shape_id);
 float3 shader_bank(float3 gv, float3 lv, float3 n, unsigned char material_id);
