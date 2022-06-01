@@ -168,7 +168,7 @@ def createOpenCLClass(clss,constructedMembers = None):
     members = [member for member in dir(clss) if (not callable(getattr(clss,member)) and not member.startswith("__"))]
     ## ---
 
-    tName = lambda obj,member: "float" if (isinstance(getattr(obj,member),float) or np.array([getattr(obj,member)],dtype=float).shape==(1,)) else "float3"
+    tName = lambda obj,member: "float3" if (isinstance(getattr(obj,member),list) or np.array(getattr(obj,member),dtype=float).shape==(3,)) else "float"
 
     structCode = """
 typedef struct tag_{}_t {{

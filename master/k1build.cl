@@ -24,13 +24,13 @@ __global float3 camera_g;
 #define AD_SKYBOX_H 1
 #define AD_SKYBOX_DATA 2
 #define AD_TEX_START 2457602
-#define AD_TEX_DATA 2457602
-#define AD_TEX_W 2457602
-#define AD_TEX_H 2457602
-#define AD_NUM_TRIANGLES 2457602
-#define AD_TRIANGLE_DATA 2457603
-#define AD_RANDOM_TABLE 2487195
-#define AD_SHUFFLE_TABLE 2503579
+#define AD_TEX_DATA 2457603
+#define AD_TEX_W 5603331
+#define AD_TEX_H 5603332
+#define AD_NUM_TRIANGLES 5603333
+#define AD_TRIANGLE_DATA 5603334
+#define AD_RANDOM_TABLE 6383094
+#define AD_SHUFFLE_TABLE 6399478
 
 
 
@@ -149,6 +149,26 @@ Triangle3f_t getTriangle3f(int bankName,int index){
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
 #define f2f3(f) Vector3f(f,f,f)
+
+// --- courtesy of https://gamedev.stackexchange.com/a/23745
+float3 Barycentric(float3 p, float3 a, float3 b, float3 c)
+{
+    float u = 0.0;
+    float v = 0.0;
+    float w = 0.0;
+    float3 v0 = b - a, v1 = c - a, v2 = p - a;
+    float d00 = dot(v0, v0);
+    float d01 = dot(v0, v1);
+    float d11 = dot(v1, v1);
+    float d20 = dot(v2, v0);
+    float d21 = dot(v2, v1);
+    float denom = d00 * d11 - d01 * d01;
+    v = (d11 * d20 - d01 * d21) / denom;
+    w = (d00 * d21 - d01 * d20) / denom;
+    u = 1.0f - v - w;
+    return Vector3f(u,v,w);
+}
+// ---
 
 float3 sampleTexture(int textureId, float u, float v){
     int texW = (int)getAD(AD_TEX_W,textureId);
@@ -473,6 +493,8 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
 
+   // return Barycentric(gv,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
+
 	const int maxBounces = MAX_BOUNCES;
 	const float bias = BIAS;
 
@@ -485,6 +507,14 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 
 	while(bounces<maxBounces){
+
+        int texId = (int)tr.TextureId;
+        if(texId!=-1){
+            float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
+            //tr.Color = sampleTexture()
+            tr.Color = uvw;
+            return uvw;
+        }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
 		else{

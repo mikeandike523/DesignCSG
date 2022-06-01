@@ -4,18 +4,18 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
-#trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj")
-#print("len",len(trs))
+trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj",scale=5.0)
 
 np.random.seed(1999)
 
-trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
+#trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
+
 for tr in trs:
 	tr.Specular = 0.0
 	tr.Color =vec3(1,1,1)
 	addTriangle(tr)
 
-R=max(aspect[0],aspect[2])*2.0
+R=1.5
 trs = getCircleTriangles(vec3(0.0,-aspect[1],0.0),R,vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),64)
 for tr in trs:
 
@@ -30,7 +30,6 @@ for I in range(3):
 	rz = vec3(cos(angle+np.pi/2),0.0,sin(angle+np.pi/2))
 	ry=vec3(0.0,1.0,0.0)
 
-	R=max(aspect[0],aspect[2])*1.5
 	center = 2.0*aspect
 	ydir = normalize(aspect)
 	r=normalize(vec3(ydir[0],0.0,ydir[2]))

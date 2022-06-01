@@ -6,6 +6,9 @@ from math import *
 import itertools
 from PIL import Image
 
+#attributions
+#None yet.
+
 compiler = scenecompiler.SceneCompiler()
 
 addArbitraryData = compiler.addArbitraryData
@@ -76,8 +79,9 @@ def vectorHasNaN(v):
     if isnan(v[2]): return True
     return False
 
-def null_float(): return 0.0
-def null_vec3(): return vec3(0.0,0.0,0.0)
+def zero_float(): return 0.0
+def zero_vec3(): return vec3(0.0,0.0,0.0)
+def null_float(): return -1.0
 
 class Texture:
     def __init__(self,path):
@@ -89,30 +93,32 @@ class Texture:
         self.data = np.ravel(self.data)
 
 textures = []
-def addTexture(texture,name):
+def addTexture(texture):
     global textures
     textures.append(texture)
     return len(textures) - 1
 
 class Triangle3f:
 
-    A=null_vec3()
-    B=null_vec3()
-    C=null_vec3()
-    N=null_vec3()
-    Color=null_vec3()
-    Specular=null_float()
-    Emmissive=null_float()
+    A=zero_vec3()
+    B=zero_vec3()
+    C=zero_vec3()
+    N=zero_vec3()
+    Color=zero_vec3()
+    Specular=zero_float()
+    Emmissive=zero_float()
     TextureId=null_float()
-    UV0A=null_vec3()
-    UV0B=null_vec3()
-    UV0C=null_vec3()
+    UV0A=zero_vec3()
+    UV0B=zero_vec3()
+    UV0C=zero_vec3()
 
     def __init__(self,A,B,C):
         self.A=A
         self.B=B
         self.C=C
         self.N=normalize(cross(C-A,B-A))
+        self.TextureId = -1 #it seems that to make default values, the variables must be set in __init__ in order to initialize isntance members instead of class members
+                            #therefore, null_float() will make no difference from zero_float()
         
     def hasNan(self):
         return vectorHasNaN(self.A) or vectorHasNaN(self.B) or vectorHasNaN(self.C) or vectorHasNaN(self.N)
@@ -215,11 +221,13 @@ def loadTrianglesFromSTL(filepath):
 
 class Vertex:
     def __init__(self,UV,N,P):
-        self.P = P
+        self.P = np.array(P,dtype=float)
         self.N = N
         self.UV = UV
+    def scaled(self,s):
+        return Vertex(self.UV,self.N,s*self.P)
 
-def loadTrianglesFromOBJ(filepath,objname=None):
+def loadTrianglesFromOBJ(filepath,scale=1.0):
     import pywavefront
     import sys
     import os
@@ -251,7 +259,7 @@ def loadTrianglesFromOBJ(filepath,objname=None):
 
     for name, material in scene.materials.items():
         image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
-        texId = addTexture(Texture(image_file),".".join(os.path.basename(filepath).split('.')[:-1]) if objname is None else objname)
+        texId = addTexture(Texture(image_file))
         print(material.vertex_format)
         print(material.vertex_size)
         num_points = len(material.vertices)//material.vertex_size
@@ -268,7 +276,13 @@ def loadTrianglesFromOBJ(filepath,objname=None):
 
         for i in range(num_points):
             vdata = material.vertices[(i*int(material.vertex_size)):((i+1)*int(material.vertex_size))]
-            v = Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[3],vdata[4]),vec3(vdata[5],vdata[6],vdata[7]))
+
+            #Do not swap y and z
+            #v = Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[3],vdata[4]),vec3(vdata[5],vdata[6],vdata[7]))
+            
+            #Swap y and z
+            v=Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[4],vdata[3]),vec3(vdata[5],vdata[7],vdata[6])).scaled(scale)
+
             vertices.append(v)
             if v.P[0] > maxX:
                 maxX = v.P[0]
@@ -309,7 +323,7 @@ def loadTrianglesFromOBJ(filepath,objname=None):
             vB = vertices[i*3+1]
             vC = vertices[i*3+2]
             tr=Triangle3f(vA.P,vB.P,vC.P)
-            tr.TextureId = texId
+            tr.TextureId = float(texId)
             tr.UV0A = vec2Tovec3(vA.UV)
             tr.UV0B = vec2Tovec3(vB.UV)
             tr.UV0C = vec2Tovec3(vC.UV)
@@ -381,6 +395,8 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 	Triangle3f_t tr = getTriangle3f(AD_TRIANGLE_DATA,it);
 
+   // return Barycentric(gv,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
+
 	const int maxBounces = MAX_BOUNCES;
 	const float bias = BIAS;
 
@@ -393,6 +409,14 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 
 
 	while(bounces<maxBounces){
+
+        int texId = (int)tr.TextureId;
+        if(texId!=-1){
+            float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
+            //tr.Color = sampleTexture()
+            tr.Color = uvw;
+            return uvw;
+        }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
 		else{
@@ -468,7 +492,7 @@ def commit():
 
     for triangle in triangles:
         for field in fields:
-            if isinstance(getattr(triangle,field),float):
+            if isinstance(getattr(triangle,field),float) or np.array([getattr(triangle,field)]).shape == (1,):
                 triangleData.append(float(getattr(triangle,field)))
             else:
                 triangleData.extend(list(getattr(triangle,field)))
