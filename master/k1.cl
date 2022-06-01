@@ -29,6 +29,16 @@
 
 #define f2f3(f) Vector3f(f,f,f)
 
+float3 sampleTexture(int textureId, float u, float v){
+    int texW = (int)getAD(AD_TEX_W,textureId);
+    int texH = (int)getAD(AD_TEX_H,textureId);
+    int texStart = (int)getAD(AD_TEX_START,textureId);
+    int x = (int)(u*texW);
+    int y = (int)(v*texH);
+    int texelId = texStart + y*texW + texH;
+    return Vector3f(getAD(AD_TEX_DATA,texelId*3+0),getAD(AD_TEX_DATA,texelId*3+1),getAD(AD_TEX_DATA,texelId*3+2));
+};
+
 float angleZeroToTwoPi(float x, float y){
 
     float a = atan2(y,x);

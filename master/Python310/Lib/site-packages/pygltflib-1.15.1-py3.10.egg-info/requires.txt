@@ -1,0 +1,5 @@
+dataclasses-json>=0.0.25
+deprecated
+
+[:python_version >= "3.6" and python_version < "3.7"]
+dataclasses

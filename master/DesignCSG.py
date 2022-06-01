@@ -1,8 +1,10 @@
+from matplotlib import image
 import scenecompiler
 import numpy as np
 import struct
 from math import *
 import itertools
+from PIL import Image
 
 compiler = scenecompiler.SceneCompiler()
 
@@ -70,6 +72,24 @@ def vectorHasNaN(v):
 
 def null_float(): return 0.0
 def null_vec3(): return vec3(0.0,0.0,0.0)
+
+class Texture:
+    def __init__(self,path):
+        image = Image.open(path)
+        self.data = np.asarray(image).astype(int)
+        self.W = self.data.shape[1]
+        self.H = self.data.shape[0]
+        assert(self.data.shape[2]==3)
+        self.data = np.ravel(self.data)
+
+textures = []
+texIdMapping = {}
+def addTexture(texture,name):
+    global textures
+    texIdMapping[name] = len(textures)
+    textures.append(texture)
+def getRootTextureId(name):
+    return texIdMapping[name]
 
 class Triangle3f:
 
@@ -185,6 +205,39 @@ def loadTrianglesFromSTL(filepath):
         trs.append(tr)
 
     return trs, aspect
+
+def loadTrianglesFromOBJ(filepath,objname=None):
+    import pywavefront
+    import sys
+    import os
+
+    '''
+    # --- Courtesy of https://www.pluralsight.com/guides/importing-image-data-into-numpy-arrays
+    from PIL import Image
+    image = Image.open(image_file)
+    array = np.asarray(image)
+    array = array.astype(int)
+    #print(array)
+    # --- 
+
+    # --- test the ordering of the numpy array
+    print(array.shape)
+    image2 = Image.new("RGB",(array.shape[0],array.shape[1]))
+    for row in range(array.shape[0]):
+        for col in range(array.shape[1]):
+            y=row
+            x=col
+            image2.putpixel((x,y),tuple(array[row,col,:]))
+    image2.save(os.path.join(os.path.dirname(filepath),"testimage.png"))
+    # ---
+    '''
+
+    scene = pywavefront.Wavefront(filepath,collect_faces = True)
+    for name, material in scene.materials.items():
+        image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
+        addTexture(Texture(image_file),".".join(os.path.basename(filepath).split('.')[:-1]) if objname is None else objname)
+
+    return (None,None)
 
 def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
     R=radius
@@ -310,6 +363,24 @@ Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 """)
 
 def commit():
+
+    #load texture data here
+    allTextureData = []
+    textureStarts = []
+    textureWidths = []
+    textureHeights = []
+    pointer = 0
+    for texture in textures:
+        textureWidths.append(texture.W)
+        textureHeights.append(texture.H)
+        textureStarts.append(pointer)
+        allTextureData.extend(texture.data/255)
+        pointer+=texture.W*texture.H
+
+    addArbitraryData("TEX_START",textureStarts)
+    addArbitraryData("TEX_DATA",allTextureData)
+    addArbitraryData("TEX_W",textureWidths)
+    addArbitraryData("TEX_H",textureHeights)
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
     triangleData=[]

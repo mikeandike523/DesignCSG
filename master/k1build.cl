@@ -23,10 +23,14 @@ __global float3 camera_g;
 #define AD_SKYBOX_W 0
 #define AD_SKYBOX_H 1
 #define AD_SKYBOX_DATA 2
-#define AD_NUM_TRIANGLES 2457602
-#define AD_TRIANGLE_DATA 2457603
-#define AD_RANDOM_TABLE 2476235
-#define AD_SHUFFLE_TABLE 2492619
+#define AD_TEX_START 2457602
+#define AD_TEX_DATA 2457603
+#define AD_TEX_W 5603331
+#define AD_TEX_H 5603332
+#define AD_NUM_TRIANGLES 5603333
+#define AD_TRIANGLE_DATA 5603334
+#define AD_RANDOM_TABLE 5621966
+#define AD_SHUFFLE_TABLE 5638350
 
 
 
@@ -137,6 +141,16 @@ Triangle3f_t getTriangle3f(int bankName,int index){
 #define Vector3f(x,y,z) ((float3)(x,y,z))
 
 #define f2f3(f) Vector3f(f,f,f)
+
+float3 sampleTexture(int textureId, float u, float v){
+    int texW = (int)getAD(AD_TEX_W,textureId);
+    int texH = (int)getAD(AD_TEX_H,textureId);
+    int texStart = (int)getAD(AD_TEX_START,textureId);
+    int x = (int)(u*texW);
+    int y = (int)(v*texH);
+    int texelId = texStart + y*texW + texH;
+    return Vector3f(getAD(AD_TEX_DATA,texelId*3+0),getAD(AD_TEX_DATA,texelId*3+1),getAD(AD_TEX_DATA,texelId*3+2));
+};
 
 float angleZeroToTwoPi(float x, float y){
 

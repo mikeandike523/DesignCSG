@@ -4,11 +4,7 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
-import pywavefront
-from pywavefront import visualization
-
-scene = pywavefront.Wavefront("Assets/Model/13466_Canaan_Dog_v1_L3.obj",strict=True)
-visualization.draw(scene)
+trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj",0)
 
 np.random.seed(1999)
 
