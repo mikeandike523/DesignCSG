@@ -155,6 +155,12 @@ class ArbitraryDataChunk:
         self.start=start
         self.data=data
 
+def getOpenCLClassFieldsInOrder(clss):
+    ## --- https://stackoverflow.com/a/1939279/5166365
+    members = [member for member in dir(clss) if (not callable(getattr(clss,member)) and not member.startswith("__"))]
+    ## ---
+    return members
+
 def createOpenCLClass(clss,constructedMembers = None):
     className = clss.__name__
 

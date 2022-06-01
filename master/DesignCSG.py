@@ -54,6 +54,12 @@ includeCL("LinAlg.cl")
 def vec3(x,y,z):
     return np.array([x,y,z],dtype=float)
 
+def vec2(x,y):
+    return np.array([x,y])
+
+def vec2Tovec3(v):
+    return vec3(v[0],v[1],0.0)
+
 def normalize(v):
     return v/sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])
 
@@ -83,13 +89,10 @@ class Texture:
         self.data = np.ravel(self.data)
 
 textures = []
-texIdMapping = {}
 def addTexture(texture,name):
     global textures
-    texIdMapping[name] = len(textures)
     textures.append(texture)
-def getRootTextureId(name):
-    return texIdMapping[name]
+    return len(textures) - 1
 
 class Triangle3f:
 
@@ -100,6 +103,10 @@ class Triangle3f:
     Color=null_vec3()
     Specular=null_float()
     Emmissive=null_float()
+    TextureId=null_float()
+    UV0A=null_vec3()
+    UV0B=null_vec3()
+    UV0C=null_vec3()
 
     def __init__(self,A,B,C):
         self.A=A
@@ -206,6 +213,12 @@ def loadTrianglesFromSTL(filepath):
 
     return trs, aspect
 
+class Vertex:
+    def __init__(self,UV,N,P):
+        self.P = P
+        self.N = N
+        self.UV = UV
+
 def loadTrianglesFromOBJ(filepath,objname=None):
     import pywavefront
     import sys
@@ -233,11 +246,77 @@ def loadTrianglesFromOBJ(filepath,objname=None):
     '''
 
     scene = pywavefront.Wavefront(filepath,collect_faces = True)
+
+    trs = []
+
     for name, material in scene.materials.items():
         image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
-        addTexture(Texture(image_file),".".join(os.path.basename(filepath).split('.')[:-1]) if objname is None else objname)
+        texId = addTexture(Texture(image_file),".".join(os.path.basename(filepath).split('.')[:-1]) if objname is None else objname)
+        print(material.vertex_format)
+        print(material.vertex_size)
+        num_points = len(material.vertices)//material.vertex_size
+        print(len(material.vertices)/material.vertex_size)
+        
+        maxX = float("-inf")
+        minX = float("+inf")
+        maxY = float("-inf")
+        minY = float("+inf")
+        maxZ = float("-inf")
+        minZ = float("+inf")
+        
+        vertices = []
 
-    return (None,None)
+        for i in range(num_points):
+            vdata = material.vertices[(i*int(material.vertex_size)):((i+1)*int(material.vertex_size))]
+            v = Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[3],vdata[4]),vec3(vdata[5],vdata[6],vdata[7]))
+            vertices.append(v)
+            if v.P[0] > maxX:
+                maxX = v.P[0]
+            if v.P[0] < minX:
+                minX = v.P[0]
+            if v.P[1] > maxY:
+                maxY = v.P[1]
+            if v.P[1] < minY:
+                minY = v.P[1]
+            if v.P[2] > maxZ:
+                maxZ = v.P[2]
+            if v.P[2] < minZ:
+                minZ = v.P[2]
+    
+        rescaleX = lambda x: -1+2*(x-minX)/(maxX-minX)
+        rescaleY = lambda y: -1+2*(y-minY)/(maxY-minY)
+        rescaleZ = lambda z: -1+2*(z-minZ)/(maxZ-minZ)
+
+        rescalePoint = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
+
+        for i in range(len(vertices)):
+            vertices[i].P = rescalePoint(vertices[i].P)
+
+        d1 = maxX - minX
+        d2 = maxY - minY
+        d3 = maxZ - minZ
+
+        print(d1,d2,d3)
+
+        minD = np.min([d1,d2,d3])
+
+        aspect = vec3(1.0,1.0,1.0)
+
+        aspect = vec3(d1/minD,d2/minD,d3/minD)
+        numtrs = len(vertices) // 3
+        for i in range(numtrs):
+            vA = vertices[i*3+0]
+            vB = vertices[i*3+1]
+            vC = vertices[i*3+2]
+            tr=Triangle3f(vA.P,vB.P,vC.P)
+            tr.TextureId = texId
+            tr.UV0A = vec2Tovec3(vA.UV)
+            tr.UV0B = vec2Tovec3(vB.UV)
+            tr.UV0C = vec2Tovec3(vC.UV)
+            if not tr.hasNan():
+                trs.append(tr)
+
+    return trs,aspect
 
 def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
     R=radius
@@ -384,15 +463,15 @@ def commit():
 
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
     triangleData=[]
-    for triangle in triangles:
-        triangleData.extend(list(triangle.A))
-        triangleData.extend(list(triangle.B))
-        triangleData.extend(list(triangle.C))
-        triangleData.extend(list(triangle.Color))
-        triangleData.append(triangle.Emmissive)
-        triangleData.extend(list(triangle.N))
-        triangleData.append(triangle.Specular)
 
+    fields = scenecompiler.getOpenCLClassFieldsInOrder(Triangle3f)
+
+    for triangle in triangles:
+        for field in fields:
+            if isinstance(getattr(triangle,field),float):
+                triangleData.append(float(getattr(triangle,field)))
+            else:
+                triangleData.extend(list(getattr(triangle,field)))
 
     addArbitraryData("TRIANGLE_DATA",triangleData)
 

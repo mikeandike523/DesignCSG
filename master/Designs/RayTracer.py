@@ -4,7 +4,8 @@ import itertools
 import struct
 from math import sqrt,cos,sin
 
-trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj",0)
+#trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj")
+#print("len",len(trs))
 
 np.random.seed(1999)
 
