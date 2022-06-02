@@ -6,15 +6,14 @@ from math import sqrt,cos,sin
 
 np.random.seed(1999)
 
-trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj",scale=5.0)
-for tr in trs:
+print("TRS1")
+trs1 , aspect1= loadTrianglesFromOBJ("Assets/Model/Car/10600_RC_ Car_SG_v2_L3.obj",scale=5.0,textureScale = 0.5)
+for tr in trs1:
 	addTriangle(tr)
-
-R=3.0
-trs = getCircleTriangles(vec3(0.0,-aspect[1],0.0),R,vec3(1,0,0),vec3(0,1,0),vec3(0,0,1),64)
-for tr in trs:
-	tr.Specular=1.0
-	addTriangle(tr)
+print("TRS2")
+trs2 , aspect2= loadTrianglesFromOBJ("Assets/Model/Road2/10563_RoadSectionStraight_v1-L3.obj",scale=1.0,textureScale = 0.125)
+for tr in trs2:
+	addTriangle(tr.transformed(Transform.translation(vec3(0.0,-aspect2[1],0.0))).transformed(Transform.eulerY(np.pi/2)))
 
 setSamples(256);
 setViewportSamples(1);

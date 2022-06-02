@@ -490,7 +490,6 @@ void updateArbitraryData(MyFrame * ctx) {
 		fclose(dataFile);
 		ctx->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);
 
-
 	}
 	free(arbitrary_data_temp);
 

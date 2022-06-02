@@ -5,6 +5,7 @@ import struct
 from math import *
 import itertools
 from PIL import Image
+import cv2
 
 #attributions
 #None yet.
@@ -84,13 +85,26 @@ def zero_vec3(): return vec3(0.0,0.0,0.0)
 def null_float(): return -1.0
 
 class Texture:
-    def __init__(self,path):
+    def __init__(self,path,scaling = 1.0):
+
+        #solution to cv2.resize() error ("error: (-215:Assertion failed) func != 0 in function 'resize'") courtesy of https://stackoverflow.com/a/55429040/5166365 
+
         image = Image.open(path)
-        self.data = np.asarray(image).astype(int)
+        self.data = np.asarray(image).astype(float)/255
+        self.data = self.data[:,:,0:3]
         self.W = self.data.shape[1]
         self.H = self.data.shape[0]
         assert(self.data.shape[2]==3)
-        self.data = np.ravel(self.data)
+        ww = int(scaling*self.W)
+        hh = int(scaling*self.H)
+        print(self.data.shape)
+        # --- cv2.resize() usage Courtesy of https://www.tutorialkart.com/opencv/python/opencv-python-resize-image/
+        self.data = cv2.resize(self.data,dsize=(ww,hh))
+        self.W = ww
+        self.H = hh
+        # ---
+        print(self.data.shape)
+        self.data = (np.ravel(self.data)*255).astype(int)
 
 textures = []
 def addTexture(texture):
@@ -122,6 +136,23 @@ class Triangle3f:
         
     def hasNan(self):
         return vectorHasNaN(self.A) or vectorHasNaN(self.B) or vectorHasNaN(self.C) or vectorHasNaN(self.N)
+
+    def transformed(self,transform):
+        AH = scenecompiler.Transform.to_homogenous(self.A)
+        BH = scenecompiler.Transform.to_homogenous(self.B)
+        CH = scenecompiler.Transform.to_homogenous(self.C)
+        self.A = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,AH))
+        self.B = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,BH))
+        self.C = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,CH))
+        tr = Triangle3f(self.A,self.B,self.C)
+        tr.Color = self.C
+        tr.Specular = self.Specular
+        tr.Emmissive = self.Emmissive
+        tr.TextureId = self.TextureId
+        tr.UV0A = self.UV0A
+        tr.UV0B = self.UV0B
+        tr.UV0C = self.UV0C
+        return tr
 
 def addClass(clss):
     compiler.add_class(clss)
@@ -227,7 +258,7 @@ class Vertex:
     def scaled(self,s):
         return Vertex(self.UV,self.N,s*self.P)
 
-def loadTrianglesFromOBJ(filepath,scale=1.0):
+def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
     import pywavefront
     import sys
     import os
@@ -259,7 +290,7 @@ def loadTrianglesFromOBJ(filepath,scale=1.0):
 
     for name, material in scene.materials.items():
         image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
-        texId = addTexture(Texture(image_file))
+        texId = addTexture(Texture(image_file,scaling = textureScale))
         print(material.vertex_format)
         print(material.vertex_size)
         num_points = len(material.vertices)//material.vertex_size
@@ -330,7 +361,6 @@ def loadTrianglesFromOBJ(filepath,scale=1.0):
             tr.UV0A = vec2Tovec3(vA.UV)
             tr.UV0B = vec2Tovec3(vB.UV)
             tr.UV0C = vec2Tovec3(vC.UV)
-         #   tr.N=np.mean([vA.N,vB.N,vC.N])
             if not tr.hasNan():
                 trs.append(tr)
 

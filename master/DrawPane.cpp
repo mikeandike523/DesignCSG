@@ -10,6 +10,7 @@
 
 #include "Utils.h"
 #include "CVector.h"
+#include <filesystem>
 
 #define CLIP8(x) ((x>255) ? 255 : ((x < 0 )? 0: x))
 
@@ -29,8 +30,6 @@ void BasicDrawPane::setArbitraryData(float * data, size_t items) {
 		NULL);
 
 }
-
-#define MAX_STORAGE 128 * 1024 * 1024 //128MB
 
 void BasicDrawPane::idled(wxIdleEvent& event)
 {
@@ -61,11 +60,15 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		static uint64_t max_floats = 1;
 	
-		
+		long MAX_STORAGE = 128 * 1024 * 1024;
+
+		if (std::filesystem::is_regular_file("MAX_STORAGE_HINT.txt")) {
+			MAX_STORAGE = std::stol(Utils::readFile("MAX_STORAGE_HINT.txt"));
+		}
 		
 		static int buffer_task_complete = 0;
 		static int buffer_task_running = 0;
-		auto task = []( uint64_t* max_floats_p, int* task_complete_p, int * running_p, cl_context * context) {
+		auto task = [&MAX_STORAGE]( uint64_t* max_floats_p, int* task_complete_p, int * running_p, cl_context * context) {
 			(*running_p) = 1;
 			int testing_max_floats = 1;
 			int* testing_max_floats_p = &testing_max_floats;
