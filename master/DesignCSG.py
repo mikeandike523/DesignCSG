@@ -419,8 +419,7 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
             float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
             float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
-           // tr.Color = sampleTexture(tr.TextureId,_u,_v);
-           return sampleTexture(tr.TextureId,_u,_v);
+            tr.Color = sampleTexture(tr.TextureId,_u,_v);
         }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
@@ -449,10 +448,10 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
 		if(intersection.hit==-1) {
 			bounces++;
 			*bounces_p=bounces;
-			return skybox(reflected);
+            float3 skyboxColor = skybox(reflected);
+            return tr.Specular*skyboxColor + ((float)1.0-tr.Specular)*termProduct(tr.Color,skyboxColor);
 		}
 		else{
-			
 			oldPoint=hitPoint;
 			hitPoint = intersection.hitPoint;
 			tr=getTriangle3f(AD_TRIANGLE_DATA,intersection.hit);
