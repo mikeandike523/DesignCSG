@@ -74,7 +74,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 			int* testing_max_floats_p = &testing_max_floats;
 			while (*testing_max_floats_p) {
 				(* max_floats_p) *= 2;
-				if ((*max_floats_p) >  MAX_STORAGE/ 4) (*testing_max_floats_p) = 0; 
+				if ((*max_floats_p) >  MAX_STORAGE) (*testing_max_floats_p) = 0; 
 				DebugPrint("Attempting to create float buffer with %d elements... ", *max_floats_p);
 				float* testArray = (float*)calloc((*max_floats_p), sizeof(float));
 				cl_int max_floats_err = CL_SUCCESS;
@@ -108,8 +108,8 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		max_floats /= 2; //since last clCreateBuffer was not successful
 
-		if (max_floats > MAX_STORAGE / 4) {
-			max_floats = MAX_STORAGE / 4;
+		if (max_floats > MAX_STORAGE) {
+			max_floats = MAX_STORAGE;
 			DebugPrint("Capped buffer.\n");
 		}
 

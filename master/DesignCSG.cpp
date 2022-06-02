@@ -485,7 +485,10 @@ void updateArbitraryData(MyFrame * ctx) {
 			}*/
 			float dataPointf = 0.0;
 			memcpy(&dataPointf, dataPoint, 4);
-			arbitrary_data_temp[itemCount++] = dataPointf;
+			if (itemCount < ctx->sbmp->ARBITRARY_DATA_POINTS)
+				arbitrary_data_temp[itemCount++] = dataPointf;
+			else
+				break;
 		}
 		fclose(dataFile);
 		ctx->sbmp->setArbitraryData(arbitrary_data_temp, itemCount);

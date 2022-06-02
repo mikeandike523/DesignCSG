@@ -4,13 +4,19 @@ TRS1
 T2F_N3F_V3F
 8
 86256.0
-138.853 70.21600000000001 179.518
+69.4265 35.108000000000004 89.759
 TRS2
 (1024, 1024, 3)
-(128, 128, 3)
+(512, 512, 3)
 T2F_N3F_V3F
 8
 134784.0
-315.019104 40.5861 722.1461489999999
-(640, 1280, 3) 0 255
-Scene compiled successfully.
+157.509552 20.29305 361.07307449999996
+Traceback (most recent call last):
+  File "C:\Projects\DesignCSG -- Raytracer\master\compiled.py", line 31, in <module>
+    addSkybox("Assets/Skybox/skybox.png",1)
+  File "C:\Projects\DesignCSG -- Raytracer\master\DesignCSG.py", line 394, in addSkybox
+    addArbitraryData("SKYBOX_DATA",texture)
+  File "C:\Projects\DesignCSG -- Raytracer\master\scenecompiler.py", line 352, in addArbitraryData
+    raise Exception(f"Arbitrary data limit exceed. Maximum is {ARBITRARY_DATA_POINTS} data points = {ARBITRARY_DATA_POINTS*4} bytes.");
+Exception: Arbitrary data limit exceed. Maximum is 4096 data points = 16384 bytes.
