@@ -327,6 +327,7 @@ def loadTrianglesFromOBJ(filepath,scale=1.0):
             tr.UV0A = vec2Tovec3(vA.UV)
             tr.UV0B = vec2Tovec3(vB.UV)
             tr.UV0C = vec2Tovec3(vC.UV)
+         #   tr.N=np.mean([vA.N,vB.N,vC.N])
             if not tr.hasNan():
                 trs.append(tr)
 
@@ -413,9 +414,9 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
         int texId = (int)tr.TextureId;
         if(texId!=-1){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
-            //tr.Color = sampleTexture()
-            tr.Color = uvw;
-            return uvw;
+            float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
+            float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
+            tr.Color = sampleTexture(tr.TextureId,_u,_v);
         }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);
@@ -477,7 +478,7 @@ def commit():
         textureWidths.append(texture.W)
         textureHeights.append(texture.H)
         textureStarts.append(pointer)
-        allTextureData.extend(texture.data/255)
+        allTextureData.extend(list(texture.data/255))
         pointer+=texture.W*texture.H
 
     addArbitraryData("TEX_START",textureStarts)

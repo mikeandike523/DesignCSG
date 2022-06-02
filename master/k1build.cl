@@ -175,8 +175,10 @@ float3 sampleTexture(int textureId, float u, float v){
     int texH = (int)getAD(AD_TEX_H,textureId);
     int texStart = (int)getAD(AD_TEX_START,textureId);
     int x = (int)(u*texW);
-    int y = (int)(v*texH);
-    int texelId = texStart + y*texW + texH;
+    // --- Courtesy of  https://stackoverflow.com/a/8851832/5166365 (for corrected coordinate system / 1.0-v)
+    int y = (int)((1.0-v)*texH); // courtesy of
+    // ---
+    int texelId = texStart + y*texW + x;
     return Vector3f(getAD(AD_TEX_DATA,texelId*3+0),getAD(AD_TEX_DATA,texelId*3+1),getAD(AD_TEX_DATA,texelId*3+2));
 };
 
@@ -511,9 +513,9 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
         int texId = (int)tr.TextureId;
         if(texId!=-1){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
-            //tr.Color = sampleTexture()
-            tr.Color = uvw;
-            return uvw;
+            float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
+            float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
+            tr.Color = sampleTexture(tr.TextureId,_u,_v);
         }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);

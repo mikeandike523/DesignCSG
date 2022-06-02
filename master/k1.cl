@@ -54,8 +54,10 @@ float3 sampleTexture(int textureId, float u, float v){
     int texH = (int)getAD(AD_TEX_H,textureId);
     int texStart = (int)getAD(AD_TEX_START,textureId);
     int x = (int)(u*texW);
-    int y = (int)(v*texH);
-    int texelId = texStart + y*texW + texH;
+    // --- Courtesy of  https://stackoverflow.com/a/8851832/5166365 (for corrected coordinate system / 1.0-v)
+    int y = (int)((1.0-v)*texH); // courtesy of
+    // ---
+    int texelId = texStart + y*texW + x;
     return Vector3f(getAD(AD_TEX_DATA,texelId*3+0),getAD(AD_TEX_DATA,texelId*3+1),getAD(AD_TEX_DATA,texelId*3+2));
 };
 
