@@ -297,14 +297,7 @@ def loadTrianglesFromOBJ(filepath,scale=1.0):
             if v.P[2] < minZ:
                 minZ = v.P[2]
     
-        rescaleX = lambda x: -1+2*(x-minX)/(maxX-minX)
-        rescaleY = lambda y: -1+2*(y-minY)/(maxY-minY)
-        rescaleZ = lambda z: -1+2*(z-minZ)/(maxZ-minZ)
 
-        rescalePoint = lambda v: vec3(rescaleX(v[0]),rescaleY(v[1]),rescaleZ(v[2]))
-
-        for i in range(len(vertices)):
-            vertices[i].P = rescalePoint(vertices[i].P)
 
         d1 = maxX - minX
         d2 = maxY - minY
@@ -317,6 +310,16 @@ def loadTrianglesFromOBJ(filepath,scale=1.0):
         aspect = vec3(1.0,1.0,1.0)
 
         aspect = vec3(d1/minD,d2/minD,d3/minD)
+
+        rescaleX = lambda x: -1+2*(x-minX)/(maxX-minX)
+        rescaleY = lambda y: -1+2*(y-minY)/(maxY-minY)
+        rescaleZ = lambda z: -1+2*(z-minZ)/(maxZ-minZ)
+
+        rescalePoint = lambda v: vec3(aspect[0]*rescaleX(v[0]),aspect[1]*rescaleY(v[1]),aspect[2]*rescaleZ(v[2]))
+
+        for i in range(len(vertices)):
+            vertices[i].P = rescalePoint(vertices[i].P)
+
         numtrs = len(vertices) // 3
         for i in range(numtrs):
             vA = vertices[i*3+0]
@@ -416,7 +419,8 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
             float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
             float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
-            tr.Color = sampleTexture(tr.TextureId,_u,_v);
+           // tr.Color = sampleTexture(tr.TextureId,_u,_v);
+           return sampleTexture(tr.TextureId,_u,_v);
         }
 
 		if(tr.Emmissive==1.0) return termProduct(bounced,tr.Color);

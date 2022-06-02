@@ -8,8 +8,6 @@ trs , aspect= loadTrianglesFromOBJ("Assets/Model/10600_RC_ Car_SG_v2_L3.obj",sca
 
 np.random.seed(1999)
 
-#trs , aspect= loadTrianglesFromSTL("Assets/Mesh/testfile.stl")
-
 for tr in trs:
 	tr.Specular = 0.0
 	tr.Color =vec3(1,1,1)
