@@ -416,7 +416,8 @@ LoadSceneResult BasicDrawPane::loadScene()
 		v_forward = mul_Matrix3f_Vector3f(rMatrix, v_forward);
 	}
 
-
+	memset(acc_pixel_data, 0, sizeof(uint32_t) * 3 * 640 * 480);
+	sampleCount = 0;
 
 	return LoadSceneResult::SUCCESS;
 
