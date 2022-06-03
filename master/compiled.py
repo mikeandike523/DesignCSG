@@ -23,6 +23,6 @@ setMaxBounces(5)
 setBlurCount(1)
 setBlurPixels(0)
 setBias(0.005)
-addSkybox("Assets/Skybox/skybox.jpg",4)
+addSkybox("Assets/Skybox/skybox.jpg",2)
 
 commit()
