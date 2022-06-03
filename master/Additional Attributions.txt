@@ -1,0 +1,5 @@
+Removing files after update to .gitignore: https://stackoverflow.com/a/25436481/5166365
+Use of bfg repo cleaner to remove large files from repo: https://stackoverflow.com/a/17890278/5166365
+bfg repo cleaner: https://rtyley.github.io/bfg-repo-cleaner/
+Car Model: https://free3d.com/3d-model/rc-car-sg-v2--472345.html
+Road Texture: http://downloadtexture.com/assets/images/resources/111/roadmarkings-35.jpg

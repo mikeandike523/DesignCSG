@@ -60,10 +60,13 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 
 		static uint64_t max_floats = 1;
 	
-		long MAX_STORAGE = 128 * 1024 * 1024;
+		long MAX_STORAGE = -1;
 
 		if (std::filesystem::is_regular_file("MAX_STORAGE_HINT.txt")) {
 			MAX_STORAGE = std::stol(Utils::readFile("MAX_STORAGE_HINT.txt"));
+		}
+		else {
+			throw new std::exception("Could not locate file MAX_STORAGE_HINT.txt.");
 		}
 		
 		static int buffer_task_complete = 0;

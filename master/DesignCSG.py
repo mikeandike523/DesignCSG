@@ -97,13 +97,11 @@ class Texture:
         assert(self.data.shape[2]==3)
         ww = int(scaling*self.W)
         hh = int(scaling*self.H)
-        print(self.data.shape)
         # --- cv2.resize() usage Courtesy of https://www.tutorialkart.com/opencv/python/opencv-python-resize-image/
         self.data = cv2.resize(self.data,dsize=(ww,hh))
         self.W = ww
         self.H = hh
         # ---
-        print(self.data.shape)
         self.data = (np.ravel(self.data)*255).astype(int)
 
 textures = []
@@ -141,17 +139,17 @@ class Triangle3f:
         AH = scenecompiler.Transform.to_homogenous(self.A)
         BH = scenecompiler.Transform.to_homogenous(self.B)
         CH = scenecompiler.Transform.to_homogenous(self.C)
-        self.A = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,AH))
-        self.B = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,BH))
-        self.C = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,CH))
-        tr = Triangle3f(self.A,self.B,self.C)
-        tr.Color = self.C
+        A = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,AH))
+        B = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,BH))
+        C = scenecompiler.Transform.from_homogenous(scenecompiler.matmul(transform,CH))
+        tr = Triangle3f(A,B,C)
+        tr.Color = self.Color
         tr.Specular = self.Specular
         tr.Emmissive = self.Emmissive
         tr.TextureId = self.TextureId
-        tr.UV0A = self.UV0A
-        tr.UV0B = self.UV0B
-        tr.UV0C = self.UV0C
+        tr.UV0A = self.UV0A.copy()
+        tr.UV0B = self.UV0B.copy()
+        tr.UV0C = self.UV0C.copy()
         return tr
 
 def addClass(clss):
@@ -289,12 +287,10 @@ def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
     trs = []
 
     for name, material in scene.materials.items():
+
         image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
         texId = addTexture(Texture(image_file,scaling = textureScale))
-        print(material.vertex_format)
-        print(material.vertex_size)
         num_points = len(material.vertices)//material.vertex_size
-        print(len(material.vertices)/material.vertex_size)
         
         maxX = float("-inf")
         minX = float("+inf")
@@ -333,8 +329,6 @@ def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
         d1 = maxX - minX
         d2 = maxY - minY
         d3 = maxZ - minZ
-
-        print(d1,d2,d3)
 
         minD = np.min([d1,d2,d3])
 
@@ -381,20 +375,24 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
 
 import imageio
 def addSkybox(path,downscale = 1):
-    img = imageio.imread(path)
-    if downscale > 1:
-        img=np.resize(img,[int(img.shape[0]/downscale),int(img.shape[1]/downscale),img.shape[2]])
-    addArbitraryData("SKYBOX_W",[img.shape[0]/downscale])
-    addArbitraryData("SKYBOX_H",[img.shape[1]/downscale])
+    img = Image.open(path)
+    img =np.asarray(img)
+    img = img.astype(float)/255
+    W = img.shape[1]
+    H = img.shape[0]
+    WW = int(W/downscale)
+    HH = int(H/downscale)
+    import cv2
+    img = cv2.resize(img,dsize=(WW,HH))
+    img = (img*255).astype(int)
+    addArbitraryData("SKYBOX_W",[WW])
+    addArbitraryData("SKYBOX_H",[HH])
     texture = []
-    for row in range(img.shape[1]):
-        for col in range(img.shape[0]):
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
             for channel in range(img.shape[2]):
-                texture.append(float(img[col,row,channel]))
+                texture.append(float(img[row,col,channel]))
     addArbitraryData("SKYBOX_DATA",texture)
-    print(img.shape,np.amin(img),np.amax(img))
-
-
 
 setShaders(""" 
 
@@ -406,8 +404,9 @@ float3 skybox(float3 ray){
     float angleXZ = (atan2(ray.z,ray.x)+2.0*M_PI)/(2.0*M_PI);
     float r = length((float2)(ray.x,ray.z));
     float angleRY = (atan2(ray.y,r)+M_PI/2.0)/(M_PI);
-    int pixelX = (int)(skyW*(1.0-angleRY)) % skyW;
-    int pixelY = (int)(skyH*angleXZ) % skyH;
+    int pixelX = (int)(skyW*angleXZ) % skyW;
+    int pixelY = (int)(skyH*(1.0-angleRY)) % skyH;
+    if(pixelX < 0 || pixelX >= skyW || pixelY < 0 || pixelY >= skyH) return f2f3(0.0);
     int tid = pixelY*skyW + pixelX;
     float R =getAD(AD_SKYBOX_DATA,tid*3+0)/255.0;
     float G =getAD(AD_SKYBOX_DATA,tid*3+1)/255.0;

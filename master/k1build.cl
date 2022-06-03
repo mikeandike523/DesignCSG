@@ -23,14 +23,14 @@ __global float3 camera_g;
 #define AD_SKYBOX_W 0
 #define AD_SKYBOX_H 1
 #define AD_SKYBOX_DATA 2
-#define AD_TEX_START 2359298
-#define AD_TEX_DATA 2359300
-#define AD_TEX_W 3932164
-#define AD_TEX_H 3932166
-#define AD_NUM_TRIANGLES 3932168
-#define AD_TRIANGLE_DATA 3932169
-#define AD_RANDOM_TABLE 4708473
-#define AD_SHUFFLE_TABLE 4724857
+#define AD_TEX_START 1572866
+#define AD_TEX_DATA 1572868
+#define AD_TEX_W 3203050
+#define AD_TEX_H 3203052
+#define AD_NUM_TRIANGLES 3203054
+#define AD_TRIANGLE_DATA 3203055
+#define AD_RANDOM_TABLE 3398103
+#define AD_SHUFFLE_TABLE 3414487
 
 
 
@@ -176,8 +176,9 @@ float3 sampleTexture(int textureId, float u, float v){
     int texStart = (int)getAD(AD_TEX_START,textureId);
     int x = (int)(u*texW);
     // --- Courtesy of  https://stackoverflow.com/a/8851832/5166365 (for corrected coordinate system / 1.0-v)
-    int y = (int)((1.0-v)*texH); // courtesy of
+    int y = (int)((1.0-v)*texH); 
     // ---
+    if( x < 0 || x>=texW || y < 0 || y>=texH) return f2f3(0.0);
     int texelId = texStart + y*texW + x;
     return Vector3f(getAD(AD_TEX_DATA,texelId*3+0),getAD(AD_TEX_DATA,texelId*3+1),getAD(AD_TEX_DATA,texelId*3+2));
 };
@@ -472,8 +473,9 @@ float3 skybox(float3 ray){
     float angleXZ = (atan2(ray.z,ray.x)+2.0*M_PI)/(2.0*M_PI);
     float r = length((float2)(ray.x,ray.z));
     float angleRY = (atan2(ray.y,r)+M_PI/2.0)/(M_PI);
-    int pixelX = (int)(skyW*(1.0-angleRY)) % skyW;
-    int pixelY = (int)(skyH*angleXZ) % skyH;
+    int pixelX = (int)(skyW*angleXZ) % skyW;
+    int pixelY = (int)(skyH*(1.0-angleRY)) % skyH;
+    if(pixelX < 0 || pixelX >= skyW || pixelY < 0 || pixelY >= skyH) return f2f3(0.0);
     int tid = pixelY*skyW + pixelX;
     float R =getAD(AD_SKYBOX_DATA,tid*3+0)/255.0;
     float G =getAD(AD_SKYBOX_DATA,tid*3+1)/255.0;
