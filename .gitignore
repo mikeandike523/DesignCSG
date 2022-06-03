@@ -18,3 +18,4 @@ master/Assets/Mesh/*.STL
 master/*.hex
 master/Assets/Skybox/*
 master/Assets/Mesh/!.skybox
+master/arbitrary_data.hex
