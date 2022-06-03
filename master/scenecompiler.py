@@ -272,6 +272,8 @@ class _SceneCompiler:
 
     def commit(self):
 
+        print("Loading random number table to arbitrary_data.hex")
+
         randomTexture = []
         for _ in range(self.RANDOM_TABLE_SIZE):
             randomTexture.append(np.random.uniform())
@@ -279,6 +281,8 @@ class _SceneCompiler:
         shuffleTable = list(range(len(randomTexture)))
         np.random.shuffle(shuffleTable)
         self.addArbitraryData("SHUFFLE_TABLE",shuffleTable)
+
+        print("Assembling k1build.cl...")
 
         ad_definitions = ""
         for chunk in self.ad:
@@ -327,6 +331,9 @@ __global float3 camera_g;
 
         Utils.fwrite("k1build.cl",header_cl+"\n"+Utils.fread("k1.cl")+"\n"+self.shaders)
 
+        print("Flushing arbitrary data to file...")
+
+        '''
         dataBuffer = [np.array(0.0,dtype="<f4") for I in range(ARBITRARY_DATA_POINTS)]
 
         for chunk in self.ad:
@@ -342,6 +349,15 @@ __global float3 camera_g;
         with open("arbitrary_data.hex","wb") as fl:
             for item in dataBuffer:
                 fl.write(struct.pack("<f",item))
+        '''
+
+        with open("data_buffer_size.txt","w") as fl:
+            fl.write("{}".format(int(sum([len(chunk.data) for chunk in self.ad]))))
+
+        with open("arbitrary_data.hex","wb") as fl:
+            for chunk in self.ad:
+                for point in chunk.data:
+                    fl.write(struct.pack('<f',point))
 
         print("Scene compiled successfully.")
 

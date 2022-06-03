@@ -10,7 +10,7 @@ trs1 , aspect1= loadTrianglesFromOBJ("Assets/Model/Car_Decimated_0.25/Car.obj",s
 for tr in trs1:
 	addTriangle(tr)
 
-trs2 , aspect2= loadTrianglesFromOBJ("Assets/Model/RoadAsPlane/RoadAsPlane.obj",scale=0.5,textureScale = 0.25)
+trs2 , aspect2= loadTrianglesFromOBJ("Assets/Model/RoadAsPlane/RoadAsPlane.obj",scale=0.5,textureScale = 0.5)
 for I in range(-1,1+1,1):
 	for tr in trs2:
 		addTriangle(tr.transformed(Transform.eulerX(np.pi/2)).transformed(Transform.translation(vec3(0.0,-aspect1[1]-aspect2[2],0.0))).transformed(Transform.eulerY(np.pi/2)).transformed(Transform.translation(vec3(0.0,0.0,I*2.0*aspect2[1]))))
@@ -18,7 +18,7 @@ for I in range(-1,1+1,1):
 setSamples(256);
 setViewportSamples(1);
 setRandomTableSize(16384)
-setColorPow(0.25)
+setColorPow(1.0)
 setMaxBounces(5)
 setBlurCount(1)
 setBlurPixels(0)

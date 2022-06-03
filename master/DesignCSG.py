@@ -257,9 +257,12 @@ class Vertex:
         return Vertex(self.UV,self.N,s*self.P)
 
 def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
+
     import pywavefront
     import sys
     import os
+
+    print("Loading model \"{}\"...".format(os.path.basename(filepath)))
 
     '''
     # --- Courtesy of https://www.pluralsight.com/guides/importing-image-data-into-numpy-arrays
@@ -375,6 +378,9 @@ def getCircleTriangles(center,radius,xdir,ydir,zdir,segments=32):
 
 import imageio
 def addSkybox(path,downscale = 1):
+
+    print("Adding skybox...")
+
     img = Image.open(path)
     img =np.asarray(img)
     img = img.astype(float)/255
@@ -500,6 +506,8 @@ Triangle3f_t vertex(Triangle3f_t tr, int it) {return tr;}
 
 def commit():
 
+    print("Loading textures to arbitrary_data.hex...")
+
     #load texture data here
     allTextureData = []
     textureStarts = []
@@ -518,6 +526,8 @@ def commit():
     addArbitraryData("TEX_W",textureWidths)
     addArbitraryData("TEX_H",textureHeights)
 
+    print("Loading triangles to arbitrary_data.hex...")
+
     addArbitraryData("NUM_TRIANGLES",[len(triangles)])
     triangleData=[]
 
@@ -533,4 +543,5 @@ def commit():
     addArbitraryData("TRIANGLE_DATA",triangleData)
 
     compiler.shaders=shaders_g
+    
     compiler.commit()
