@@ -287,6 +287,16 @@ void MyFrame::OnNew(wxCommandEvent& event) {
 
 void IdleRoutine(MyFrame * ctx) {
 
+	if (ctx->sbmp->is_init) {
+		char message[512];
+		snprintf(message, 512, "Max Bytes %d; Max Floats %d\n", ctx->sbmp->ARBITRARY_DATA_POINTS * 4, ctx->sbmp->ARBITRARY_DATA_POINTS);
+		static int loggedOnce = 0;
+		if (!loggedOnce) {
+			log(ctx->debugConsole, message, Mode::A);
+			loggedOnce = 1;
+		}
+	}
+
 	std::lock_guard<std::mutex> guard(logStringMutex);
 
 	if (std::string(ctx->debugConsole->GetValue().c_str()) != logString) {

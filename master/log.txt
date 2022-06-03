@@ -19,4 +19,4 @@ Traceback (most recent call last):
     addArbitraryData("SKYBOX_DATA",texture)
   File "C:\Projects\DesignCSG -- Raytracer\master\scenecompiler.py", line 352, in addArbitraryData
     raise Exception(f"Arbitrary data limit exceed. Maximum is {ARBITRARY_DATA_POINTS} data points = {ARBITRARY_DATA_POINTS*4} bytes.");
-Exception: Arbitrary data limit exceed. Maximum is 4096 data points = 16384 bytes.
+Exception: Arbitrary data limit exceed. Maximum is 8192 data points = 32768 bytes.

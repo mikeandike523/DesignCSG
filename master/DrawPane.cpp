@@ -74,7 +74,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 			int* testing_max_floats_p = &testing_max_floats;
 			while (*testing_max_floats_p) {
 				(* max_floats_p) *= 2;
-				if ((*max_floats_p) >  MAX_STORAGE) (*testing_max_floats_p) = 0; 
+				if ((*max_floats_p) >  MAX_STORAGE/4) (*testing_max_floats_p) = 0; 
 				DebugPrint("Attempting to create float buffer with %d elements... ", *max_floats_p);
 				float* testArray = (float*)calloc((*max_floats_p), sizeof(float));
 				cl_int max_floats_err = CL_SUCCESS;
@@ -95,7 +95,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		};
 
 
-
+		/*
 		if (!buffer_task_running&&!buffer_task_complete) {
 			std::thread t(task,&max_floats,&buffer_task_complete,&buffer_task_running,&context);
 			t.detach();
@@ -103,13 +103,14 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		}
 		if (!buffer_task_complete) {
 			return;
-		}
-	
+		}*/
+
+		task(&max_floats, &buffer_task_complete, &buffer_task_running, &context);
 
 		max_floats /= 2; //since last clCreateBuffer was not successful
 
-		if (max_floats > MAX_STORAGE) {
-			max_floats = MAX_STORAGE;
+		if (max_floats > MAX_STORAGE/4) {
+			max_floats = MAX_STORAGE/4;
 			DebugPrint("Capped buffer.\n");
 		}
 
@@ -117,7 +118,7 @@ void BasicDrawPane::idled(wxIdleEvent& event)
 		DebugPrint("Buffer max floats: %d\n", max_floats);
 	
 		FILE* deviceInfoFile = fopen("deviceInfo.txt", "w");
-		fprintf(deviceInfoFile, "%d", max_floats);
+		fprintf(deviceInfoFile, "%d", max_floats*4);
 		fclose(deviceInfoFile);
 
 
