@@ -289,31 +289,37 @@ def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
 
     trs = []
 
+    maxX = float("-inf")
+    minX = float("+inf")
+    maxY = float("-inf")
+    minY = float("+inf")
+    maxZ = float("-inf")
+    minZ = float("+inf")
+    
+    vertices = []
+
     for name, material in scene.materials.items():
 
         image_file = os.path.join(os.path.dirname(filepath),material.texture.file_name)
         texId = addTexture(Texture(image_file,scaling = textureScale))
         num_points = len(material.vertices)//material.vertex_size
         
-        maxX = float("-inf")
-        minX = float("+inf")
-        maxY = float("-inf")
-        minY = float("+inf")
-        maxZ = float("-inf")
-        minZ = float("+inf")
-        
-        vertices = []
+
 
         for i in range(num_points):
+
             vdata = material.vertices[(i*int(material.vertex_size)):((i+1)*int(material.vertex_size))]
 
             #Do not swap y and z
-            #v = Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[3],vdata[4]),vec3(vdata[5],vdata[6],vdata[7]))
+            v = Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[3],vdata[4]),vec3(vdata[5],vdata[6],vdata[7]))
             
             #Swap y and z
-            v=Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[4],vdata[3]),vec3(vdata[5],vdata[7],vdata[6])).scaled(scale)
+            #v=Vertex(vec2(vdata[0],vdata[1]),vec3(vdata[2],vdata[4],vdata[3]),vec3(vdata[5],vdata[7],vdata[6])).scaled(scale)
+
+            v.texId = texId;
 
             vertices.append(v)
+
             if v.P[0] > maxX:
                 maxX = v.P[0]
             if v.P[0] < minX:
@@ -329,37 +335,38 @@ def loadTrianglesFromOBJ(filepath,scale=1.0,textureScale = 1.0):
     
 
 
-        d1 = maxX - minX
-        d2 = maxY - minY
-        d3 = maxZ - minZ
 
-        minD = np.min([d1,d2,d3])
+    d1 = maxX - minX
+    d2 = maxY - minY
+    d3 = maxZ - minZ
 
-        aspect = vec3(1.0,1.0,1.0)
+    minD = np.min([d1,d2,d3])
 
-        aspect = vec3(d1/minD,d2/minD,d3/minD)
+    aspect = vec3(1.0,1.0,1.0)
 
-        rescaleX = lambda x: -1+2*(x-minX)/(maxX-minX)
-        rescaleY = lambda y: -1+2*(y-minY)/(maxY-minY)
-        rescaleZ = lambda z: -1+2*(z-minZ)/(maxZ-minZ)
+    aspect = vec3(d1/minD,d2/minD,d3/minD)
 
-        rescalePoint = lambda v: vec3(aspect[0]*rescaleX(v[0]),aspect[1]*rescaleY(v[1]),aspect[2]*rescaleZ(v[2]))
+    rescaleX = lambda x: -1+2*(x-minX)/(maxX-minX)
+    rescaleY = lambda y: -1+2*(y-minY)/(maxY-minY)
+    rescaleZ = lambda z: -1+2*(z-minZ)/(maxZ-minZ)
 
-        for i in range(len(vertices)):
-            vertices[i].P = rescalePoint(vertices[i].P)
+    rescalePoint = lambda v: vec3(aspect[0]*rescaleX(v[0]),aspect[1]*rescaleY(v[1]),aspect[2]*rescaleZ(v[2]))
 
-        numtrs = len(vertices) // 3
-        for i in range(numtrs):
-            vA = vertices[i*3+0]
-            vB = vertices[i*3+1]
-            vC = vertices[i*3+2]
-            tr=Triangle3f(vA.P,vB.P,vC.P)
-            tr.TextureId = float(texId)
-            tr.UV0A = vec2Tovec3(vA.UV)
-            tr.UV0B = vec2Tovec3(vB.UV)
-            tr.UV0C = vec2Tovec3(vC.UV)
-            if not tr.hasNan():
-                trs.append(tr)
+    for i in range(len(vertices)):
+        vertices[i].P = rescalePoint(vertices[i].P)
+
+    numtrs = len(vertices) // 3
+    for i in range(numtrs):
+        vA = vertices[i*3+0]
+        vB = vertices[i*3+1]
+        vC = vertices[i*3+2]
+        tr=Triangle3f(vA.P,vB.P,vC.P)
+        tr.TextureId = vA.texId
+        tr.UV0A = vec2Tovec3(vA.UV)
+        tr.UV0B = vec2Tovec3(vB.UV)
+        tr.UV0C = vec2Tovec3(vC.UV)
+        if not tr.hasNan():
+            trs.append(tr)
 
     return trs,aspect
 
@@ -454,6 +461,7 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
             float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
             float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
+            return Vector3f(_u,_v,0.0);
             tr.Color = sampleTexture(tr.TextureId,_u,_v);
         }
 
@@ -543,5 +551,5 @@ def commit():
     addArbitraryData("TRIANGLE_DATA",triangleData)
 
     compiler.shaders=shaders_g
-    
+
     compiler.commit()

@@ -2,7 +2,7 @@
 
 #define RANDOM_TABLE_SIZE 16384
 #define SAMPLES 256
-#define COLOR_POW 1.0
+#define COLOR_POW 0.1
 #define MAX_BOUNCES 5
 #define BIAS 0.005
 #define BLUR_COUNT 1
@@ -24,13 +24,13 @@ __global float3 camera_g;
 #define AD_SKYBOX_H 1
 #define AD_SKYBOX_DATA 2
 #define AD_TEX_START 6291458
-#define AD_TEX_DATA 6291460
-#define AD_TEX_W 10452892
-#define AD_TEX_H 10452894
-#define AD_NUM_TRIANGLES 10452896
-#define AD_TRIANGLE_DATA 10452897
-#define AD_RANDOM_TABLE 10647945
-#define AD_SHUFFLE_TABLE 10664329
+#define AD_TEX_DATA 6291461
+#define AD_TEX_W 21743645
+#define AD_TEX_H 21743648
+#define AD_NUM_TRIANGLES 21743651
+#define AD_TRIANGLE_DATA 21743652
+#define AD_RANDOM_TABLE 22525788
+#define AD_SHUFFLE_TABLE 22542172
 
 
 
@@ -517,6 +517,7 @@ float3 fragment(float3 gv, int it, int * rand_counter_p, int * bounces_p){
             float3 uvw = Barycentric(hitPoint,toGlobal(tr.A),toGlobal(tr.B),toGlobal(tr.C));
             float _u = uvw.x*tr.UV0A.x+uvw.y*tr.UV0B.x+uvw.z*tr.UV0C.x;
             float _v = uvw.x*tr.UV0A.y+uvw.y*tr.UV0B.y+uvw.z*tr.UV0C.y;
+            return Vector3f(_u,_v,0.0);
             tr.Color = sampleTexture(tr.TextureId,_u,_v);
         }
 

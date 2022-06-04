@@ -1,0 +1,37 @@
+# Blender MTL File: 'FullScene.blend'
+# Material Count: 3
+
+newmtl _10600_RC__Car_SG_v2_L310600_RC_Car
+Ns 10.000005
+Ka 1.000000 1.000000 1.000000
+Kd 0.588000 0.588000 0.588000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\micha\\Downloads\\RC_Car\\10600_RC_Car_SG_v1_diffuse.jpg
+
+newmtl photos_2015_09_18_fst_719gs3dx5ws
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\micha\\Downloads\\photos_2015_09_18_fst_719gs3dx5ws.jpg
+map_d C:\\Users\\micha\\Downloads\\photos_2015_09_18_fst_719gs3dx5ws.jpg
+
+newmtl roadmarkings-35
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\micha\\Downloads\\roadmarkings-35.jpg
+map_d C:\\Users\\micha\\Downloads\\roadmarkings-35.jpg
